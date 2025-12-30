@@ -43,7 +43,7 @@ private val retrofit: Retrofit = Retrofit.Builder()
 interface FindPetsApiService {
     @GET("animals")
     suspend fun getAvailablePets(
-        @Query("limit") limit: Int = 20,
+        @Query("limit") limit: Int = 30,
 //        @Query("page") pageNumber: Int = 1
     ): Pets
 

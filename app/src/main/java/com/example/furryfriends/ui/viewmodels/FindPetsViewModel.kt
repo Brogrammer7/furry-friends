@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.furryfriends.model.Pets
 import com.example.furryfriends.network.PetsApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,39 +23,52 @@ class FindPetsViewModel : ViewModel() {
     private val _petsUiState = MutableStateFlow(PetsUiState())
     val petsUiState: StateFlow<PetsUiState> = _petsUiState.asStateFlow()
 
-//    init {
-//        getPetData()
-//    }
+    private val maxRetries = 7
+    private val initialDelayMs = 500L
 
     fun getPetData() {
         viewModelScope.launch {
-            // show loading
             _petsUiState.value = _petsUiState.value.copy(isLoading = true, error = null)
 
-            try {
-                val petsApiResult: Pets = PetsApi.retrofitService.getAvailablePets()
-                Log.d("FindPetsViewModel", "API data is = $petsApiResult")
+            var attempt = 0
+            var lastError: Throwable? = null
 
-                // update state with result
-                _petsUiState.value = _petsUiState.value.copy(
-                    items = petsApiResult,
-                    isLoading = false,
-                    error = null
-                )
-            } catch (e: IOException) {
-                Log.e("FindPetsViewModel", "IO error fetching pets", e)
-                _petsUiState.value = _petsUiState.value.copy(
-                    isLoading = false,
-                    error = "Network error: ${e.message ?: "unknown"}"
-                )
-            } catch (e: Exception) {
-                Log.e("FindPetsViewModel", "Unexpected error fetching pets", e)
-                _petsUiState.value = _petsUiState.value.copy(
-                    isLoading = false,
-                    error = "Unexpected error: ${e.message ?: "unknown"}"
-                )
+            while (attempt <= maxRetries) {
+                try {
+                    val petsApiResult: Pets = PetsApi.retrofitService.getAvailablePets()
+
+                    _petsUiState.value = _petsUiState.value.copy(
+                        items = petsApiResult,
+                        isLoading = false,
+                        error = null
+                    )
+                    Log.i("check1", "*** Success after $attempt attempts ***")
+                    return@launch
+                } catch (e: IOException) {
+                    // network error -> retry
+                    attempt++
+                    lastError = e
+                    Log.w("check1", "Network attempt $attempt failed", e)
+                    if (attempt > maxRetries) break
+                    val backoff = initialDelayMs * (1 shl (attempt - 1))
+                    delay(backoff)
+                } catch (e: Exception) {
+                    // non-network error -> stop retrying
+                    Log.e("FindPetsViewModel", "Unexpected error fetching pets", e)
+                    _petsUiState.value = _petsUiState.value.copy(
+                        isLoading = false,
+                        error = "Unexpected error: ${e.message ?: "unknown"}"
+                    )
+                    return@launch
+                }
             }
+
+            // If we get here, retries exhausted or lastError set
+            Log.e("check1", "Failed to fetch pets after $attempt attempts", lastError)
+            _petsUiState.value = _petsUiState.value.copy(
+                isLoading = false,
+                error = "Network error after $attempt attempts: ${lastError?.message ?: "unknown"}"
+            )
         }
     }
-
 }
