@@ -23,10 +23,18 @@ class FindPetsViewModel : ViewModel() {
     private val _petsUiState = MutableStateFlow(PetsUiState())
     val petsUiState: StateFlow<PetsUiState> = _petsUiState.asStateFlow()
 
-    private val maxRetries = 7
-    private val initialDelayMs = 500L
+    init {
+        _petsUiState.value = _petsUiState.value.copy(
+            items = null,
+            isLoading = false,
+            error = null
+        )
+    }
 
     fun getPetData() {
+        val maxRetries = 5
+        val initialDelayMs = 500L
+
         viewModelScope.launch {
             _petsUiState.value = _petsUiState.value.copy(isLoading = true, error = null)
 
@@ -38,11 +46,11 @@ class FindPetsViewModel : ViewModel() {
                     val petsApiResult: Pets = PetsApi.retrofitService.getAvailablePets()
 
                     _petsUiState.value = _petsUiState.value.copy(
-                        items = petsApiResult,
+                        items = filterAvailablePets(petsApiResult),
                         isLoading = false,
                         error = null
                     )
-                    Log.i("check1", "*** Success after $attempt attempts ***")
+                    if (attempt == 0) Log.i("check1", "*** Success connecting on first try! ***") else Log.i("check1", "*** Success after $attempt retry attempt(s) ***")
                     return@launch
                 } catch (e: IOException) {
                     // network error -> retry
@@ -71,4 +79,21 @@ class FindPetsViewModel : ViewModel() {
             )
         }
     }
+
+    fun filterAvailablePets(petData: Pets): Pets {
+        val filteredData = petData.data.filter { item ->
+            item?.attributes?.name?.contains("adopted", ignoreCase = true) == false
+        }
+
+        return petData.copy(data = filteredData)
+    }
+
+    fun clearPetData() {
+        _petsUiState.value = _petsUiState.value.copy(
+            items = null,
+            isLoading = false,
+            error = null
+        )
+    }
+
 }
