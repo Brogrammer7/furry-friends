@@ -27,15 +27,16 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.viewmodels.FindPetsViewModel
 
 @Composable
 fun FindPetsScreen(
+    viewModel: FindPetsViewModel = viewModel(),
     modifier: Modifier,
 ) {
-    val viewModel = FindPetsViewModel()
     val uiState by viewModel.petsUiState.collectAsState()
 
     Column(modifier = modifier
