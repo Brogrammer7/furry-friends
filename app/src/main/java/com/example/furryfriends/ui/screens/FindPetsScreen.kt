@@ -20,7 +20,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,17 +43,25 @@ fun FindPetsScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Adopt one of these fur babies!"
-        )
+        FurryFriendsAppBar(titleText = stringResource(R.string.find_pets_screen_title))
 
-        Button(
-            onClick = { viewModel.getPetData() },
-            modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-            Text(
-                "Find pets"
-            )
+        Row {
+            Button(
+                onClick = { viewModel.getPetData() },
+                modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)
+            ) {
+                Text(
+                    "Find pets"
+                )
+            }
+            Button(
+                onClick = { viewModel.clearPetData() },
+                modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)
+            ) {
+                Text(
+                    "Reset Results"
+                )
+            }
         }
 
         LazyColumn(
@@ -64,23 +74,25 @@ fun FindPetsScreen(
                 key = { it?.attributes?.name ?: animalsList.indexOf(it) }
             ) { animals ->
                 animals?.let {
-                    if (animals.attributes.name.contains("adopted", true)) return@let
                     Row (
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                            .padding(top = 8.dp, bottom = 8.dp, end = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Column (
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             AsyncImage(
                                 model = animals.attributes.pictureThumbnailUrl ?: R.drawable.no_image_icon,
                                 contentDescription = "",
-                                modifier = Modifier
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.padding(top = 8.dp)
                                     .size(120.dp)
                             )
                             Text(
@@ -126,8 +138,9 @@ fun ShareLinkButton(
     petBreed: String?,
     petAge: String?,
     subject: String? = "Give this fur baby a home:", // optional email subject
-    chooserTitle: String = "Share via"
-) {
+    chooserTitle: String = "Share via",
+    modifier: Modifier = Modifier,
+    ) {
     val context = LocalContext.current
 
     Button(onClick = {
