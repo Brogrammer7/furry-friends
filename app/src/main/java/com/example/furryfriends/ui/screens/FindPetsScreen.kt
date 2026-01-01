@@ -35,7 +35,7 @@ import com.example.furryfriends.ui.viewmodels.FindPetsViewModel
 @Composable
 fun FindPetsScreen(
     viewModel: FindPetsViewModel = viewModel(),
-    modifier: Modifier,
+    modifier: Modifier
 ) {
     val uiState by viewModel.petsUiState.collectAsState()
 
@@ -64,6 +64,8 @@ fun FindPetsScreen(
                 )
             }
         }
+        
+        HorizontalDivider()
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
