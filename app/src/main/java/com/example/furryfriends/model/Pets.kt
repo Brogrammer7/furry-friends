@@ -5,10 +5,10 @@ data class Pets(
 )
 
 data class Animals(
-    val attributes: Attributes,
+    val attributes: GetAttributes,
 )
 
-data class Attributes(
+data class GetAttributes(
     val ageString: String,
     val breedPrimary: String,
     val name: String,

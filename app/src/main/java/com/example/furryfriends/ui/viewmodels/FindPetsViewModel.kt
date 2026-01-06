@@ -3,8 +3,13 @@ package com.example.furryfriends.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.furryfriends.model.DataNode
+import com.example.furryfriends.model.Filter
+import com.example.furryfriends.model.FilterRadius
 import com.example.furryfriends.model.Pets
+import com.example.furryfriends.model.SearchRequest
 import com.example.furryfriends.network.PetsApi
+import com.example.furryfriends.network.Species
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +34,8 @@ class FindPetsViewModel : ViewModel() {
             isLoading = false,
             error = null
         )
+
+        searchPetData(Species.CATS.type,92692)
     }
 
     fun getPetData() {
@@ -94,6 +101,32 @@ class FindPetsViewModel : ViewModel() {
             isLoading = false,
             error = null
         )
+    }
+
+    fun searchPetData(petType: String, searchZip: Int) {
+        viewModelScope.launch {
+            val requestBody = SearchRequest(
+                data = DataNode(
+                    //TODO server doesn't seem to acknowledge filters despite what documentation says
+//                    filters = listOf(
+//                        Filter("statuses.name", "equals", "Available"),
+//                        Filter("species.singular", "equals", "Cat"),
+//                        Filter("species.singular", "equals", "Dog"),
+//                    ),
+//                    filterProcessing = "1 AND (2 OR 3)",
+                    filterRadius = FilterRadius(
+                        miles = 10,
+                        postalCode = searchZip
+                    )
+                )
+            )
+
+            val searchApiResult = PetsApi.retrofitService.searchPets(
+                body = requestBody,
+                species = petType
+            )
+            Log.i("check2", "POST API data is: $searchApiResult")
+        }
     }
 
 }

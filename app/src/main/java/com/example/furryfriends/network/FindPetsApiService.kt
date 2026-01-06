@@ -2,17 +2,27 @@ package com.example.furryfriends.network
 
 import com.example.furryfriends.BuildConfig
 import com.example.furryfriends.model.Pets
+import com.example.furryfriends.model.SearchRequest
+import com.example.furryfriends.model.SearchResponse
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 private const val BASE_URL = "https://api.rescuegroups.org/v5/public/"
 private const val rescueGroupsApiKey = BuildConfig.API_KEY
+
+enum class Species(val type: String) {
+    CATS("cats"),
+    DOGS("dogs")
+}
 
 private class ApiKeyInterceptor: Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -41,20 +51,25 @@ private val retrofit: Retrofit = Retrofit.Builder()
     .build()
 
 interface FindPetsApiService {
-    @GET("animals")
+    //Simple search of available pets with no filtration
+    @GET("animals/search")
     suspend fun getAvailablePets(
         @Query("limit") limit: Int = 30,
-//        @Query("page") pageNumber: Int = 1
+        @Query("page") pageNumber: Int = 1,
+        @Query("type") type: String = "Cat",
+        @Query("location") zip: String = "92692",
+        @Query("radius") radiusMiles: Int = 25,
     ): Pets
 
-
-//    @POST("public/animals/search/available/haspic")
-//    suspend fun getAnimals(
-//        @Query("fields[cats]") fields: Int = 25,
-//        @Query("postalCode") postalCode: String = "90028",
-//        @Query("limit") limit: Int = 1
-//    ):
-
+    //Advanced search by animal type and location
+    @POST("animals/search/available/{species}/haspic/")
+    suspend fun searchPets(
+        @Query("sort") sort: String = "random",
+        @Query("limit") limit: Int = 2,
+        @Query("include") include: String = "pictures,orgs",
+        @Path("species") species: String,
+        @Body body: SearchRequest
+    ): SearchResponse
 
 }
 
