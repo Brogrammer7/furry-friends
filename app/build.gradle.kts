@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.runtime.livedata)
     implementation (libs.conscrypt.android)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
