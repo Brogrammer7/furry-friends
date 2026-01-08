@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +44,10 @@ fun SearchPetsScreen(
     viewModel: SearchPetsViewModel = viewModel()
 ) {
     val uiState by viewModel.searchUiState.collectAsState()
+    val zipIntState by viewModel.zipState.collectAsState()
+    val zipErrorState by viewModel.zipError.collectAsState()
+
+    val zipText = if (zipIntState == -1) "" else zipIntState.toString()
 
     Column(modifier = modifier
         .fillMaxSize(),
@@ -49,9 +56,21 @@ fun SearchPetsScreen(
     ) {
         FurryFriendsAppBar(titleText = stringResource(R.string.find_pets_screen_title))
 
+        OutlinedTextField(
+            value = zipText,
+            onValueChange = { viewModel.updateZipInput(it) },
+            label = { Text("Enter your ZIP Code") },
+            isError = zipErrorState,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+
         Row {
             Button(
-                onClick = { viewModel.searchPetData(Species.CATS.type, 92692) },
+                onClick = { viewModel.searchPetData(Species.CATS.type) },
                 modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)
             ) {
                 Text(
@@ -101,8 +120,8 @@ fun SearchPetsScreen(
                                 modifier = Modifier.padding(top = 8.dp)
                                     .size(120.dp)
                             )
-                            animals.attributes.name?.let { it1 ->
-                                val proper = it1
+                            animals.attributes.name?.let { value ->
+                                val proper = value
                                     .lowercase(Locale.getDefault())
                                     .split("\\s+".toRegex())
                                     .joinToString(" ") { word ->
@@ -117,17 +136,16 @@ fun SearchPetsScreen(
                                     modifier = Modifier.padding(top = 8.dp)
                                 )
                             }
-                            animals.attributes.breedPrimary?.let { it1 ->
+                            animals.attributes.breedPrimary?.let { value ->
                                 Text(
-                                    text = it1,
+                                    text = value,
                                     style = TextStyle(fontSize = 12.sp),
                                     modifier = Modifier.padding(vertical = 4.dp)
                                 )
                             }
-                            //Ignore warning below because it's possible for ageString to be null
-                            animals.attributes.ageString?.let { it1 ->
+                            animals.attributes.ageString?.let { value ->
                                 Text(
-                                    text = it1,
+                                    text = value,
                                     style = TextStyle(fontSize = 12.sp),
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )

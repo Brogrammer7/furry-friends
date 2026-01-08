@@ -28,11 +28,35 @@ class SearchPetsViewModel: ViewModel() {
     private val _searchUiState = MutableStateFlow(SearchUiState())
     val searchUiState: StateFlow<SearchUiState> = _searchUiState.asStateFlow()
 
+    private val _zipState = MutableStateFlow(-1)
+    val zipState: StateFlow<Int> = _zipState.asStateFlow()
+
+    private val _zipError = MutableStateFlow(false)
+    val zipError: StateFlow<Boolean> = _zipError.asStateFlow()
+
+    fun updateZipInput(raw: String) {
+        // filter digits and limit to 5 chars
+        val filtered = raw.filter { it.isDigit() }.take(5)
+        if (filtered.isEmpty()) {
+            _zipState.value = -1
+            _zipError.value = false
+        } else {
+            val asInt = filtered.toInt()
+            _zipState.value = asInt
+            _zipError.value = filtered.length != 5
+        }
+    }
+
+    fun clearZip() {
+        _zipState.value = -1
+        _zipError.value = false
+    }
+
     init {
         clearSearchData()
     }
 
-    fun searchPetData(petType: String, searchZip: Int) {
+    fun searchPetData(petType: String) {
         viewModelScope.launch(Dispatchers.IO) {
             _searchUiState.update {
                 it.copy(
@@ -50,7 +74,7 @@ class SearchPetsViewModel: ViewModel() {
 //                    filterProcessing = "1 AND (2 OR 3)",
                         filterRadius = FilterRadius(
                             miles = 10,
-                            postalCode = searchZip
+                            postalCode = zipState.value
                         )
                     )
                 )
