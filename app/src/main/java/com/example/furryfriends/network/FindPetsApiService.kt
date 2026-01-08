@@ -21,7 +21,9 @@ private const val rescueGroupsApiKey = BuildConfig.API_KEY
 
 enum class Species(val type: String) {
     CATS("cats"),
-    DOGS("dogs")
+    DOGS("dogs"),
+    RABBITS("rabbits"),
+    TURTLES("turtles")
 }
 
 private class ApiKeyInterceptor: Interceptor {
