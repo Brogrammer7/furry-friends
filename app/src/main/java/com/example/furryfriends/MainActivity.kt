@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.furryfriends.ui.screens.FindPetsScreen
+import com.example.furryfriends.ui.screens.SearchPetsScreen
+import com.example.furryfriends.ui.screens.SettingsScreen
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,7 +23,7 @@ class MainActivity : ComponentActivity() {
 
             FurryFriendsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    FindPetsScreen(
+                    SearchPetsScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
