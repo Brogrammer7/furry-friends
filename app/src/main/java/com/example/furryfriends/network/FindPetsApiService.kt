@@ -1,7 +1,7 @@
 package com.example.furryfriends.network
 
 import com.example.furryfriends.BuildConfig
-import com.example.furryfriends.model.Pets
+import com.example.furryfriends.model.FindResponse
 import com.example.furryfriends.model.SearchRequest
 import com.example.furryfriends.model.SearchResponse
 import okhttp3.Interceptor
@@ -50,7 +50,7 @@ private val retrofit: Retrofit = Retrofit.Builder()
     .baseUrl(BASE_URL)
     .build()
 
-interface FindPetsApiService {
+interface FurryFriendsApiService {
     //Simple search of available pets with no filtration
     @GET("animals/search")
     suspend fun getAvailablePets(
@@ -59,22 +59,22 @@ interface FindPetsApiService {
         @Query("type") type: String = "Cat",
         @Query("location") zip: String = "92692",
         @Query("radius") radiusMiles: Int = 25,
-    ): Pets
+    ): FindResponse
 
     //Advanced search by animal type and location
     @POST("animals/search/available/{species}/haspic/")
     suspend fun searchPets(
-        @Query("sort") sort: String = "random",
-        @Query("limit") limit: Int = 2,
-        @Query("include") include: String = "pictures,orgs",
         @Path("species") species: String,
+        @Query("sort") sort: String = "random",
+        @Query("limit") limit: Int = 30,
+        @Query("include") include: String = "pictures,orgs",
         @Body body: SearchRequest
     ): SearchResponse
 
 }
 
 object PetsApi {
-    val retrofitService: FindPetsApiService by lazy {
-        retrofit.create(FindPetsApiService::class.java)
+    val retrofitService: FurryFriendsApiService by lazy {
+        retrofit.create(FurryFriendsApiService::class.java)
     }
 }
