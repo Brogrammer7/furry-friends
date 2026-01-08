@@ -53,6 +53,7 @@ class SearchPetsViewModel: ViewModel() {
     }
 
     init {
+        clearZip()
         clearSearchData()
     }
 
