@@ -1,6 +1,6 @@
 package com.example.furryfriends.model
 
-data class Pets(
+data class FindResponse(
     val data: List<Animals?>
 )
 

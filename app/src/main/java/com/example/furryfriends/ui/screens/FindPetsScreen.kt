@@ -64,7 +64,7 @@ fun FindPetsScreen(
                 )
             }
         }
-        
+
         HorizontalDivider()
 
         LazyColumn(
@@ -173,5 +173,3 @@ fun ShareLinkButton(
         Text(label)
     }
 }
-
-
