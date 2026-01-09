@@ -15,13 +15,16 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -173,8 +176,8 @@ fun SearchPetsScreen(
                             verticalArrangement = Arrangement.SpaceEvenly,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            CustomModalOnButtonClick() {
-                                ProperCaseText(animals.attributes.name, 20.sp)
+                            PetModalButton() {
+                                ProperCaseText(animals.attributes.name, 22.sp)
                                 Text(
                                     text = animals.attributes.ageString ?: "(Age Unknown)",
                                     textAlign = TextAlign.Center,
@@ -183,7 +186,7 @@ fun SearchPetsScreen(
                                 )
 
                                 Text(
-                                    text = "Available at:"
+                                    text = "Contact info:"
                                 )
                                 orgIncluded?.attributes?.let {
                                     Text(
@@ -201,7 +204,15 @@ fun SearchPetsScreen(
                                         textAlign = TextAlign.Start,
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
+
                                     SetClickableContactInfo(it.phone, it.url)
+
+                                    Text(
+                                        text = "Adoption process:\n" + it.adoptionProcess!!,
+                                        textAlign = TextAlign.Start,
+                                        fontSize = 12.sp,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
                                 }
                             }
 
@@ -242,7 +253,7 @@ fun ProperCaseText(input: String?, fontSize: TextUnit = 18.sp) {
 }
 
 @Composable
-fun CustomModalOnButtonClick(
+fun PetModalButton(
     modifier: Modifier = Modifier,
     title: String? = null,
     onDismiss: () -> Unit = {},
@@ -256,25 +267,82 @@ fun CustomModalOnButtonClick(
 
     if (open) {
         Dialog(onDismissRequest = { open = false; onDismiss() }) {
+            // constrain max height so content can scroll
             Box(
                 modifier
                     .widthIn(max = 360.dp)
+                    .heightIn(max = 480.dp)
                     .background(Color.Gray, shape = RoundedCornerShape(12.dp))
                     .padding(16.dp)
             ) {
-                Column {
+                // use verticalScroll on a Column
+                val scrollState = rememberScrollState()
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                ) {
                     if (title != null) {
                         Text(title, style = MaterialTheme.typography.titleMedium)
                     }
                     Spacer(Modifier.height(8.dp))
-                    Column(content = content) // place user-supplied composables here
+                    Column(content = content)
                     Spacer(Modifier.height(16.dp))
-                    Row(Modifier.align(Alignment.End)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         TextButton(onClick = { open = false; onDismiss() }) { Text("Close") }
                     }
                 }
             }
         }
+    }
+}
+
+
+@Composable
+fun SetClickableContactInfo(phone: String?, url: String?) {
+    val ctx = LocalContext.current
+
+    phone?.let { value ->
+        val interactionSource = remember { MutableInteractionSource() }
+        Text(
+            text = value,
+            textAlign = TextAlign.Start,
+            color = Color.White,
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                .clickable(
+                    interactionSource = interactionSource,
+                    onClick = {
+                        val telUri = "tel:${value.filter { it.isDigit() || it == '+' }}".toUri()
+                        val intent = Intent(Intent.ACTION_DIAL, telUri)
+                        if (intent.resolveActivity(ctx.packageManager) != null) {
+                            startActivity(ctx, intent, null)
+                        }
+                    }
+                )
+        )
+    }
+
+    url?.let { value ->
+        val interactionSource = remember { MutableInteractionSource() }
+        Text(
+            text = value,
+            textAlign = TextAlign.Start,
+            style = TextStyle(fontSize = 12.sp),
+            color = Color(0xFF1E88E5),
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                .clickable(
+                    interactionSource = interactionSource,
+                    onClick = {
+                        val fixed = if (value.startsWith("http://") || value.startsWith("https://")) value else "https://$value"
+                        val webIntent = Intent(Intent.ACTION_VIEW, fixed.toUri())
+                        if (webIntent.resolveActivity(ctx.packageManager) != null) {
+                            startActivity(ctx, webIntent, null)
+                        }
+                    }
+                )
+        )
     }
 }
 
@@ -314,54 +382,6 @@ fun ShareLinkButton(
         context.startActivity(chooser)
     }) {
         Text(label)
-    }
-}
-
-@Composable
-fun SetClickableContactInfo(phone: String?, url: String?) {
-    val ctx = LocalContext.current
-
-    phone?.let { value ->
-        val interactionSource = remember { MutableInteractionSource() }
-        Text(
-            text = value,
-            textAlign = TextAlign.Start,
-            color = Color.White,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .clickable(
-                    interactionSource = interactionSource,
-                    onClick = {
-                        val telUri = "tel:${value.filter { it.isDigit() || it == '+' }}".toUri()
-                        val intent = Intent(Intent.ACTION_DIAL, telUri)
-                        if (intent.resolveActivity(ctx.packageManager) != null) {
-                            startActivity(ctx, intent, null)
-                        }
-                    }
-                )
-        )
-    }
-
-    url?.let { value ->
-        val interactionSource = remember { MutableInteractionSource() }
-        Text(
-            text = value,
-            textAlign = TextAlign.Start,
-            style = TextStyle(fontSize = 12.sp),
-            color = Color(0xFF1E88E5),
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .clickable(
-                    interactionSource = interactionSource,
-                    onClick = {
-                        val fixed = if (value.startsWith("http://") || value.startsWith("https://")) value else "https://$value"
-                        val webIntent = Intent(Intent.ACTION_VIEW, fixed.toUri())
-                        if (webIntent.resolveActivity(ctx.packageManager) != null) {
-                            startActivity(ctx, webIntent, null)
-                        }
-                    }
-                )
-        )
     }
 }
 
