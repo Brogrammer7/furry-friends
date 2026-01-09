@@ -1,27 +1,38 @@
 package com.example.furryfriends.ui.screens
 
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -32,12 +43,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.furryfriends.R
 import com.example.furryfriends.network.Species
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
 import java.util.Locale
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 @Composable
 fun SearchPetsScreen(
@@ -78,13 +92,13 @@ fun SearchPetsScreen(
                     "Search pets"
                 )
             }
-            Button(
+            TextButton (
                 onClick = { viewModel.clearZip()
                     viewModel.clearSearchData() },
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Text(
-                    "Reset Results"
+                    "Clear Results"
                 )
             }
         }
@@ -102,9 +116,15 @@ fun SearchPetsScreen(
                 key = { it.attributes.name ?: searchList.indexOf(it) }
             ) { animals ->
                 animals.let {
+                    // get first org relationship id for this resource (if any)
+                    val orgRelId = animals.relationships.orgs?.data?.firstOrNull()?.id
+                    // find included org by id and type "orgs"
+                    val orgIncluded = includedList?.find { it.id == orgRelId && it.type == "orgs" }
+
                     Row (
                         modifier = Modifier
                             .fillMaxWidth()
+                            .fillMaxHeight()
                             .padding(top = 8.dp, bottom = 8.dp, end = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start
@@ -123,51 +143,78 @@ fun SearchPetsScreen(
                                 modifier = Modifier.padding(top = 8.dp)
                                     .size(120.dp)
                             )
-                            animals.attributes.name?.let { value ->
-                                val proper = value
-                                    .lowercase(Locale.getDefault())
-                                    .split("\\s+".toRegex())
-                                    .joinToString(" ") { word ->
-                                        word.replaceFirstChar {
-                                            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-                                        }
-                                    }
+                            ProperCaseText(animals.attributes.name)
 
+                            orgIncluded?.attributes?.let {
                                 Text(
-                                    text = proper,
-                                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp),
+                                    text = it.name!!,
                                     textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                            }
-                            animals.attributes.ageString?.let { value ->
-                                Text(
-                                    text = value,
                                     style = TextStyle(fontSize = 12.sp),
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                                Text(
+                                    text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
                                     textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
-                            }
-                            // get first org relationship id for this resource (if any)
-                            val orgRelId = animals.relationships.orgs?.data?.firstOrNull()?.id
-                            // find included org by id and type "orgs"
-                            val orgIncluded = includedList?.find { it.id == orgRelId && it.type == "orgs" }
-
-                            orgIncluded?.attributes?.name?.let { orgName ->
-                                Text(
-                                    text = orgName,
-                                    style = TextStyle(fontSize = 12.sp),
-                                    textAlign = TextAlign.Center
+                                    style = TextStyle(fontSize = 10.sp),
+                                    modifier = Modifier.padding(horizontal = 16.dp)
                                 )
                             }
                         }
 
-                        ShareLinkButton222(
-                            linkUrl = animals.attributes.pictureThumbnailUrl,
-                            petName = animals.attributes.name,
-                            petBreed = animals.attributes.breedPrimary,
-                            petAge = animals.attributes.ageString
-                        )
+                        Column (
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),         // <- fill same height as left column
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CustomModalOnButtonClick() {
+                                ProperCaseText(animals.attributes.name)
+                                Text(
+                                    text = animals.attributes.ageString ?: "(Age Unknown)",
+                                    textAlign = TextAlign.Center,
+                                    style = TextStyle(fontSize = 12.sp),
+                                    modifier = Modifier.padding(vertical = 4.dp)
+                                )
+
+                                Text(
+                                    text = "Available at:"
+                                )
+                                orgIncluded?.attributes?.let {
+                                    Text(
+                                        text = it.name!!,
+                                        textAlign = TextAlign.Start,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                    Text(
+                                        text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
+                                        textAlign = TextAlign.Start,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                    it.phone?.let { value ->
+                                        Text(
+                                            text = value,
+                                            textAlign = TextAlign.Start,
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                    }
+                                    it.url?.let { value ->
+                                        Text(
+                                            text = value,
+                                            textAlign = TextAlign.Start,
+                                            style = TextStyle(fontSize = 12.sp),
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            ShareLinkButton(
+                                linkUrl = animals.attributes.pictureThumbnailUrl,
+                                petName = animals.attributes.name,
+                                petBreed = animals.attributes.breedPrimary,
+                            )
+                        }
                     }
                     HorizontalDivider()
                 }
@@ -178,13 +225,69 @@ fun SearchPetsScreen(
 
 }
 
+//Custom components:
 @Composable
-fun ShareLinkButton222(
+fun ProperCaseText(input: String?) {
+        val properCase = input
+            ?.lowercase(Locale.getDefault())
+            ?.split("\\s+".toRegex())
+            ?.joinToString(" ") { word ->
+                word.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                }
+            }
+
+        Text(
+            text = properCase ?: "Name error",
+            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+}
+
+@Composable
+fun CustomModalOnButtonClick(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    onDismiss: () -> Unit = {},
+    content: @Composable ColumnScope.() -> Unit
+) {
+    var open by remember { mutableStateOf(false) }
+
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Button(onClick = { open = true }) { Text("More info") }
+    }
+
+    if (open) {
+        Dialog(onDismissRequest = { open = false; onDismiss() }) {
+            Box(
+                modifier
+                    .widthIn(max = 360.dp)
+                    .background(Color.Gray, shape = RoundedCornerShape(12.dp))
+                    .padding(16.dp)
+            ) {
+                Column {
+                    if (title != null) {
+                        Text(title, style = MaterialTheme.typography.titleMedium)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Column(content = content) // place user-supplied composables here
+                    Spacer(Modifier.height(16.dp))
+                    Row(Modifier.align(Alignment.End)) {
+                        TextButton(onClick = { open = false; onDismiss() }) { Text("Close") }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ShareLinkButton(
     label: String = "Share me!",
     linkUrl: String?,
     petName: String?,
     petBreed: String?,
-    petAge: String?,
     subject: String? = "Give this fur baby a home:", // optional email subject
     chooserTitle: String = "Share via",
     modifier: Modifier = Modifier,
@@ -200,7 +303,6 @@ fun ShareLinkButton222(
             subject?.let { append("$it\n") }
             petName?.let { append("$it\n") }
             petBreed?.let { append("$it\n") }
-            petAge?.let { append("$it Old\n") }
             append(linkUrl)
         }
 
