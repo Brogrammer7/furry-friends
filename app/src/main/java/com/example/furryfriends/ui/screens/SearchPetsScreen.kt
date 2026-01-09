@@ -2,6 +2,8 @@ package com.example.furryfriends.ui.screens
 
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +31,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,17 +45,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat.startActivity
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.furryfriends.R
 import com.example.furryfriends.network.Species
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
 import java.util.Locale
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 
 @Composable
 fun SearchPetsScreen(
@@ -169,7 +174,7 @@ fun SearchPetsScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             CustomModalOnButtonClick() {
-                                ProperCaseText(animals.attributes.name)
+                                ProperCaseText(animals.attributes.name, 20.sp)
                                 Text(
                                     text = animals.attributes.ageString ?: "(Age Unknown)",
                                     textAlign = TextAlign.Center,
@@ -187,25 +192,16 @@ fun SearchPetsScreen(
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
                                     Text(
+                                        text = it.street!!,
+                                        textAlign = TextAlign.Start,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                    Text(
                                         text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
                                         textAlign = TextAlign.Start,
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
-                                    it.phone?.let { value ->
-                                        Text(
-                                            text = value,
-                                            textAlign = TextAlign.Start,
-                                            modifier = Modifier.padding(horizontal = 16.dp)
-                                        )
-                                    }
-                                    it.url?.let { value ->
-                                        Text(
-                                            text = value,
-                                            textAlign = TextAlign.Start,
-                                            style = TextStyle(fontSize = 12.sp),
-                                            modifier = Modifier.padding(horizontal = 16.dp)
-                                        )
-                                    }
+                                    SetClickableContactInfo(it.phone, it.url)
                                 }
                             }
 
@@ -227,7 +223,7 @@ fun SearchPetsScreen(
 
 //Custom components:
 @Composable
-fun ProperCaseText(input: String?) {
+fun ProperCaseText(input: String?, fontSize: TextUnit = 18.sp) {
         val properCase = input
             ?.lowercase(Locale.getDefault())
             ?.split("\\s+".toRegex())
@@ -239,7 +235,7 @@ fun ProperCaseText(input: String?) {
 
         Text(
             text = properCase ?: "Name error",
-            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp),
+            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = fontSize),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 8.dp)
         )
@@ -318,6 +314,54 @@ fun ShareLinkButton(
         context.startActivity(chooser)
     }) {
         Text(label)
+    }
+}
+
+@Composable
+fun SetClickableContactInfo(phone: String?, url: String?) {
+    val ctx = LocalContext.current
+
+    phone?.let { value ->
+        val interactionSource = remember { MutableInteractionSource() }
+        Text(
+            text = value,
+            textAlign = TextAlign.Start,
+            color = Color.White,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .clickable(
+                    interactionSource = interactionSource,
+                    onClick = {
+                        val telUri = "tel:${value.filter { it.isDigit() || it == '+' }}".toUri()
+                        val intent = Intent(Intent.ACTION_DIAL, telUri)
+                        if (intent.resolveActivity(ctx.packageManager) != null) {
+                            startActivity(ctx, intent, null)
+                        }
+                    }
+                )
+        )
+    }
+
+    url?.let { value ->
+        val interactionSource = remember { MutableInteractionSource() }
+        Text(
+            text = value,
+            textAlign = TextAlign.Start,
+            style = TextStyle(fontSize = 12.sp),
+            color = Color(0xFF1E88E5),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .clickable(
+                    interactionSource = interactionSource,
+                    onClick = {
+                        val fixed = if (value.startsWith("http://") || value.startsWith("https://")) value else "https://$value"
+                        val webIntent = Intent(Intent.ACTION_VIEW, fixed.toUri())
+                        if (webIntent.resolveActivity(ctx.packageManager) != null) {
+                            startActivity(ctx, webIntent, null)
+                        }
+                    }
+                )
+        )
     }
 }
 
