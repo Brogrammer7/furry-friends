@@ -26,5 +26,17 @@
             </intent-filter>
         </activity>
     </application>
+    <queries>
+        <!-- apps that can handle VIEW URIs (web links) -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
 
+        <!-- apps that can handle tel: -->
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+    </queries>
 </manifest>
