@@ -12,7 +12,6 @@ data class Meta(
     val pageReturned: Int,
     val limit: Int,
     val pages: Int,
-    val transactionId: String
 )
 
 data class ResourceItem(
@@ -75,9 +74,7 @@ data class IncludedItem(
 )
 
 /*
- IncludedAttributes is a sealed-like structure expressed with optional fields to cover
- pictures and orgs attribute shapes from the example. You can split into distinct
- classes (PictureAttributes / OrgAttributes) if you prefer stronger typing.
+   IncludedAttributes is a sealed-like structure expressed with optional fields to cover pictures and orgs attribute shapes from the example. You can split into distinct classes (PictureAttributes / OrgAttributes) if you prefer stronger typing.
 */
 data class IncludedAttributes(
     // picture attributes
@@ -105,14 +102,10 @@ data class IncludedAttributes(
     val about: String? = null,
     val services: String? = null,
     val type: String? = null,
-    val lat: Double? = null,
-    val lon: Double? = null,
-    val coordinates: String? = null,
     val citystate: String? = null
 )
 
 data class ImageSize(
-    val filesize: Long? = null,
     val resolutionX: Int? = null,
     val resolutionY: Int? = null,
     val url: String? = null
