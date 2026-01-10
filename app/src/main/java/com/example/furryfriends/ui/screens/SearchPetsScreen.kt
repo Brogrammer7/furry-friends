@@ -66,7 +66,8 @@ fun SearchPetsScreen(
     modifier: Modifier = Modifier,
     viewModel: SearchPetsViewModel = viewModel()
 ) {
-    val uiState by viewModel.searchUiState.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val itemsData by viewModel.itemsData.collectAsState()
 
     val zipIntState by viewModel.zipState.collectAsState()
     val zipErrorState by viewModel.zipError.collectAsState()
@@ -117,17 +118,14 @@ fun SearchPetsScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
         ) {
-            val searchList = uiState.items?.data ?: emptyList()
-            val includedList = uiState.items?.included
+            val searchList = itemsData?.data ?: emptyList()
+            val includedList = itemsData?.included
             items(
                 items = searchList,
                 key = { it.attributes.name ?: searchList.indexOf(it) }
-            ) { animals ->
-                animals.let {
-                    // get first org relationship id for this resource (if any)
-                    val orgRelId = animals.relationships.orgs?.data?.firstOrNull()?.id
-                    // find included org by id and type "orgs"
-                    val orgIncluded = includedList?.find { it.id == orgRelId && it.type == "orgs" }
+            ) { animal ->
+                animal.let {
+                    val org = viewModel.getOrganizationForAnimal(animal, includedList)
 
                     Row (
                         modifier = Modifier
@@ -145,15 +143,15 @@ fun SearchPetsScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             AsyncImage(
-                                model = animals.attributes.pictureThumbnailUrl ?: R.drawable.no_image_icon,
+                                model = animal.attributes.pictureThumbnailUrl ?: R.drawable.no_image_icon,
                                 contentDescription = "",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.padding(top = 8.dp)
                                     .size(120.dp)
                             )
-                            ProperCaseText(animals.attributes.name)
+                            ProperCaseText(animal.attributes.name)
 
-                            orgIncluded?.attributes?.let {
+                            org?.attributes?.let {
                                 Text(
                                     text = it.name!!,
                                     textAlign = TextAlign.Center,
@@ -177,9 +175,9 @@ fun SearchPetsScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             PetModalButton() {
-                                ProperCaseText(animals.attributes.name, 22.sp)
+                                ProperCaseText(animal.attributes.name, 22.sp)
                                 Text(
-                                    text = animals.attributes.ageString ?: "(Age Unknown)",
+                                    text = animal.attributes.ageString ?: "(Age Unknown)",
                                     textAlign = TextAlign.Center,
                                     style = TextStyle(fontSize = 12.sp),
                                     modifier = Modifier.padding(vertical = 4.dp)
@@ -188,19 +186,23 @@ fun SearchPetsScreen(
                                 Text(
                                     text = "Contact info:"
                                 )
-                                orgIncluded?.attributes?.let {
+                                org?.attributes?.let {
+                                    it.name?.let { it1 ->
+                                        Text(
+                                            text = it1,
+                                            textAlign = TextAlign.Start,
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                    }
+                                    it.street?.let { it1 ->
+                                        Text(
+                                            text = it1,
+                                            textAlign = TextAlign.Start,
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                    }
                                     Text(
-                                        text = it.name!!,
-                                        textAlign = TextAlign.Start,
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
-                                    Text(
-                                        text = it.street!!,
-                                        textAlign = TextAlign.Start,
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
-                                    Text(
-                                        text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
+                                        text = it.city + ", " + it.state?.uppercase(Locale.getDefault()),
                                         textAlign = TextAlign.Start,
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
@@ -216,10 +218,11 @@ fun SearchPetsScreen(
                                 }
                             }
 
-                            ShareLinkButton(
-                                linkUrl = animals.attributes.pictureThumbnailUrl,
-                                petName = animals.attributes.name,
-                                petBreed = animals.attributes.breedPrimary,
+                            ShareButton(
+                                linkUrl = org?.attributes?.url,
+                                petName = animal.attributes.name,
+                                petBreed = animal.attributes.breedPrimary,
+                                pictureUrl = animal.attributes.pictureThumbnailUrl
                             )
                         }
                     }
@@ -347,11 +350,12 @@ fun SetClickableContactInfo(phone: String?, url: String?) {
 }
 
 @Composable
-fun ShareLinkButton(
+fun ShareButton(
     label: String = "Share me!",
     linkUrl: String?,
     petName: String?,
     petBreed: String?,
+    pictureUrl: String?,
     subject: String? = "Give this fur baby a home:", // optional email subject
     chooserTitle: String = "Share via",
     modifier: Modifier = Modifier,
@@ -367,7 +371,8 @@ fun ShareLinkButton(
             subject?.let { append("$it\n") }
             petName?.let { append("$it\n") }
             petBreed?.let { append("$it\n") }
-            append(linkUrl)
+            pictureUrl?.let { append("$it\n\n") }
+            append("Adoption link: $linkUrl")
         }
 
         val intent = Intent(Intent.ACTION_SEND).apply {

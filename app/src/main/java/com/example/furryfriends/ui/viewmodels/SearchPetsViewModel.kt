@@ -1,21 +1,26 @@
 package com.example.furryfriends.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.furryfriends.model.DataNode
 import com.example.furryfriends.model.FilterRadius
+import com.example.furryfriends.model.IncludedItem
+import com.example.furryfriends.model.ResourceItem
 import com.example.furryfriends.model.SearchRequest
 import com.example.furryfriends.model.SearchResponse
 import com.example.furryfriends.network.PetsApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
-import android.util.Log
-import com.example.furryfriends.network.Species
-import kotlinx.coroutines.Dispatchers
 
 data class SearchUiState(
     val items: SearchResponse? = null,
@@ -34,6 +39,16 @@ class SearchPetsViewModel: ViewModel() {
     private val _zipError = MutableStateFlow(false)
     val zipError: StateFlow<Boolean> = _zipError.asStateFlow()
 
+    val isLoading: StateFlow<Boolean> = searchUiState
+        .map { it.isLoading }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val itemsData: StateFlow<SearchResponse?> = searchUiState
+        .map { it.items }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
     fun updateZipInput(raw: String) {
         // filter digits and limit to 5 chars
         val filtered = raw.filter { it.isDigit() }.take(5)
@@ -45,11 +60,6 @@ class SearchPetsViewModel: ViewModel() {
             _zipState.value = asInt
             _zipError.value = filtered.length != 5
         }
-    }
-
-    fun clearZip() {
-        _zipState.value = -1
-        _zipError.value = false
     }
 
     init {
@@ -108,6 +118,11 @@ class SearchPetsViewModel: ViewModel() {
         }
     }
 
+    fun clearZip() {
+        _zipState.value = -1
+        _zipError.value = false
+    }
+
     fun clearSearchData() {
         _searchUiState.update {
             it.copy(
@@ -115,6 +130,16 @@ class SearchPetsViewModel: ViewModel() {
                 isLoading = false,
                 error = null)
         }
+    }
+
+    fun getOrganizationForAnimal(
+        animal: ResourceItem,
+        includedList: List<IncludedItem>?
+    ): IncludedItem? {
+        // get first org relationship id for this animal (if any)
+        val orgRelId = animal.relationships.orgs?.data?.firstOrNull()?.id
+        // find included org by id and type "orgs"
+        return includedList?.find { it.id == orgRelId && it.type == "orgs" }
     }
 
 }
