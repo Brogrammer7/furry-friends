@@ -1,6 +1,8 @@
 package com.example.furryfriends.ui.screens
 
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -64,7 +66,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
@@ -201,7 +202,7 @@ fun SearchPetsScreen(
                             verticalArrangement = Arrangement.SpaceEvenly,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            PetModalButton() {
+                            PetModalButton {
                                 ProperCaseText(animal.attributes.name, 22.sp)
                                 Text(
                                     text = animal.attributes.ageString ?: "(Age Unknown)",
@@ -214,16 +215,16 @@ fun SearchPetsScreen(
                                     text = "Contact info:"
                                 )
                                 org?.attributes?.let {
-                                    it.name?.let { it1 ->
+                                    it.name?.let { value ->
                                         Text(
-                                            text = it1,
+                                            text = value,
                                             textAlign = TextAlign.Start,
                                             modifier = Modifier.padding(horizontal = 16.dp)
                                         )
                                     }
-                                    it.street?.let { it1 ->
+                                    it.street?.let { value ->
                                         Text(
-                                            text = it1,
+                                            text = value,
                                             textAlign = TextAlign.Start,
                                             modifier = Modifier.padding(horizontal = 16.dp)
                                         )
@@ -234,18 +235,24 @@ fun SearchPetsScreen(
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
 
-                                    SetClickableContactInfo(it.phone, it.url)
-
-                                    Text(
-                                        text = "Adoption process:\n" + it.adoptionProcess!!,
-                                        textAlign = TextAlign.Start,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    SetClickableContactInfo(
+                                        phone = it.phone,
+                                        url = it.url
                                     )
+
+                                    it.adoptionProcess.let { value ->
+                                        Text(
+                                            text = "Adoption process:\n$value",
+                                            textAlign = TextAlign.Start,
+                                            fontSize = 12.sp,
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                    }
                                 }
                             }
 
                             ShareButton(
+                                label = "Share me!",
                                 linkUrl = org?.attributes?.url,
                                 petName = animal.attributes.name,
                                 petBreed = animal.attributes.breedPrimary,
@@ -333,7 +340,7 @@ fun PetModalButton(
     var open by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Button(onClick = { open = true }) { Text("More info") }
+        Button(onClick = { open = true }) { Text("Details") }
     }
 
     if (open) {
@@ -346,7 +353,6 @@ fun PetModalButton(
                     .background(Color.Gray, shape = RoundedCornerShape(12.dp))
                     .padding(16.dp)
             ) {
-                // use verticalScroll on a Column
                 val scrollState = rememberScrollState()
                 Column(
                     modifier = Modifier
@@ -370,8 +376,21 @@ fun PetModalButton(
 
 
 @Composable
-fun SetClickableContactInfo(phone: String?, url: String?) {
+fun SetClickableContactInfo(
+    modifier: Modifier = Modifier,
+    phone: String?,
+    url: String?
+) {
     val ctx = LocalContext.current
+
+    // A simple launcher wrapper that uses the Activity Result API to start an arbitrary Intent.
+    // It does not expect a result; it just starts the intent via an ActivityResultRegistry owner.
+    val activityStarter = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { /* no-op: we don't need a result */ }
+
+    fun canResolve(intent: Intent): Boolean =
+        intent.resolveActivity(ctx.packageManager) != null
 
     phone?.let { value ->
         val interactionSource = remember { MutableInteractionSource() }
@@ -386,8 +405,8 @@ fun SetClickableContactInfo(phone: String?, url: String?) {
                     onClick = {
                         val telUri = "tel:${value.filter { it.isDigit() || it == '+' }}".toUri()
                         val intent = Intent(Intent.ACTION_DIAL, telUri)
-                        if (intent.resolveActivity(ctx.packageManager) != null) {
-                            startActivity(ctx, intent, null)
+                        if (canResolve(intent)) {
+                            activityStarter.launch(intent)
                         }
                     }
                 )
@@ -399,8 +418,7 @@ fun SetClickableContactInfo(phone: String?, url: String?) {
         Text(
             text = value,
             textAlign = TextAlign.Start,
-            style = TextStyle(fontSize = 12.sp),
-            color = Color(0xFF1E88E5),
+            color = Color.Blue,
             modifier = Modifier
                 .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
                 .clickable(
@@ -408,8 +426,8 @@ fun SetClickableContactInfo(phone: String?, url: String?) {
                     onClick = {
                         val fixed = if (value.startsWith("http://") || value.startsWith("https://")) value else "https://$value"
                         val webIntent = Intent(Intent.ACTION_VIEW, fixed.toUri())
-                        if (webIntent.resolveActivity(ctx.packageManager) != null) {
-                            startActivity(ctx, webIntent, null)
+                        if (canResolve(webIntent)) {
+                            activityStarter.launch(webIntent)
                         }
                     }
                 )
@@ -417,24 +435,23 @@ fun SetClickableContactInfo(phone: String?, url: String?) {
     }
 }
 
+
 @Composable
 fun ShareButton(
-    label: String = "Share me!",
+    modifier: Modifier = Modifier,
+    label: String,
     linkUrl: String?,
     petName: String?,
     petBreed: String?,
     pictureUrl: String?,
     subject: String? = "Give this fur baby a home:", // optional email subject
-    chooserTitle: String = "Share via",
-    modifier: Modifier = Modifier,
+    chooserTitle: String = "Share via"
 ) {
     val context = LocalContext.current
 
     Button(onClick = {
-        // Handle null URLs
         if (linkUrl == null) return@Button
 
-        // Prepare the share message
         val shareMessage = buildString {
             subject?.let { append("$it\n") }
             petName?.let { append("$it\n") }
