@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Dashboard
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Scaffold
@@ -27,6 +29,7 @@ import com.example.furryfriends.ui.screens.DashboardScreen
 import com.example.furryfriends.ui.screens.SearchPetsScreen
 import com.example.furryfriends.ui.screens.SettingsScreen
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
+import com.example.furryfriends.ui.screens.AboutScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,8 +51,13 @@ class MainActivity : ComponentActivity() {
                 selectedIcon = Icons.Filled.Settings,
                 unselectedIcon = Icons.Outlined.Settings
             )
+            val aboutTab = TabBarItem(
+                title = stringResource(R.string.about_tab_title),
+                selectedIcon = Icons.Filled.Info,
+                unselectedIcon = Icons.Outlined.Info
+            )
 
-            val tabBarItems = listOf(dashboardTab, searchPetsTab, settingsTab)
+            val tabBarItems = listOf(dashboardTab, searchPetsTab, settingsTab, aboutTab)
 
             val navController = rememberNavController()
 
@@ -71,6 +79,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(settingsTab.title) {
                             SettingsScreen()
+                        }
+                        composable(aboutTab.title) {
+                            AboutScreen()
                         }
                     }
                 }
