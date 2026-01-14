@@ -6,8 +6,8 @@ import com.example.furryfriends.model.SearchRequest
 import com.example.furryfriends.model.SearchResponse
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -27,7 +27,7 @@ enum class Species(val type: String) {
 }
 
 private class ApiKeyInterceptor: Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
+    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
         val request = chain.request()
             .newBuilder()
             .header("Content-Type", "application/vnd.api+json")
@@ -68,10 +68,10 @@ interface FurryFriendsApiService {
     suspend fun searchPets(
         @Path("species") species: String,
         @Query("sort") sort: String = "random",
-        @Query("limit") limit: Int = 30,
+        @Query("limit") limit: Int = 50,
         @Query("include") include: String = "pictures,orgs",
         @Body body: SearchRequest
-    ): SearchResponse
+    ): Response<SearchResponse>
 
 }
 
