@@ -20,7 +20,7 @@ fun CustomText(
     text: String = "",
     fontSize: TextUnit = 14.sp,
     textAlign: TextAlign = TextAlign.Center,
-    color: Color = Color.Black,
+    color: Color = Color.Unspecified,
     style: TextStyle = LocalTextStyle.current,
     maxLines: Int = Int.MAX_VALUE,
 ) {
