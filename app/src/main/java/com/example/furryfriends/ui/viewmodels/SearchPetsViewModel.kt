@@ -10,6 +10,7 @@ import com.example.furryfriends.model.ResourceItem
 import com.example.furryfriends.model.SearchRequest
 import com.example.furryfriends.model.SearchResponse
 import com.example.furryfriends.network.PetsApi
+import com.example.furryfriends.network.Species
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,8 +24,8 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 
 data class SearchUiState(
-    val items: SearchResponse? = null,
     val isLoading: Boolean = false,
+    val items: SearchResponse? = null,
     val error: String? = null
 )
 
@@ -33,24 +34,34 @@ class SearchPetsViewModel: ViewModel() {
     private val _searchUiState = MutableStateFlow(SearchUiState())
     val searchUiState: StateFlow<SearchUiState> = _searchUiState.asStateFlow()
 
+    val isLoadingOn: StateFlow<Boolean> = searchUiState
+        .map { it.isLoading }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val itemsRetrieved: StateFlow<SearchResponse?> = searchUiState
+        .map { it.items }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val errorReceived: StateFlow<String?> = searchUiState
+        .map { it.error }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
     private val _zipState = MutableStateFlow(-1)
     val zipState: StateFlow<Int> = _zipState.asStateFlow()
 
     private val _zipError = MutableStateFlow(false)
     val zipError: StateFlow<Boolean> = _zipError.asStateFlow()
 
-    val isLoading: StateFlow<Boolean> = searchUiState
-        .map { it.isLoading }
-        .distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    private val _invalidZipProvided = MutableStateFlow(false)
+    val invalidZipProvided: StateFlow<Boolean> = _invalidZipProvided.asStateFlow()
 
-    val itemsData: StateFlow<SearchResponse?> = searchUiState
-        .map { it.items }
-        .distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    private val _selectedSpecies = MutableStateFlow(Species.CATS)
+    val selectedSpecies: StateFlow<Species> = _selectedSpecies.asStateFlow()
 
     fun updateZipInput(raw: String) {
-        // filter digits and limit to 5 chars
         val filtered = raw.filter { it.isDigit() }.take(5)
         if (filtered.isEmpty()) {
             _zipState.value = -1
@@ -60,11 +71,6 @@ class SearchPetsViewModel: ViewModel() {
             _zipState.value = asInt
             _zipError.value = filtered.length != 5
         }
-    }
-
-    init {
-        clearZip()
-        clearSearchData()
     }
 
     fun searchPetData(petType: String) {
@@ -90,17 +96,41 @@ class SearchPetsViewModel: ViewModel() {
                     )
                 )
 
-                val searchApiResult: SearchResponse = PetsApi.retrofitService.searchPets(
-                    body = requestBody,
-                    species = petType
-                )
+                val response = PetsApi.retrofitService.searchPets(species = petType, body = requestBody)
 
-                _searchUiState.update {
-                    it.copy(
-                        items = searchApiResult,
-                        isLoading = false,
-                        error = null
-                    )
+                if (response.isSuccessful) {
+                    _searchUiState.update {
+                        it.copy(
+                            items = response.body(),
+                            isLoading = false,
+                            error = null
+                        )
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val apiErrorDetail = try {
+                        // Gson will map to your SearchResponse and ApiError types
+                        com.google.gson.Gson()
+                            .fromJson(errorBody, SearchResponse::class.java)
+                            ?.errors
+                            ?.firstOrNull()
+                            ?.detail
+                    } catch (ex: Exception) {
+                        null
+                    }
+
+                    val finalError = apiErrorDetail ?: response.message() ?: "Unknown API error"
+
+                    _searchUiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = finalError
+                        )
+                    }
+
+                    _invalidZipProvided.update {
+                        finalError.contains("not a recognized postalcode", ignoreCase = true)
+                    }
                 }
 
             } catch (e: IOException) {
@@ -114,13 +144,13 @@ class SearchPetsViewModel: ViewModel() {
                 }
                 Log.e("check2", "Exception", e)
             }
-
         }
     }
 
     fun clearZip() {
-        _zipState.value = -1
-        _zipError.value = false
+        _invalidZipProvided.update { false }
+        _zipState.update { -1 }
+        _zipError.update { false }
     }
 
     fun clearSearchData() {
