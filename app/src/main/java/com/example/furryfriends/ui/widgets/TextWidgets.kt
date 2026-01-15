@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,6 +23,8 @@ fun CustomText(
     textAlign: TextAlign = TextAlign.Center,
     color: Color = Color.Unspecified,
     style: TextStyle = LocalTextStyle.current,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
 ) {
     Text(
@@ -31,6 +34,8 @@ fun CustomText(
         textAlign = textAlign,
         color = color,
         style = style,
+        lineHeight = lineHeight,
+        overflow = overflow,
         maxLines = maxLines,
         )
 }

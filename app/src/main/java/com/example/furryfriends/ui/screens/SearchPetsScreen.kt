@@ -61,6 +61,7 @@ import com.example.furryfriends.R
 import com.example.furryfriends.network.Species
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
 import com.example.furryfriends.ui.widgets.CustomText
+import com.example.furryfriends.ui.widgets.FurryFriendsAppBar
 import com.example.furryfriends.ui.widgets.PetModalButton
 import com.example.furryfriends.ui.widgets.ProperCaseText
 import com.example.furryfriends.ui.widgets.ShareButton

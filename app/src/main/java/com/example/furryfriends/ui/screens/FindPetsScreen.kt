@@ -31,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.viewmodels.FindPetsViewModel
+import com.example.furryfriends.ui.widgets.FurryFriendsAppBar
 
 @Composable
 fun FindPetsScreen(
