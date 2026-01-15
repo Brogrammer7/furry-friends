@@ -6,11 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.furryfriends.R
+import com.example.furryfriends.ui.widgets.CustomText
+import com.example.furryfriends.ui.widgets.FurryFriendsAppBar
 
 @Composable
 fun DashboardScreen(
@@ -45,44 +45,19 @@ fun DashboardScreen(
                 Text(text = "Main content")
             }
 
-            Text(
+            CustomText(
                 text = stringResource(R.string.dashboard_disclaimer),
                 fontSize = 12.sp,
+                lineHeight = 12.sp,
+                color = MaterialTheme.colorScheme.onBackground,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
-                    .padding(horizontal = 16.dp),
-                color = MaterialTheme.colorScheme.onBackground,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+                    .padding(horizontal = 16.dp)
             )
         }
     }
-}
-
-@Composable
-fun FurryFriendsAppBar(
-    titleText: String,
-    modifier: Modifier = Modifier
-) {
-    CenterAlignedTopAppBar(
-        title = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = titleText,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        modifier = modifier
-    )
 }
 
 @Preview
