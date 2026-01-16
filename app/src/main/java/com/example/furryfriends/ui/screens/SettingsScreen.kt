@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,7 +36,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
-import com.example.furryfriends.ui.widgets.FurryFriendsAppBar
 
 @Composable
 fun SettingsScreen(
@@ -48,37 +46,30 @@ fun SettingsScreen(
     val loading by viewModel.loading.collectAsState()
     val message by viewModel.message.collectAsState()
 
-    Scaffold(
-        topBar = {
-            FurryFriendsAppBar(stringResource(R.string.settings_screen_title))
-        }
-    ) { innerPadding ->
-        Column(modifier = modifier
-                .fillMaxWidth()
-                .padding(innerPadding)
-        ) {
-            Text(
-                text = stringResource(R.string.settings_disclosure),
-                style = TextStyle(fontSize = 12.sp),
-                modifier = Modifier.padding(16.dp)
-            )
-            LocationPermissionSetting(viewModel = viewModel)
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(R.string.settings_disclosure),
+            style = TextStyle(fontSize = 12.sp),
+            modifier = Modifier.padding(16.dp)
+        )
+        LocationPermissionSetting(viewModel = viewModel)
 
-            Column(modifier = Modifier.padding(16.dp)) {
-                if (loading) {
-                    Text(text = "Detecting zip…")
-                } else {
-                    Text(text = "Zip: ${zip ?: "Not set"}")
-                    message?.let {
-                        Text(text = it, color = Color(0xFFB00020))
-                    }
+        Column(modifier = Modifier.padding(16.dp)) {
+            if (loading) {
+                Text(text = "Detecting zip…")
+            } else {
+                Text(text = "Zip: ${zip ?: "Not set"}")
+                message?.let {
+                    Text(text = it, color = Color(0xFFB00020))
                 }
+            }
 
-                // Retry button shown when not loading and zip not set
-                if (!loading && zip.isNullOrEmpty()) {
-                    Button(onClick = { viewModel.fetchZipFromLastLocation() }, modifier = Modifier.padding(top = 12.dp)) {
-                        Text(text = "Retry")
-                    }
+            // Retry button shown when not loading and zip not set
+            if (!loading && zip.isNullOrEmpty()) {
+                Button(onClick = { viewModel.fetchZipFromLastLocation() }, modifier = Modifier.padding(top = 12.dp)) {
+                    Text(text = "Retry")
                 }
             }
         }

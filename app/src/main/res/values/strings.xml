@@ -4,11 +4,12 @@
     <string name="about_screen_title">About the developer</string>
     <string name="dashboard_tab_title">Dashboard</string>
     <string name="dashboard_screen_title">Welcome to Furry Friends Adoption Service</string>
-    <string name="dashboard_disclaimer">Furry Friends is a not-for-profit mobile app designed to help you find your next pet.</string>
+    <string name="dashboard_mission_statement">Furry Friends is a not-for-profit mobile app designed to help you find your next pet!</string>
     <string name="search_pets_tab_title">Search Pets</string>
     <string name="search_pets_screen_title">Adopt one of these pets</string>
     <string name="find_pets_screen_title">Check out these fur babies:</string>
     <string name="settings_tab_title">Settings</string>
     <string name="settings_screen_title">Settings</string>
     <string name="settings_disclosure">Location is an optional permission which allows us to help you find pets in your area without having to manually enter your ZIP code. Your information is only used to help find your next furry loved one and never shared or sold.</string>
+    <string name="dedicated_to_vestie">Dedicated to Vestie, the best rescue kitty ever ❤</string>
 </resources>
