@@ -154,6 +154,7 @@ class SearchPetsViewModel: ViewModel() {
     }
 
     fun clearSearchData() {
+        _invalidZipProvided.update { false }
         _searchUiState.update {
             it.copy(
                 items = null,
