@@ -61,7 +61,7 @@ class SearchPetsViewModel: ViewModel() {
     private val _selectedSpecies = MutableStateFlow(Species.CATS)
     val selectedSpecies: StateFlow<Species> = _selectedSpecies.asStateFlow()
 
-    fun updateZipInput(raw: String) {
+    fun processZipInput(raw: String) {
         val filtered = raw.filter { it.isDigit() }.take(5)
         if (filtered.isEmpty()) {
             _zipState.value = -1
@@ -71,6 +71,36 @@ class SearchPetsViewModel: ViewModel() {
             _zipState.value = asInt
             _zipError.value = filtered.length != 5
         }
+    }
+
+    fun checkValidZip(zip: Int): Boolean {
+        if (zip in 10000..99999) return true else return false
+    }
+
+    fun clearZip() {
+        _invalidZipProvided.update { false }
+        _zipState.update { -1 }
+        _zipError.update { false }
+    }
+
+    fun clearSearchData() {
+        _invalidZipProvided.update { false }
+        _searchUiState.update {
+            it.copy(
+                items = null,
+                isLoading = false,
+                error = null)
+        }
+    }
+
+    fun getOrganizationForAnimal(
+        animal: ResourceItem,
+        includedList: List<IncludedItem>?
+    ): IncludedItem? {
+        // get first org relationship id for this animal (if any)
+        val orgRelId = animal.relationships.orgs?.data?.firstOrNull()?.id
+        // find included org by id and type "orgs"
+        return includedList?.find { it.id == orgRelId && it.type == "orgs" }
     }
 
     fun searchPetData(petType: String) {
@@ -145,32 +175,6 @@ class SearchPetsViewModel: ViewModel() {
                 Log.e("check2", "Exception", e)
             }
         }
-    }
-
-    fun clearZip() {
-        _invalidZipProvided.update { false }
-        _zipState.update { -1 }
-        _zipError.update { false }
-    }
-
-    fun clearSearchData() {
-        _invalidZipProvided.update { false }
-        _searchUiState.update {
-            it.copy(
-                items = null,
-                isLoading = false,
-                error = null)
-        }
-    }
-
-    fun getOrganizationForAnimal(
-        animal: ResourceItem,
-        includedList: List<IncludedItem>?
-    ): IncludedItem? {
-        // get first org relationship id for this animal (if any)
-        val orgRelId = animal.relationships.orgs?.data?.firstOrNull()?.id
-        // find included org by id and type "orgs"
-        return includedList?.find { it.id == orgRelId && it.type == "orgs" }
     }
 
 }
