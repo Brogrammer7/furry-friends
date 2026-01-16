@@ -29,7 +29,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -46,7 +45,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -61,7 +59,6 @@ import com.example.furryfriends.R
 import com.example.furryfriends.network.Species
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
 import com.example.furryfriends.ui.widgets.CustomText
-import com.example.furryfriends.ui.widgets.FurryFriendsAppBar
 import com.example.furryfriends.ui.widgets.PetModalButton
 import com.example.furryfriends.ui.widgets.ProperCaseText
 import com.example.furryfriends.ui.widgets.ShareButton
@@ -78,203 +75,195 @@ fun SearchPetsScreen(
     val selectedSpecies by viewModel.selectedSpecies.collectAsState()
 
     val zipIntState by viewModel.zipState.collectAsState()
+    val zipText = if (zipIntState == -1) "" else zipIntState.toString()
     val zipErrorState by viewModel.zipError.collectAsState()
     val invalidZipProvided by viewModel.invalidZipProvided.collectAsState()
-    val zipText = if (zipIntState == -1) "" else zipIntState.toString()
 
-    Scaffold(
-        topBar = {
-            FurryFriendsAppBar(titleText = stringResource(R.string.search_pets_screen_title))
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OutlinedTextField(
-                value = zipText,
-                onValueChange = { viewModel.updateZipInput(it) },
-                label = { Text("Enter your ZIP Code") },
-                isError = zipErrorState,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = zipText,
+            onValueChange = { viewModel.updateZipInput(it) },
+            label = { Text("Enter your ZIP Code") },
+            isError = zipErrorState,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
 
-            Row(modifier = Modifier.padding(bottom = 8.dp)) {
-                Button(
-                    onClick = {
-                        viewModel.clearSearchData()
-                        viewModel.searchPetData(Species.CATS.type)
-                    },
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                ) {
-                    Text(
-                        "Search pets"
-                    )
-                }
-                TextButton(
-                    onClick = {
-                        viewModel.clearZip()
-                        viewModel.clearSearchData()
-                    },
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                ) {
-                    Text(
-                        "Clear Results"
-                    )
-                }
-            }
-
-            HorizontalDivider()
-
-            if (invalidZipProvided) CustomText(
-                modifier.padding(horizontal = 16.dp),
-                text = "Invalid ZIP Code entered. Please double-check your input and re-enter"
-            )
-
-            itemsRetrieved?.meta?.countReturned?.let { count ->
-                CustomText(
-                    text = if (count != 0) "$count ${selectedSpecies.type} found" else "No ${selectedSpecies.type} are available in this area. Please try a different ZIP Code.",
-                    modifier = Modifier.padding(vertical = 8.dp)
+        Row(modifier = Modifier.padding(bottom = 8.dp)) {
+            Button(
+                onClick = {
+                    viewModel.clearSearchData()
+                    viewModel.searchPetData(Species.CATS.type)
+                },
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                Text(
+                    "Search pets"
                 )
             }
-
-            HorizontalDivider()
-
-            if (isLoadingOn) SpinningLoader(modifier = Modifier.padding(top = 16.dp))
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
+            TextButton(
+                onClick = {
+                    viewModel.clearZip()
+                    viewModel.clearSearchData()
+                },
+                modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                val searchList = itemsRetrieved?.data ?: emptyList()
-                val includedList = itemsRetrieved?.included
-                items(
-                    items = searchList,
-                    key = { it.attributes.name ?: searchList.indexOf(it) }
-                ) { animal ->
-                    animal.let {
-                        val org = viewModel.getOrganizationForAnimal(animal, includedList)
-                        Row(
+                Text(
+                    "Clear Results"
+                )
+            }
+        }
+
+        HorizontalDivider()
+
+        if (invalidZipProvided) CustomText(
+            modifier.padding(horizontal = 16.dp),
+            text = "Invalid ZIP Code entered. Please double-check your input and re-enter"
+        )
+
+        itemsRetrieved?.meta?.countReturned?.let { count ->
+            CustomText(
+                text = if (count != 0) "$count ${selectedSpecies.type} found" else "No ${selectedSpecies.type} are available in this area. Please try a different ZIP Code.",
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+
+        HorizontalDivider()
+
+        if (isLoadingOn) SpinningLoader(modifier = Modifier.padding(top = 16.dp))
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
+        ) {
+            val searchList = itemsRetrieved?.data ?: emptyList()
+            val includedList = itemsRetrieved?.included
+            items(
+                items = searchList,
+                key = { it.attributes.name ?: searchList.indexOf(it) }
+            ) { animal ->
+                animal.let {
+                    val org = viewModel.getOrganizationForAnimal(animal, includedList)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding(top = 8.dp, bottom = 8.dp, end = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight()
-                                .padding(top = 8.dp, bottom = 8.dp, end = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                AsyncImage(
-                                    model = animal.attributes.pictureThumbnailUrl
-                                        ?: R.drawable.no_image_icon,
-                                    contentDescription = "",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.padding(top = 8.dp)
-                                        .size(120.dp)
+                            AsyncImage(
+                                model = animal.attributes.pictureThumbnailUrl
+                                    ?: R.drawable.no_image_icon,
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.padding(top = 8.dp)
+                                    .size(120.dp)
+                            )
+                            ProperCaseText(animal.attributes.name)
+
+                            org?.attributes?.let {
+                                Text(
+                                    text = it.name!!,
+                                    textAlign = TextAlign.Center,
+                                    color = Color.Yellow,
+                                    style = TextStyle(fontSize = 10.sp),
+                                    modifier = Modifier.padding(horizontal = 16.dp),
                                 )
-                                ProperCaseText(animal.attributes.name)
-
-                                org?.attributes?.let {
-                                    Text(
-                                        text = it.name!!,
-                                        textAlign = TextAlign.Center,
-                                        color = Color.Yellow,
-                                        style = TextStyle(fontSize = 12.sp),
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                    )
-                                    Text(
-                                        text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
-                                        textAlign = TextAlign.Center,
-                                        style = TextStyle(fontSize = 10.sp),
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
-                                }
+                                Text(
+                                    text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
+                                    textAlign = TextAlign.Center,
+                                    style = TextStyle(fontSize = 10.sp),
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
                             }
+                        }
 
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight(),         // <- fill same height as left column
-                                verticalArrangement = Arrangement.SpaceEvenly,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                PetModalButton {
-                                    ProperCaseText(animal.attributes.name, 22.sp)
-                                    Text(
-                                        text = animal.attributes.ageString ?: "(Age Unknown)",
-                                        textAlign = TextAlign.Center,
-                                        style = TextStyle(fontSize = 12.sp),
-                                        modifier = Modifier.padding(vertical = 4.dp)
-                                    )
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),         // <- fill same height as left column
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            PetModalButton {
+                                ProperCaseText(animal.attributes.name, 22.sp)
+                                Text(
+                                    text = animal.attributes.ageString ?: "(Age Unknown)",
+                                    textAlign = TextAlign.Center,
+                                    style = TextStyle(fontSize = 12.sp),
+                                    modifier = Modifier.padding(vertical = 4.dp)
+                                )
 
-                                    Text(
-                                        text = "Contact info:"
-                                    )
-                                    org?.attributes?.let {
-                                        it.name?.let { value ->
-                                            Text(
-                                                text = value,
-                                                textAlign = TextAlign.Start,
-                                                modifier = Modifier.padding(horizontal = 16.dp)
-                                            )
-                                        }
-                                        it.street?.let { value ->
-                                            Text(
-                                                text = value,
-                                                textAlign = TextAlign.Start,
-                                                modifier = Modifier.padding(horizontal = 16.dp)
-                                            )
-                                        }
+                                Text(
+                                    text = "Contact info:"
+                                )
+                                org?.attributes?.let {
+                                    it.name?.let { value ->
                                         Text(
-                                            text = it.city + ", " + it.state?.uppercase(Locale.getDefault()),
+                                            text = value,
                                             textAlign = TextAlign.Start,
                                             modifier = Modifier.padding(horizontal = 16.dp)
                                         )
-
-                                        SetClickableContactInfo(
-                                            phone = it.phone,
-                                            url = it.url
+                                    }
+                                    it.street?.let { value ->
+                                        Text(
+                                            text = value,
+                                            textAlign = TextAlign.Start,
+                                            modifier = Modifier.padding(horizontal = 16.dp)
                                         )
+                                    }
+                                    Text(
+                                        text = it.city + ", " + it.state?.uppercase(Locale.getDefault()),
+                                        textAlign = TextAlign.Start,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
 
-                                        it.adoptionProcess.let { value ->
-                                            Text(
-                                                text = "Adoption process:\n$value",
-                                                textAlign = TextAlign.Start,
-                                                fontSize = 12.sp,
-                                                modifier = Modifier.padding(horizontal = 16.dp)
-                                            )
-                                        }
+                                    SetClickableContactInfo(
+                                        phone = it.phone,
+                                        url = it.url
+                                    )
+
+                                    it.adoptionProcess.let { value ->
+                                        Text(
+                                            text = "Adoption process:\n$value",
+                                            textAlign = TextAlign.Start,
+                                            fontSize = 12.sp,
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
                                     }
                                 }
-                                Spacer(modifier = Modifier.height(16.dp))
-                                ShareButton(
-                                    label = "Share me!",
-                                    linkUrl = org?.attributes?.url,
-                                    petName = animal.attributes.name,
-                                    petBreed = animal.attributes.breedPrimary,
-                                    pictureUrl = animal.attributes.pictureThumbnailUrl
-                                )
                             }
-
+                            Spacer(modifier = Modifier.height(16.dp))
+                            ShareButton(
+                                label = "Share me!",
+                                linkUrl = org?.attributes?.url,
+                                petName = animal.attributes.name,
+                                petBreed = animal.attributes.breedPrimary,
+                                pictureUrl = animal.attributes.pictureThumbnailUrl
+                            )
                         }
-                        HorizontalDivider()
+
                     }
+                    HorizontalDivider()
                 }
             }
-
         }
+
     }
 }
 

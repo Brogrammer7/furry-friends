@@ -61,27 +61,45 @@ class MainActivity : ComponentActivity() {
 
             val navController = rememberNavController()
 
+            fun getCurrentScreenTitle(): Int {
+                // Logic to return the current screen title based on navigation
+                return when (navController.currentDestination?.route) {
+                    dashboardTab.title -> R.string.dashboard_screen_title
+                    searchPetsTab.title -> R.string.search_pets_screen_title
+                    settingsTab.title -> R.string.settings_tab_title
+                    aboutTab.title -> R.string.about_screen_title
+                    else -> R.string.dashboard_screen_title
+                }
+            }
+
             FurryFriendsTheme {
                 Scaffold(
-                    bottomBar = { TabView(tabBarItems = tabBarItems, navController = navController) },
-                    modifier = Modifier.fillMaxSize()
+                    topBar = { FurryFriendsAppBar(titleText = stringResource(getCurrentScreenTitle())) },
+                    bottomBar = { TabView(tabBarItems = tabBarItems, navController = navController) }
                 ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = dashboardTab.title,
-                        modifier = Modifier.padding(innerPadding)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(), // Ensure padding is applied
+                        verticalArrangement = Arrangement.Top, // Change as needed
+                        horizontalAlignment = Alignment.CenterHorizontally // Change as needed
                     ) {
-                        composable(dashboardTab.title) {
-                            DashboardScreen()
-                        }
-                        composable(searchPetsTab.title) {
-                            SearchPetsScreen()
-                        }
-                        composable(settingsTab.title) {
-                            SettingsScreen()
-                        }
-                        composable(aboutTab.title) {
-                            AboutScreen()
+                        NavHost(
+                            navController = navController,
+                            startDestination = dashboardTab.title,
+                        ) {
+                            composable(dashboardTab.title) {
+                                DashboardScreen(Modifier.padding(innerPadding))
+                            }
+                            composable(searchPetsTab.title) {
+                                SearchPetsScreen(Modifier.padding(innerPadding))
+                            }
+                            composable(settingsTab.title) {
+                                SettingsScreen(Modifier.padding(innerPadding))
+                            }
+                            composable(aboutTab.title) {
+                                AboutScreen(Modifier.padding(innerPadding))
+                            }
                         }
                     }
                 }
@@ -89,7 +107,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
