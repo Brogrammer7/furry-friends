@@ -81,12 +81,11 @@ fun SearchPetsScreen(
 
     Column(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
             value = zipText,
-            onValueChange = { viewModel.updateZipInput(it) },
+            onValueChange = { viewModel.processZipInput(it) },
             label = { Text("Enter your ZIP Code") },
             isError = zipErrorState,
             singleLine = true,
@@ -98,6 +97,7 @@ fun SearchPetsScreen(
 
         Row(modifier = Modifier.padding(bottom = 8.dp)) {
             Button(
+                enabled = viewModel.checkValidZip(zipIntState),
                 onClick = {
                     viewModel.clearSearchData()
                     viewModel.searchPetData(Species.CATS.type)
@@ -123,15 +123,16 @@ fun SearchPetsScreen(
 
         HorizontalDivider()
 
-        if (invalidZipProvided) CustomText(
-            modifier.padding(horizontal = 16.dp),
+        if (invalidZipProvided) 
+            CustomText(
+            modifier = Modifier.padding(vertical = 8.dp),
             text = "Invalid ZIP Code entered. Please double-check your input and re-enter"
         )
 
         itemsRetrieved?.meta?.countReturned?.let { count ->
             CustomText(
+                modifier = Modifier.padding(vertical = 8.dp),
                 text = if (count != 0) "$count ${selectedSpecies.type} found" else "No ${selectedSpecies.type} are available in this area. Please try a different ZIP Code.",
-                modifier = Modifier.padding(vertical = 8.dp)
             )
         }
 
