@@ -43,6 +43,7 @@ fun CustomText(
 @Composable
 fun ProperCaseText(input: String?, fontSize: TextUnit = 18.sp) {
     val properCase = input
+        ?.replace("*", "")
         ?.lowercase(Locale.getDefault())
         ?.split("\\s+".toRegex())
         ?.joinToString(" ") { word ->
