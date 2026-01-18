@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.furryfriends.R
-import com.example.furryfriends.ui.widgets.CustomText
+import com.example.furryfriends.ui.components.CustomText
 
 @Composable
 fun AboutScreen(

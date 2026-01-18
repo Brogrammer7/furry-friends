@@ -1,4 +1,4 @@
-package com.example.furryfriends.ui.widgets
+package com.example.furryfriends.ui.components
 
 import android.content.Intent
 import androidx.compose.foundation.background
