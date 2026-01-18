@@ -1,4 +1,4 @@
-package com.example.furryfriends.ui.widgets
+package com.example.furryfriends.ui.components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LocalTextStyle
