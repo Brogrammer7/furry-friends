@@ -78,7 +78,11 @@ fun SearchPetsScreen(
     val scope = rememberCoroutineScope()
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(
+                horizontal = 16.dp,
+                vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
@@ -90,7 +94,6 @@ fun SearchPetsScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
         Row(modifier = Modifier.padding(bottom = 8.dp)) {
@@ -104,7 +107,7 @@ fun SearchPetsScreen(
                     }
                     focusManager.clearFocus()
                 },
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(end = 16.dp)
             ) {
                 Text(
                     "Search pets"
@@ -115,7 +118,7 @@ fun SearchPetsScreen(
                     viewModel.clearZip()
                     viewModel.clearSearchData()
                 },
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(start = 16.dp)
             ) {
                 Text(
                     "Clear Results"
@@ -127,13 +130,11 @@ fun SearchPetsScreen(
 
         if (invalidZipProvided) 
             CustomText(
-            modifier = Modifier.padding(vertical = 8.dp),
             text = "Invalid ZIP Code entered. Please double-check your input and re-enter"
         )
 
         itemsRetrieved?.meta?.countReturned?.let { count ->
             CustomText(
-                modifier = Modifier.padding(vertical = 8.dp),
                 text = if (count >= 2) "$count ${selectedSpecies.type} found"
                 else if (count == 1) "$count ${selectedSpecies.type.replace("s", "")} found"
                 else "No ${selectedSpecies.type} are available in this area. Please try a different ZIP Code.",
@@ -152,7 +153,7 @@ fun SearchPetsScreen(
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     val searchList = itemsRetrieved?.data ?: emptyList()
                     val includedList = itemsRetrieved?.included
@@ -173,7 +174,8 @@ fun SearchPetsScreen(
                                 Column(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .fillMaxHeight(),
+                                        .fillMaxHeight()
+                                        .padding(horizontal = 16.dp),
                                     verticalArrangement = Arrangement.Center,
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
@@ -183,23 +185,22 @@ fun SearchPetsScreen(
                                         contentDescription = "",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier.padding(top = 8.dp)
-                                            .size(120.dp)
+                                            .size(130.dp)
+                                            .clip(RoundedCornerShape(10.dp))
                                     )
-                                    ProperCaseText(input = animal.attributes.name, fontSize = 16.sp)
+                                    FormatPetName(input = animal.attributes.name, fontSize = 16.sp)
 
                                     org?.attributes?.let {
                                         Text(
                                             text = it.name!!,
                                             textAlign = TextAlign.Center,
                                             color = Color.Yellow,
-                                            style = TextStyle(fontSize = 10.sp),
-                                            modifier = Modifier.padding(horizontal = 16.dp),
+                                            style = TextStyle(fontSize = 12.sp),
                                         )
                                         Text(
                                             text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
                                             textAlign = TextAlign.Center,
                                             style = TextStyle(fontSize = 10.sp),
-                                            modifier = Modifier.padding(horizontal = 16.dp)
                                         )
                                     }
                                 }
@@ -207,14 +208,15 @@ fun SearchPetsScreen(
                                 Column(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .fillMaxHeight(),         // <- fill same height as left column
+                                        .fillMaxHeight()
+                                        .padding(horizontal = 16.dp),
                                     verticalArrangement = Arrangement.SpaceEvenly,
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     PetModalButton {
-                                        ProperCaseText(animal.attributes.name, 22.sp)
+                                        FormatPetName(animal.attributes.name, 22.sp)
                                         Text(
-                                            text = animal.attributes.ageString ?: "(Age Unknown)",
+                                            text = animal.attributes.ageString ?: "(Age unknown)",
                                             textAlign = TextAlign.Center,
                                             style = TextStyle(fontSize = 12.sp),
                                             modifier = Modifier.padding(vertical = 4.dp)
@@ -228,22 +230,18 @@ fun SearchPetsScreen(
                                                 Text(
                                                     text = value,
                                                     textAlign = TextAlign.Start,
-                                                    modifier = Modifier.padding(horizontal = 16.dp)
                                                 )
                                             }
                                             it.street?.let { value ->
                                                 Text(
                                                     text = value,
                                                     textAlign = TextAlign.Start,
-                                                    modifier = Modifier.padding(horizontal = 16.dp)
                                                 )
                                             }
                                             Text(
                                                 text = it.city + ", " + it.state?.uppercase(Locale.getDefault()),
                                                 textAlign = TextAlign.Start,
-                                                modifier = Modifier.padding(horizontal = 16.dp)
                                             )
-
                                             SetClickableContactInfo(
                                                 phone = it.phone,
                                                 url = it.url
@@ -254,7 +252,6 @@ fun SearchPetsScreen(
                                                     text = "Adoption process:\n$value",
                                                     textAlign = TextAlign.Start,
                                                     fontSize = 12.sp,
-                                                    modifier = Modifier.padding(horizontal = 16.dp)
                                                 )
                                             }
                                         }
