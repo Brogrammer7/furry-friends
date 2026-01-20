@@ -3,6 +3,7 @@ package com.example.furryfriends.ui.screens
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +47,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.furryfriends.R
@@ -55,6 +59,7 @@ import com.example.furryfriends.ui.components.PetModalButton
 import com.example.furryfriends.ui.components.ShareButton
 import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
+import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -76,6 +81,12 @@ fun SearchPetsScreen(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
+
+    //Grab a reference to Dark Mode for UI
+    val owner = LocalViewModelStoreOwner.current
+        ?: throw IllegalStateException("No ViewModelStoreOwner available")
+    val settingsViewModel: SettingsViewModel = ViewModelProvider(owner).get(SettingsViewModel::class.java)
+    val isDarkTheme by settingsViewModel.darkThemeEnabled.collectAsState()
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -150,133 +161,144 @@ fun SearchPetsScreen(
             )
         }
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
-                ) {
-                    val searchList = itemsRetrieved?.data ?: emptyList()
-                    val includedList = itemsRetrieved?.included
-                    items(
-                        items = searchList,
-                        key = { it.attributes.name ?: searchList.indexOf(it) }
-                    ) { animal ->
-                        animal.let {
-                            val org = viewModel.getOrganizationForAnimal(animal, includedList)
-                            Row(
+        val searchList = itemsRetrieved?.data ?: emptyList()
+        val includedList = itemsRetrieved?.included
+
+        if (searchList.isEmpty() || includedList.isNullOrEmpty()) {
+            Image(
+                painter = painterResource(R.drawable.mart_dom_2),
+                contentDescription = null,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
+            ) {
+
+                items(
+                    items = searchList,
+                    key = { it.attributes.name ?: searchList.indexOf(it) }
+                ) { animal ->
+                    animal.let {
+                        val org = viewModel.getOrganizationForAnimal(animal, includedList)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                                .padding(top = 8.dp, bottom = 8.dp, end = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .fillMaxHeight()
-                                    .padding(top = 8.dp, bottom = 8.dp, end = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Start
+                                    .weight(1f)
+                                    .fillMaxHeight(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    AsyncImage(
-                                        model = animal.attributes.pictureThumbnailUrl
-                                            ?: R.drawable.no_image_icon,
-                                        contentDescription = "",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.padding(top = 8.dp)
-                                            .size(120.dp)
+                                AsyncImage(
+                                    model = animal.attributes.pictureThumbnailUrl
+                                        ?: R.drawable.no_image_icon,
+                                    contentDescription = "",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                        .size(130.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                )
+                                FormatPetName(input = animal.attributes.name, fontSize = 16.sp)
+
+                                org?.attributes?.let {
+                                    Text(
+                                        text = it.name!!,
+                                        textAlign = TextAlign.Center,
+                                        color = if (!isDarkTheme) Color.Green else Color.Yellow,
+                                        style = TextStyle(fontSize = 10.sp),
+                                        modifier = Modifier.padding(horizontal = 16.dp),
                                     )
-                                    FormatPetName(input = animal.attributes.name, fontSize = 16.sp)
-
-                                    org?.attributes?.let {
-                                        Text(
-                                            text = it.name!!,
-                                            textAlign = TextAlign.Center,
-                                            color = Color.Yellow,
-                                            style = TextStyle(fontSize = 10.sp),
-                                            modifier = Modifier.padding(horizontal = 16.dp),
-                                        )
-                                        Text(
-                                            text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
-                                            textAlign = TextAlign.Center,
-                                            style = TextStyle(fontSize = 10.sp),
-                                            modifier = Modifier.padding(horizontal = 16.dp)
-                                        )
-                                    }
+                                    Text(
+                                        text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
+                                        textAlign = TextAlign.Center,
+                                        style = TextStyle(fontSize = 10.sp),
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
                                 }
+                            }
 
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),         // <- fill same height as left column
-                                    verticalArrangement = Arrangement.SpaceEvenly,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    PetModalButton {
-                                        FormatPetName(animal.attributes.name, 22.sp)
-                                        Text(
-                                            text = animal.attributes.ageString ?: "(Age Unknown)",
-                                            textAlign = TextAlign.Center,
-                                            style = TextStyle(fontSize = 12.sp),
-                                            modifier = Modifier.padding(vertical = 4.dp)
-                                        )
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight(),         // <- fill same height as left column
+                                verticalArrangement = Arrangement.SpaceEvenly,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                PetModalButton {
+                                    FormatPetName(animal.attributes.name, 22.sp)
+                                    Text(
+                                        text = animal.attributes.ageString ?: "(Age Unknown)",
+                                        textAlign = TextAlign.Center,
+                                        style = TextStyle(fontSize = 12.sp),
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    )
 
-                                        Text(
-                                            text = "Contact info:"
-                                        )
-                                        org?.attributes?.let {
-                                            it.name?.let { value ->
-                                                Text(
-                                                    text = value,
-                                                    textAlign = TextAlign.Start,
-                                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                                )
-                                            }
-                                            it.street?.let { value ->
-                                                Text(
-                                                    text = value,
-                                                    textAlign = TextAlign.Start,
-                                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                                )
-                                            }
+                                    Text(
+                                        text = "Contact info:"
+                                    )
+                                    org?.attributes?.let {
+                                        it.name?.let { value ->
                                             Text(
-                                                text = it.city + ", " + it.state?.uppercase(Locale.getDefault()),
+                                                text = value,
                                                 textAlign = TextAlign.Start,
                                                 modifier = Modifier.padding(horizontal = 16.dp)
                                             )
-
-                                            SetClickableContactInfo(
-                                                phone = it.phone,
-                                                url = it.url
+                                        }
+                                        it.street?.let { value ->
+                                            Text(
+                                                text = value,
+                                                textAlign = TextAlign.Start,
+                                                modifier = Modifier.padding(horizontal = 16.dp)
                                             )
+                                        }
+                                        Text(
+                                            text = it.city + ", " + it.state?.uppercase(Locale.getDefault()),
+                                            textAlign = TextAlign.Start,
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
 
-                                            it.adoptionProcess.let { value ->
-                                                Text(
-                                                    text = "Adoption process:\n$value",
-                                                    textAlign = TextAlign.Start,
-                                                    fontSize = 12.sp,
-                                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                                )
-                                            }
+                                        SetClickableContactInfo(
+                                            phone = it.phone,
+                                            url = it.url
+                                        )
+
+                                        it.adoptionProcess.let { value ->
+                                            Text(
+                                                text = "Adoption process:\n$value",
+                                                textAlign = TextAlign.Start,
+                                                fontSize = 12.sp,
+                                                modifier = Modifier.padding(horizontal = 16.dp)
+                                            )
                                         }
                                     }
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    ShareButton(
-                                        label = "Share me!",
-                                        linkUrl = org?.attributes?.url,
-                                        petName = animal.attributes.name,
-                                        petBreed = animal.attributes.breedPrimary,
-                                        pictureUrl = animal.attributes.pictureThumbnailUrl
-                                    )
                                 }
-
+                                Spacer(modifier = Modifier.height(16.dp))
+                                ShareButton(
+                                    label = "Share me!",
+                                    linkUrl = org?.attributes?.url,
+                                    petName = animal.attributes.name,
+                                    petBreed = animal.attributes.breedPrimary,
+                                    pictureUrl = animal.attributes.pictureThumbnailUrl
+                                )
                             }
-                            HorizontalDivider()
+
                         }
+                        HorizontalDivider()
                     }
                 }
-
             }
+
         }
+    }
+}
 //Custom components:
 
 @Composable
