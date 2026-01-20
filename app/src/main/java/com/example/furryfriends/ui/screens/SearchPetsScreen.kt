@@ -185,7 +185,7 @@ fun SearchPetsScreen(
                                         modifier = Modifier.padding(top = 8.dp)
                                             .size(120.dp)
                                     )
-                                    ProperCaseText(input = animal.attributes.name, fontSize = 16.sp)
+                                    FormatPetName(input = animal.attributes.name, fontSize = 16.sp)
 
                                     org?.attributes?.let {
                                         Text(
@@ -212,7 +212,7 @@ fun SearchPetsScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     PetModalButton {
-                                        ProperCaseText(animal.attributes.name, 22.sp)
+                                        FormatPetName(animal.attributes.name, 22.sp)
                                         Text(
                                             text = animal.attributes.ageString ?: "(Age Unknown)",
                                             textAlign = TextAlign.Center,

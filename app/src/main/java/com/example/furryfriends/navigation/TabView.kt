@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 
 data class TabBarItem(
@@ -45,7 +46,13 @@ fun TabView(tabBarItems: List<TabBarItem>, navController: NavController) {
                         iconTicker = tabBarItem.iconTicker
                     )
                 },
-                label = {Text(tabBarItem.title)})
+                label = {
+                    Text(
+                    text = tabBarItem.title,
+                    textAlign = TextAlign.Center,
+                    )
+                }
+            )
         }
     }
 }
