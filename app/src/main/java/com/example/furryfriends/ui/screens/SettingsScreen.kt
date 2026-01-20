@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,8 +14,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,15 +36,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.example.furryfriends.R
+import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    modifier: Modifier = Modifier,
-    viewModel: SettingsViewModel = viewModel()
+    modifier: Modifier = Modifier
 ) {
+    val owner = LocalViewModelStoreOwner.current
+        ?: throw IllegalStateException("No ViewModelStoreOwner available")
+    val viewModel: SettingsViewModel = ViewModelProvider(owner).get(SettingsViewModel::class.java)
+
     val zip by viewModel.zip.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val message by viewModel.message.collectAsState()
@@ -54,25 +62,68 @@ fun SettingsScreen(
             style = TextStyle(fontSize = 12.sp),
             modifier = Modifier.padding(16.dp)
         )
+
+        HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
+
         LocationPermissionSetting(viewModel = viewModel)
 
         Column(modifier = Modifier.padding(16.dp)) {
             if (loading) {
                 Text(text = "Detecting zip…")
+                SpinningLoader(modifier = Modifier.padding(start = 16.dp))
             } else {
-                Text(text = "Zip: ${zip ?: "Not set"}")
-                message?.let {
-                    Text(text = it, color = Color(0xFFB00020))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(text = "Zip: ${zip ?: "Not set"}")
+                        message?.let {
+                            Text(
+                                text = it,
+                                softWrap = true,
+                                color = Color(0xFFB00020)
+                            )
+                        }
+                    }
+
+                    if (!loading && zip.isNullOrEmpty()) {
+                        TextButton (
+                            onClick = { viewModel.fetchZipFromLastLocation() },
+                            modifier = Modifier.padding(start = 12.dp))
+                        {
+                            Text(
+                                text = "Retry",
+                                color = Color(0xFFB00020)
+                            )
+                        }
+                    }
+
                 }
             }
 
-            // Retry button shown when not loading and zip not set
-            if (!loading && zip.isNullOrEmpty()) {
-                Button(onClick = { viewModel.fetchZipFromLastLocation() }, modifier = Modifier.padding(top = 12.dp)) {
-                    Text(text = "Retry")
-                }
+            HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
+
+            // Dark theme row with Switch bound to viewModel
+            val darkEnabled by viewModel.darkThemeEnabled.collectAsState()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "Enable Dark Theme", style = MaterialTheme.typography.bodyLarge)
+                androidx.compose.material3.Switch(
+                    checked = darkEnabled,
+                    onCheckedChange = { checked -> viewModel.setDarkThemeEnabled(checked) }
+                )
             }
+
         }
+        Log.d("check3", "zip is $zip")
+
     }
 }
 
@@ -146,6 +197,7 @@ fun LocationPermissionSetting(
     ) {
         Column {
             Text(text = "Location access", style = MaterialTheme.typography.bodyLarge)
+
             Text(
                 text = if (granted) "Allowed" else "Not allowed",
                 style = MaterialTheme.typography.bodySmall,

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
@@ -31,14 +32,18 @@ import com.example.furryfriends.ui.screens.SearchPetsScreen
 import com.example.furryfriends.ui.screens.SettingsScreen
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
 import com.example.furryfriends.ui.viewmodels.MainActivityViewModel
+import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
+    val mainViewModel: MainActivityViewModel by viewModels()
+    val settingsViewModel: SettingsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel = MainActivityViewModel()
-            val screenTitle by viewModel.screenTitleState.collectAsState()
+            val screenTitle by mainViewModel.screenTitleState.collectAsState()
+            val darkEnabled by settingsViewModel.darkThemeEnabled.collectAsState()
 
             val dashboardTab = TabBarItem(
                 title = stringResource(R.string.dashboard_tab_title),
@@ -65,7 +70,7 @@ class MainActivity : ComponentActivity() {
 
             val navController = rememberNavController()
 
-            FurryFriendsTheme {
+            FurryFriendsTheme(darkTheme = darkEnabled) {
                 Scaffold(
                     topBar = { FurryFriendsAppBar(titleText = screenTitle) },
                     bottomBar = { TabView(tabBarItems = tabBarItems, navController = navController) }
@@ -75,19 +80,19 @@ class MainActivity : ComponentActivity() {
                         startDestination = dashboardTab.title,
                     ) {
                         composable(dashboardTab.title) {
-                            viewModel.setTitle(stringResource(R.string.dashboard_screen_title))
+                            mainViewModel.setTitle(stringResource(R.string.dashboard_screen_title))
                             DashboardScreen(Modifier.padding(innerPadding))
                         }
                         composable(searchPetsTab.title) {
-                            viewModel.setTitle(stringResource(R.string.search_pets_screen_title))
+                            mainViewModel.setTitle(stringResource(R.string.search_pets_screen_title))
                             SearchPetsScreen(Modifier.padding(innerPadding))
                         }
                         composable(settingsTab.title) {
-                            viewModel.setTitle(stringResource(R.string.settings_screen_title))
+                            mainViewModel.setTitle(stringResource(R.string.settings_screen_title))
                             SettingsScreen(Modifier.padding(innerPadding))
                         }
                         composable(aboutTab.title) {
-                            viewModel.setTitle(stringResource(R.string.about_screen_title))
+                            mainViewModel.setTitle(stringResource(R.string.about_screen_title))
                             AboutScreen(Modifier.padding(innerPadding))
                         }
                     }
