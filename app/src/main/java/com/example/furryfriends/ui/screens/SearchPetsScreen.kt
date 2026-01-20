@@ -118,7 +118,7 @@ fun SearchPetsScreen(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Text(
-                    "Search pets"
+                    "Search ${selectedSpecies.type}"
                 )
             }
             TextButton(

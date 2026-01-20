@@ -11,6 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -102,11 +103,11 @@ fun SpinningLoader(
 @Composable
 fun LocalListLazyRow(petPhotos: List<Int>) {
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        modifier = Modifier.padding(end = 16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(petPhotos) {
-                resId ->
+        items(petPhotos) { resId ->
             Image(
                 painter = painterResource(id = resId),
                 contentDescription = null,
