@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -47,8 +48,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.furryfriends.R
@@ -59,7 +58,6 @@ import com.example.furryfriends.ui.components.PetModalButton
 import com.example.furryfriends.ui.components.ShareButton
 import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
-import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -82,12 +80,8 @@ fun SearchPetsScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
 
-    //Grab a reference to Dark Mode for UI
-    val owner = LocalViewModelStoreOwner.current
-        ?: throw IllegalStateException("No ViewModelStoreOwner available")
-    val settingsViewModel: SettingsViewModel = ViewModelProvider(owner).get(SettingsViewModel::class.java)
-    val isDarkTheme by settingsViewModel.darkThemeEnabled.collectAsState()
-
+    val isDarkTheme = isSystemInDarkTheme()
+    
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
