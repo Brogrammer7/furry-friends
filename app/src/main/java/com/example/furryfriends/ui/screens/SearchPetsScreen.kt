@@ -270,9 +270,9 @@ fun SearchPetsScreen(
                                             url = it.url
                                         )
 
-                                        it.adoptionProcess.let { value ->
+                                        if (it.adoptionProcess?.isNotBlank() == true) {
                                             Text(
-                                                text = "Adoption process:\n$value",
+                                                text = "Adoption process:\n${it.adoptionProcess}",
                                                 textAlign = TextAlign.Start,
                                                 fontSize = 12.sp,
                                                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -309,14 +309,30 @@ fun SetClickableContactInfo(
 ) {
     val ctx = LocalContext.current
 
-    // A simple launcher wrapper that uses the Activity Result API to start an arbitrary Intent.
-    // It does not expect a result; it just starts the intent via an ActivityResultRegistry owner.
     val activityStarter = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { /* no-op: we don't need a result */ }
 
     fun canResolve(intent: Intent): Boolean =
         intent.resolveActivity(ctx.packageManager) != null
+
+    fun isValidUrl(urlString: String?): Boolean {
+        if (urlString.isNullOrBlank()) return false
+
+        return try {
+            val uri = urlString.toUri()
+            // Check for a non-empty, meaningful host
+            !uri.host.isNullOrBlank() &&
+                    // Exclude bare "http://" or "https://"
+                    uri.host != "http" &&
+                    uri.host != "https" &&
+                    // Additional check to ensure it's not just a protocol
+                    urlString.trim() != "http://" &&
+                    urlString.trim() != "https://"
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     phone?.let { value ->
         val interactionSource = remember { MutableInteractionSource() }
@@ -340,24 +356,43 @@ fun SetClickableContactInfo(
     }
 
     url?.let { value ->
-        val interactionSource = remember { MutableInteractionSource() }
-        Text(
-            text = value,
-            textAlign = TextAlign.Start,
-            color = Color.Blue,
-            modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
-                .clickable(
-                    interactionSource = interactionSource,
-                    onClick = {
-                        val fixed = if (value.startsWith("http://") || value.startsWith("https://")) value else "https://$value"
-                        val webIntent = Intent(Intent.ACTION_VIEW, fixed.toUri())
-                        if (canResolve(webIntent)) {
-                            activityStarter.launch(webIntent)
+        // Only show the URL if it's a valid, meaningful URL
+        if (isValidUrl(value)) {
+            val interactionSource = remember { MutableInteractionSource() }
+            Text(
+                text = value,
+                textAlign = TextAlign.Start,
+                color = Color.Blue,
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                    .clickable(
+                        interactionSource = interactionSource,
+                        onClick = {
+                            val processedUrl = try {
+                                val uri = value.toUri()
+
+                                // If no scheme is present, prepend https://
+                                if (uri.scheme.isNullOrBlank()) {
+                                    "https://$value"
+                                } else if (uri.scheme == "http") {
+                                    // Upgrade http to https
+                                    value.replace("http://", "https://")
+                                } else {
+                                    value
+                                }
+                            } catch (e: Exception) {
+                                // Fallback to https:// if parsing fails
+                                "https://$value"
+                            }
+
+                            val webIntent = Intent(Intent.ACTION_VIEW, processedUrl.toUri())
+                            if (canResolve(webIntent)) {
+                                activityStarter.launch(webIntent)
+                            }
                         }
-                    }
-                )
-        )
+                    )
+            )
+        }
     }
 }
 
