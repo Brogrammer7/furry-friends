@@ -10,7 +10,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.furryfriends.data.SettingsRepository
+import com.example.furryfriends.App
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -30,7 +30,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val TAG = "SettingsViewModel"
 
     // repository using application context (no DI)
-    private val repository = SettingsRepository(getApplication<Application>().applicationContext)
+    private val repository = (application as App).settingsRepository
 
     private val _zip = MutableStateFlow<String?>(null)
     val zip: StateFlow<String?> = _zip.asStateFlow()
