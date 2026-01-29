@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
@@ -35,12 +36,13 @@ import com.example.furryfriends.ui.viewmodels.MainActivityViewModel
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
-    val mainViewModel: MainActivityViewModel by viewModels()
-    val settingsViewModel: SettingsViewModel by viewModels()
+    private val mainViewModel: MainActivityViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             val screenTitle by mainViewModel.screenTitleState.collectAsState()
             val darkEnabled by settingsViewModel.darkThemeEnabled.collectAsState()
@@ -70,7 +72,9 @@ class MainActivity : ComponentActivity() {
 
             val navController = rememberNavController()
 
-            FurryFriendsTheme(darkTheme = darkEnabled) {
+            FurryFriendsTheme(
+                darkTheme = if (isSystemInDarkTheme() || darkEnabled) true else false
+            ) {
                 Scaffold(
                     topBar = { FurryFriendsAppBar(titleText = screenTitle) },
                     bottomBar = { TabView(tabBarItems = tabBarItems, navController = navController) }
