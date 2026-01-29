@@ -293,6 +293,7 @@ fun SearchPetsScreen(
         }
     }
 }
+
 //Custom components:
 
 @Composable
