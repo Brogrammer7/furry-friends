@@ -41,26 +41,26 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _message = MutableStateFlow<String?>(null)
     val message: StateFlow<String?> = _message.asStateFlow()
 
-    private val _darkThemeEnabled = MutableStateFlow(false)
-    val darkThemeEnabled: StateFlow<Boolean> = _darkThemeEnabled.asStateFlow()
+    private val _darkThemeOverride = MutableStateFlow(false)
+    val darkThemeOverride: StateFlow<Boolean> = _darkThemeOverride.asStateFlow()
 
     init {
         // Initialize dark theme state from repository and keep it in sync
         viewModelScope.launch {
             // Read current persisted value once
-            _darkThemeEnabled.value = repository.isDarkThemeEnabled()
+            _darkThemeOverride.value = repository.isDarkThemeOverride()
             // Also collect ongoing updates (if any other writer exists)
             launch {
-                repository.darkThemeEnabled.collectLatest { _darkThemeEnabled.value = it }
+                repository.darkThemeOverride.collectLatest { _darkThemeOverride.value = it }
             }
         }
     }
 
-    fun setDarkThemeEnabled(enabled: Boolean) {
-        _darkThemeEnabled.value = enabled
+    fun setDarkThemeOverride(enabled: Boolean) {
+        _darkThemeOverride.value = enabled
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                repository.setDarkThemeEnabled(enabled)
+                repository.setDarkThemeOverride(enabled)
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to persist dark theme setting", e)
             }

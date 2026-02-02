@@ -18,11 +18,11 @@ class SettingsRepository(private val context: Context) {
     private val dataStore: DataStore<Preferences> = context.applicationContext.dataStore
 
     // Exposed Flow for dark theme setting (defaults to false)
-    val darkThemeEnabled: Flow<Boolean> =
+    val darkThemeOverride: Flow<Boolean> =
         dataStore.data.map { prefs -> prefs[DARK_THEME] ?: false }
 
     // Suspend function to save dark theme
-    suspend fun setDarkThemeEnabled(enabled: Boolean) {
+    suspend fun setDarkThemeOverride(enabled: Boolean) {
         withContext(Dispatchers.IO) {
             dataStore.edit { prefs ->
                 prefs[DARK_THEME] = enabled
@@ -31,7 +31,7 @@ class SettingsRepository(private val context: Context) {
     }
 
     // Optional helper to read current value once
-    suspend fun isDarkThemeEnabled(): Boolean =
+    suspend fun isDarkThemeOverride(): Boolean =
         dataStore.data.map { prefs -> prefs[DARK_THEME] ?: false }.first()
 
     init {
