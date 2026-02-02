@@ -49,6 +49,9 @@ class SearchPetsViewModel: ViewModel() {
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    private val _selectedSpecies = MutableStateFlow(Species.CATS)
+    val selectedSpecies: StateFlow<Species> = _selectedSpecies.asStateFlow()
+
     private val _zipState = MutableStateFlow(-1)
     val zipState: StateFlow<Int> = _zipState.asStateFlow()
 
@@ -57,9 +60,6 @@ class SearchPetsViewModel: ViewModel() {
 
     private val _invalidZipProvided = MutableStateFlow(false)
     val invalidZipProvided: StateFlow<Boolean> = _invalidZipProvided.asStateFlow()
-
-    private val _selectedSpecies = MutableStateFlow(Species.CATS)
-    val selectedSpecies: StateFlow<Species> = _selectedSpecies.asStateFlow()
 
     fun processZipInput(raw: String) {
         val filtered = raw.filter { it.isDigit() }.take(5)
@@ -81,26 +81,6 @@ class SearchPetsViewModel: ViewModel() {
         _invalidZipProvided.update { false }
         _zipState.update { -1 }
         _zipError.update { false }
-    }
-
-    fun clearSearchData() {
-        _invalidZipProvided.update { false }
-        _searchUiState.update {
-            it.copy(
-                items = null,
-                isLoading = false,
-                error = null)
-        }
-    }
-
-    fun getOrganizationForAnimal(
-        animal: ResourceItem,
-        includedList: List<IncludedItem>?
-    ): IncludedItem? {
-        // get first org relationship id for this animal (if any)
-        val orgRelId = animal.relationships.orgs?.data?.firstOrNull()?.id
-        // find included org by id and type "orgs"
-        return includedList?.find { it.id == orgRelId && it.type == "orgs" }
     }
 
     fun searchPetData(petType: String) {
@@ -174,6 +154,35 @@ class SearchPetsViewModel: ViewModel() {
                 }
                 Log.e("check2", "Exception", e)
             }
+        }
+    }
+
+    fun clearSearchData() {
+        _invalidZipProvided.update { false }
+        _searchUiState.update {
+            it.copy(
+                items = null,
+                isLoading = false,
+                error = null)
+        }
+    }
+
+    fun getOrganizationForAnimal(
+        animal: ResourceItem,
+        includedList: List<IncludedItem>?
+    ): IncludedItem? {
+        // get first org relationship id for this animal (if any)
+        val orgRelId = animal.relationships.orgs?.data?.firstOrNull()?.id
+        // find included org by id and type "orgs"
+        return includedList?.find { it.id == orgRelId && it.type == "orgs" }
+    }
+
+    fun getAnimalsWithOrgs(
+        searchList: List<ResourceItem>,
+        includedList: List<IncludedItem>?
+    ): List<Pair<ResourceItem, IncludedItem?>> {
+        return searchList.map { animal ->
+            animal to getOrganizationForAnimal(animal, includedList)
         }
     }
 
