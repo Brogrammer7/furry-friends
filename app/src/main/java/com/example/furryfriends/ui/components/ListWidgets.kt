@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -69,15 +68,13 @@ fun PetSearchList(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight()
                             .padding(top = 8.dp, bottom = 8.dp, end = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Column(
                             modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
+                                .weight(1f),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -116,8 +113,7 @@ fun PetSearchList(
 
                         Column(
                             modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),         // <- fill same height as left column
+                                .weight(1f),         // <- fill same height as left column
                             verticalArrangement = Arrangement.SpaceEvenly,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -188,7 +184,6 @@ fun PetSearchList(
 
 @Composable
 fun SetClickableContactInfo(
-    modifier: Modifier = Modifier,
     phone: String?,
     url: String?
 ) {
@@ -226,7 +221,7 @@ fun SetClickableContactInfo(
             textAlign = TextAlign.Start,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 8.dp)
                 .clickable(
                     interactionSource = interactionSource,
                     onClick = {
@@ -249,7 +244,7 @@ fun SetClickableContactInfo(
                 textAlign = TextAlign.Start,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                    .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 8.dp)
                     .clickable(
                         interactionSource = interactionSource,
                         onClick = {

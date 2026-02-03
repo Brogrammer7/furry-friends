@@ -2,6 +2,7 @@ package com.example.furryfriends.ui.components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -43,7 +44,10 @@ fun CustomText(
 /* The string input for pet names needs extensive cleanup because many shelters use inappropriate characters and phrases unrelated to the pet's actual name. This returns a clean name for the pet without any additional nonsense.
  */
 @Composable
-fun FormatPetName(input: String?, fontSize: TextUnit = 18.sp) {
+fun FormatPetName(
+    input: String?,
+    fontSize: TextUnit = 18.sp
+) {
     val cleaned = input
         // remove phrases: "courtesy post" and "adopt me" (any case, allows multiple whitespace)
         ?.replace(Regex("\\bcourtesy\\s+post\\b", RegexOption.IGNORE_CASE), "")
@@ -65,6 +69,7 @@ fun FormatPetName(input: String?, fontSize: TextUnit = 18.sp) {
 
     Text(
         text = properCase?.ifEmpty { "Name error" } ?: "Name error",
+        color = MaterialTheme.colorScheme.onPrimaryContainer,
         style = TextStyle(fontWeight = FontWeight.Bold, fontSize = fontSize),
         textAlign = TextAlign.Center,
         modifier = Modifier.padding(top = 8.dp)

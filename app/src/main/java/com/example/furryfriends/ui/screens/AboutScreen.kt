@@ -3,10 +3,10 @@ package com.example.furryfriends.ui.screens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -43,7 +43,7 @@ fun AboutScreen(
             CustomText(
                 text = stringResource(R.string.dedicated_to_vestie),
                 fontSize = 14.sp,
-                color = Color.Cyan,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp),
                 style = TextStyle(fontStyle = FontStyle.Italic),
                 maxLines = 2
