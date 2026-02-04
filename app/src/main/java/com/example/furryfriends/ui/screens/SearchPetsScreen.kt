@@ -57,6 +57,18 @@ fun SearchPetsScreen(
         focusManager.clearFocus()
     }
 
+    fun performSearch() {
+        viewModel.clearSearchData()
+        viewModel.searchPetData(Species.CATS.type)
+        hideKeyboard()
+    }
+
+    fun clearResults() {
+        viewModel.clearZip()
+        viewModel.clearSearchData()
+        hideKeyboard()
+    }
+
     val selectedSpecies by viewModel.selectedSpecies.collectAsState()
     val isLoadingOn by viewModel.isLoadingOn.collectAsState()
 
@@ -85,9 +97,7 @@ fun SearchPetsScreen(
             Button(
                 enabled = viewModel.checkValidZip(zipIntState),
                 onClick = {
-                    viewModel.clearSearchData()
-                    viewModel.searchPetData(Species.CATS.type)
-                    hideKeyboard()
+                    performSearch()
                 },
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
@@ -97,9 +107,7 @@ fun SearchPetsScreen(
             }
             TextButton(
                 onClick = {
-                    viewModel.clearZip()
-                    viewModel.clearSearchData()
-                    hideKeyboard()
+                    clearResults()
                 },
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
@@ -114,17 +122,18 @@ fun SearchPetsScreen(
         if (invalidZipProvided) 
             CustomText(
             modifier = Modifier.padding(vertical = 8.dp),
-            text = "Invalid ZIP Code entered. Please double-check your input and re-enter"
+            text = "Invalid ZIP Code entered. Please double-check your input and re-enter",
+            color = MaterialTheme.colorScheme.error
         )
 
         itemsRetrieved?.meta?.countReturned?.let { count ->
             CustomText(
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.padding(vertical = 8.dp),
                 text = if (count >= 2) "$count ${selectedSpecies.type} found"
                 else if (count == 1) "$count ${selectedSpecies.type.replace("s", "")} found"
                 else "No ${selectedSpecies.type} are available in this area. Please try a different ZIP Code.",
-            )
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
         }
 
         HorizontalDivider()
@@ -132,7 +141,7 @@ fun SearchPetsScreen(
         if (isLoadingOn) {
             SpinningLoader(modifier = Modifier.padding(top = 16.dp))
             Text(
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = Modifier.padding(vertical = 16.dp),
                 text = "Finding your next pet! \uD83D\uDC31\uD83D\uDC36"
             )
         }
