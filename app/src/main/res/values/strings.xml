@@ -12,4 +12,6 @@
     <string name="about_tab_title">About</string>
     <string name="about_screen_title">About the developer</string>
     <string name="dedicated_to_vestie">Dedicated to Vestie, the best rescue kitty ever ❤</string>
+    <string name="search">Search</string>
+    <string name="enter_zip_code_to_find">"Enter ZIP Code to find "</string>
 </resources>

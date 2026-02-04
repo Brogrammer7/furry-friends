@@ -1,17 +1,27 @@
 package com.example.furryfriends.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -20,9 +30,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -81,24 +93,23 @@ fun SearchPetsScreen(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        OutlinedTextField(
-            value = zipText,
-            onValueChange = { viewModel.processZipInput(it) },
-            label = { Text("Enter your ZIP Code") },
-            isError = zipErrorState,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+
+        ZipSearchField(
+            zipText = zipText,
+            speciesName = selectedSpecies.type,
+            zipError = zipErrorState,
+            onZipChange = {
+                viewModel.processZipInput(it)
+                //Ensure full 5-digit ZIP is input, then auto-run query
+                if (it.length == 5) performSearch()
+                          },
+            onSearch = { if (viewModel.checkValidZip(zipIntState)) performSearch() }
         )
 
         Row(modifier = Modifier.padding(bottom = 8.dp)) {
             Button(
                 enabled = viewModel.checkValidZip(zipIntState),
-                onClick = {
-                    performSearch()
-                },
+                onClick = { performSearch() },
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Text(
@@ -106,9 +117,7 @@ fun SearchPetsScreen(
                 )
             }
             TextButton(
-                onClick = {
-                    clearResults()
-                },
+                onClick = { clearResults() },
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Text(
@@ -160,6 +169,69 @@ fun SearchPetsScreen(
         }
     }
 }
+
+@Composable
+fun ZipSearchField(
+    zipText: String,
+    speciesName: String,
+    onZipChange: (String) -> Unit,
+    onSearch: () -> Unit,
+    zipError: Boolean,
+    ) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(
+                color = MaterialTheme.colorScheme.surface, // choose desired bg
+                shape = CircleShape
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(modifier = Modifier
+            .weight(1f)
+            .padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 12.dp)
+        ) {
+            BasicTextField(
+                value = zipText,
+                onValueChange = onZipChange,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                textStyle = LocalTextStyle.current.copy(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 24.dp)
+                    .padding(end = 4.dp)
+            ) { innerTextField ->
+                if (zipText.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.enter_zip_code_to_find) + speciesName,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+                innerTextField()
+            }
+        }
+
+        IconButton(
+            onClick = onSearch,
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .size(48.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = stringResource(R.string.search),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
 
 @Preview
 @Composable
