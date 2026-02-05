@@ -55,9 +55,6 @@ class SearchPetsViewModel: ViewModel() {
     private val _zipState = MutableStateFlow(-1)
     val zipState: StateFlow<Int> = _zipState.asStateFlow()
 
-    private val _zipError = MutableStateFlow(false)
-    val zipError: StateFlow<Boolean> = _zipError.asStateFlow()
-
     private val _invalidZipProvided = MutableStateFlow(false)
     val invalidZipProvided: StateFlow<Boolean> = _invalidZipProvided.asStateFlow()
 
@@ -65,11 +62,9 @@ class SearchPetsViewModel: ViewModel() {
         val filtered = raw.filter { it.isDigit() }.take(5)
         if (filtered.isEmpty()) {
             _zipState.value = -1
-            _zipError.value = false
         } else {
             val asInt = filtered.toInt()
             _zipState.value = asInt
-            _zipError.value = filtered.length != 5
         }
     }
 
@@ -80,7 +75,6 @@ class SearchPetsViewModel: ViewModel() {
     fun clearZip() {
         _invalidZipProvided.update { false }
         _zipState.update { -1 }
-        _zipError.update { false }
     }
 
     fun searchPetData(petType: String) {

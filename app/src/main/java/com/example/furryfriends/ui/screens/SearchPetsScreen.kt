@@ -58,7 +58,6 @@ fun SearchPetsScreen(
 ) {
     val zipIntState by viewModel.zipState.collectAsState()
     val zipText = if (zipIntState == -1) "" else zipIntState.toString()
-    val zipErrorState by viewModel.zipError.collectAsState()
     val invalidZipProvided by viewModel.invalidZipProvided.collectAsState()
 
     //Clear focus and collaps keyboard after search input
@@ -110,7 +109,6 @@ fun SearchPetsScreen(
 
         ZipSearchField(
             zipText = zipText,
-            zipError = zipErrorState,
             onZipChange = {
                 /* viewModel must turn zipText (String) into an Int, then checks for a full 5 digits and auto-runs the search */
                 viewModel.processZipInput(it)
@@ -188,7 +186,6 @@ fun SearchPetsScreen(
 fun ZipSearchField(
     zipText: String,
     onZipChange: (String) -> Unit,
-    zipError: Boolean,
     placeHolderTitle: AnnotatedString? = null,
     onIconPressed: () -> Unit,
 ) {
