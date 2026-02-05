@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -127,7 +128,8 @@ fun PetSearchList(
                                 )
 
                                 Text(
-                                    text = "Contact info:"
+                                    text = stringResource(R.string.contact_info),
+                                    modifier = Modifier.padding(vertical = 8.dp )
                                 )
                                 org?.attributes?.let {
                                     it.name?.let { value ->

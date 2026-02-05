@@ -99,7 +99,7 @@ fun SearchPetsScreen(
 
         val customPlaceHolderTitle = buildAnnotatedString {
             append(stringResource(R.string.enter_zip_code_to_find))
-            withStyle(style = androidx.compose.ui.text.SpanStyle(
+            withStyle(style = SpanStyle(
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontWeight = FontWeight.ExtraBold)
             ) {
@@ -142,14 +142,14 @@ fun SearchPetsScreen(
 
         if (invalidZipProvided) 
             CustomText(
-            modifier = Modifier.padding(vertical = 8.dp),
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
             text = stringResource(R.string.invalid_zip_entered),
             color = MaterialTheme.colorScheme.error
         )
 
         itemsRetrieved?.meta?.countReturned?.let { count ->
             CustomText(
-                modifier = Modifier.padding(vertical = 8.dp),
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
                 text = if (count >= 2) "$count ${selectedSpecies.type} found"
                 else if (count == 1) "$count ${selectedSpecies.type.replace("s", "")} found"
                 else "No ${selectedSpecies.type} are available in this area. Please try a different ZIP Code.",
