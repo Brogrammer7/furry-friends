@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,7 +21,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,7 +35,11 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -94,17 +98,27 @@ fun SearchPetsScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+        val customPlaceHolderTitle = buildAnnotatedString {
+            append(stringResource(R.string.enter_zip_code_to_find))
+            withStyle(style = androidx.compose.ui.text.SpanStyle(
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                fontWeight = FontWeight.ExtraBold)
+            ) {
+                append(selectedSpecies.type)
+            }
+        }
+
         ZipSearchField(
             zipText = zipText,
-            speciesName = selectedSpecies.type,
             zipError = zipErrorState,
             onZipChange = {
+                /* viewModel must turn zipText (String) into an Int, then checks for a full 5 digits and auto-runs the search */
                 viewModel.processZipInput(it)
-                //Ensure full 5-digit ZIP is input, then auto-run query
                 if (it.length == 5) performSearch()
                           },
-            onSearch = { if (viewModel.checkValidZip(zipIntState)) performSearch() }
-        )
+            placeHolderTitle = customPlaceHolderTitle,
+            onIconPressed = { if (viewModel.checkValidZip(zipIntState)) performSearch() },
+            )
 
         Row(modifier = Modifier.padding(bottom = 8.dp)) {
             Button(
@@ -113,7 +127,7 @@ fun SearchPetsScreen(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Text(
-                    "Search ${selectedSpecies.type}"
+                    stringResource(R.string.search_options)
                 )
             }
             TextButton(
@@ -121,7 +135,7 @@ fun SearchPetsScreen(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Text(
-                    "Clear Results"
+                    stringResource(R.string.clear_results)
                 )
             }
         }
@@ -131,7 +145,7 @@ fun SearchPetsScreen(
         if (invalidZipProvided) 
             CustomText(
             modifier = Modifier.padding(vertical = 8.dp),
-            text = "Invalid ZIP Code entered. Please double-check your input and re-enter",
+            text = stringResource(R.string.invalid_zip_entered),
             color = MaterialTheme.colorScheme.error
         )
 
@@ -173,24 +187,29 @@ fun SearchPetsScreen(
 @Composable
 fun ZipSearchField(
     zipText: String,
-    speciesName: String,
     onZipChange: (String) -> Unit,
-    onSearch: () -> Unit,
     zipError: Boolean,
-    ) {
+    placeHolderTitle: AnnotatedString? = null,
+    onIconPressed: () -> Unit,
+) {
+    val textStyle = MaterialTheme.typography.bodyLarge
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .background(
-                color = MaterialTheme.colorScheme.surface, // choose desired bg
+                color = MaterialTheme.colorScheme.surface,
                 shape = CircleShape
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(modifier = Modifier
-            .weight(1f)
-            .padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 12.dp)
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(56.dp)
+                .padding(start = 24.dp, end = 8.dp),
+            contentAlignment = Alignment.CenterStart
         ) {
             BasicTextField(
                 value = zipText,
@@ -198,7 +217,7 @@ fun ZipSearchField(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                textStyle = LocalTextStyle.current.copy(
+                textStyle = textStyle.copy(
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 modifier = Modifier
@@ -207,18 +226,20 @@ fun ZipSearchField(
                     .padding(end = 4.dp)
             ) { innerTextField ->
                 if (zipText.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.enter_zip_code_to_find) + speciesName,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
+                    if (placeHolderTitle != null) {
+                        Text(
+                            text = placeHolderTitle,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            style = textStyle
+                        )
+                    }
                 }
                 innerTextField()
             }
         }
 
         IconButton(
-            onClick = onSearch,
+            onClick = onIconPressed,
             modifier = Modifier
                 .padding(end = 8.dp)
                 .size(48.dp)
