@@ -4,18 +4,20 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -27,17 +29,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
@@ -48,11 +54,27 @@ fun SettingsScreen(
 ) {
     val owner = LocalViewModelStoreOwner.current
         ?: throw IllegalStateException("No ViewModelStoreOwner available")
-    val viewModel: SettingsViewModel = ViewModelProvider(owner).get(SettingsViewModel::class.java)
+    val viewModel: SettingsViewModel = viewModel<SettingsViewModel>(viewModelStoreOwner = owner)
 
     val zip by viewModel.zip.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val message by viewModel.message.collectAsState()
+
+    val detectedZipAnnotatedString = buildAnnotatedString {
+        append("Your detected ZIP")
+        append(": \n")
+        withStyle(
+            style = if (zip != null) {
+                SpanStyle(color = MaterialTheme.colorScheme.primary)
+            } else {
+                SpanStyle(color = MaterialTheme.colorScheme.error)
+            }
+        ) {
+            append(zip ?: "Not found")
+        }
+    }
+
+    val darkThemeOverride by viewModel.darkThemeOverride.collectAsState()
 
     Column(
         modifier = modifier.fillMaxWidth()
@@ -69,60 +91,82 @@ fun SettingsScreen(
 
         Column(modifier = Modifier.padding(16.dp)) {
             if (loading) {
-                Text(text = "Detecting zip…")
-                SpinningLoader(modifier = Modifier.padding(start = 16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Detecting ZIP…",
+                        fontStyle = FontStyle.Italic
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    SpinningLoader()
+                }
             } else {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text(text = "Zip: ${zip ?: "Not set"}")
+                    // Left column constrained with weight so the Retry button has room
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = detectedZipAnnotatedString,
+                            softWrap = true
+                        )
                         message?.let {
                             Text(
                                 text = it,
                                 softWrap = true,
-                                color = Color(0xFFB00020)
+                                color = MaterialTheme.colorScheme.error
                             )
                         }
                     }
 
-                    if (!loading && zip.isNullOrEmpty()) {
-                        TextButton (
+                    if (zip.isNullOrEmpty()) {
+                        TextButton(
                             onClick = { viewModel.fetchZipFromLastLocation() },
-                            modifier = Modifier.padding(start = 12.dp))
-                        {
+                            modifier = Modifier.padding(start = 12.dp)
+                        ) {
                             Text(
                                 text = "Retry",
-                                color = Color(0xFFB00020)
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    } else {
+                        TextButton(
+                            onClick = { viewModel.reDetectZip() },
+                            modifier = Modifier.padding(start = 12.dp)
+                        ) {
+                            Text(
+                                text = "Re-detect",
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
-
                 }
             }
 
             HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
 
-            // Dark theme row with Switch bound to viewModel
-            val darkEnabled by viewModel.darkThemeEnabled.collectAsState()
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = "Enable Dark Theme", style = MaterialTheme.typography.bodyLarge)
-                androidx.compose.material3.Switch(
-                    checked = darkEnabled,
-                    onCheckedChange = { checked -> viewModel.setDarkThemeEnabled(checked) }
-                )
+            if (!isSystemInDarkTheme()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Enable Dark Theme", style = MaterialTheme.typography.bodyLarge)
+                    Switch(
+                        checked = darkThemeOverride,
+                        onCheckedChange = { checked -> viewModel.setDarkThemeOverride(checked) }
+                    )
+                }
             }
 
         }
-        Log.d("check3", "zip is $zip")
 
     }
 }
@@ -133,7 +177,7 @@ fun LocationPermissionSetting(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val permission = android.Manifest.permission.ACCESS_COARSE_LOCATION
+    val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
     val activity = context as android.app.Activity
 
     var granted by remember {
@@ -191,7 +235,7 @@ fun LocationPermissionSetting(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -199,15 +243,13 @@ fun LocationPermissionSetting(
             Text(text = "Location access", style = MaterialTheme.typography.bodyLarge)
 
             Text(
-                text = if (granted) "Allowed" else "Not allowed",
+                text = if (granted) "Granted" else "Denied",
                 style = MaterialTheme.typography.bodySmall,
-                color = if (granted) Color(0xFF2E7D32) else Color(0xFFB00020)
+                color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp)
             )
-            // Show detected zip if available
-            zip?.let {
-                Text(text = "Detected ZIP: $it", style = MaterialTheme.typography.bodySmall)
-            }
         }
+
         Button(onClick = onClick) {
             Text(text = if (granted) "Open settings" else "Enable")
         }

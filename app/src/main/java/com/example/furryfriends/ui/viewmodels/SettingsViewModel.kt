@@ -68,12 +68,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
-     * Public entry: call only when coarse location permission is granted.
+     * Public entry: call only when fine location permission is granted.
      */
     @SuppressLint("MissingPermission")
     fun fetchZipFromLastLocation() {
         val appCtx: Context = getApplication<Application>().applicationContext
-        val perm = android.Manifest.permission.ACCESS_COARSE_LOCATION
+        val perm = android.Manifest.permission.ACCESS_FINE_LOCATION
         if (ContextCompat.checkSelfPermission(appCtx, perm) != PackageManager.PERMISSION_GRANTED) {
             _message.value = "Location permission not granted."
             _zip.value = null
@@ -263,6 +263,52 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 null
             }
         }
+
+    fun reDetectZip() {
+        val appCtx: Context = getApplication<Application>().applicationContext
+        val perm = android.Manifest.permission.ACCESS_FINE_LOCATION
+        if (ContextCompat.checkSelfPermission(appCtx, perm) != PackageManager.PERMISSION_GRANTED) {
+            _message.value = "Location permission not granted."
+            _zip.value = null
+            return
+        }
+
+        viewModelScope.launch {
+            _loading.value = true
+            _message.value = null
+            try {
+                val fused = LocationServices.getFusedLocationProviderClient(appCtx)
+
+                // Try getCurrentLocation first
+                var loc = getCurrentLocationSuspend(fused)
+
+                // If current location is null, try active request
+                if (loc == null) {
+                    loc = getLocationViaRequest(fused, timeoutMs = 8_000)
+                }
+
+                if (loc == null) {
+                    _message.value = "No recent location available. Please enable device Location or try again."
+                    _zip.value = null
+                } else {
+                    val postal = reverseGeocodeToZip(loc.latitude, loc.longitude, appCtx)
+                    if (!postal.isNullOrEmpty()) {
+                        _zip.value = postal
+                        _message.value = null
+                    } else {
+                        _message.value = "Could not resolve postal code from location."
+                        _zip.value = null
+                    }
+                }
+            } catch (e: Exception) {
+                _message.value = "Error retrieving location."
+                _zip.value = null
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
 
     fun saveManualZip(manual: String) {
         _zip.value = manual.trim().takeIf { it.isNotEmpty() }
