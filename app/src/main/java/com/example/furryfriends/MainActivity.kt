@@ -91,19 +91,29 @@ class MainActivity : ComponentActivity() {
                         ) {
                             composable(dashboardTab.title) {
                                 mainViewModel.setTitle(stringResource(R.string.dashboard_screen_title))
-                                DashboardScreen(Modifier.padding(innerPadding))
+                                DashboardScreen(
+                                    modifier = Modifier.padding(innerPadding)
+                                )
                             }
                             composable(searchPetsTab.title) {
                                 mainViewModel.setTitle(stringResource(R.string.search_pets_screen_title))
-                                SearchPetsScreen(Modifier.padding(innerPadding))
+                                SearchPetsScreen(
+                                    modifier = Modifier.padding(innerPadding),
+                                    settingsViewModel = settingsViewModel
+                                )
                             }
                             composable(settingsTab.title) {
                                 mainViewModel.setTitle(stringResource(R.string.settings_screen_title))
-                                SettingsScreen(Modifier.padding(innerPadding))
+                                SettingsScreen(
+                                    modifier = Modifier.padding(innerPadding),
+                                    viewModel = settingsViewModel
+                                )
                             }
                             composable(aboutTab.title) {
                                 mainViewModel.setTitle(stringResource(R.string.about_screen_title))
-                                AboutScreen(Modifier.padding(innerPadding))
+                                AboutScreen(
+                                    modifier = Modifier.padding(innerPadding)
+                                )
                             }
                         }
                     }

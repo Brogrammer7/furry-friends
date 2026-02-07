@@ -39,19 +39,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel
 ) {
-    val owner = LocalViewModelStoreOwner.current
-        ?: throw IllegalStateException("No ViewModelStoreOwner available")
-    val viewModel: SettingsViewModel = viewModel<SettingsViewModel>(viewModelStoreOwner = owner)
 
     val zip by viewModel.zip.collectAsState()
     val loading by viewModel.loading.collectAsState()
@@ -266,5 +262,7 @@ fun LocationPermissionSetting(
 @Preview
 @Composable
 fun SettingsScreenPreview() {
-    SettingsScreen()
+//    SettingsScreen(
+//        viewModel = TODO()
+//    )
 }

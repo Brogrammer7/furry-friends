@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,19 +59,24 @@ import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PetSearchList
 import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
+import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun SearchPetsScreen(
     modifier: Modifier = Modifier,
+    settingsViewModel: SettingsViewModel,
     viewModel: SearchPetsViewModel = viewModel()
 ) {
+    val storedZip by settingsViewModel.zip.collectAsState()
+
     val zipIntState by viewModel.zipState.collectAsState()
     val zipText = if (zipIntState == -1) "" else zipIntState.toString()
     val invalidZipProvided by viewModel.invalidZipProvided.collectAsState()
 
-    //Clear focus and collaps keyboard after search input
+    // Clear focus and collapse keyboard after search input
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
@@ -108,6 +115,13 @@ fun SearchPetsScreen(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        LaunchedEffect(storedZip) {
+            if (storedZip != null) {
+                delay(1000)
+                viewModel.processZipInput(storedZip!!)
+                performSearch()
+            }
+        }
 
         val customPlaceHolderTitle = buildAnnotatedString {
             append(stringResource(R.string.enter_zip_code_to_find))
@@ -122,7 +136,7 @@ fun SearchPetsScreen(
         ZipSearchField(
             zipText = zipText,
             onZipChange = {
-                /* viewModel must turn zipText (String) into an Int, then checks for a full 5 digits and auto-runs the search */
+                /* viewModel must turn zipText (String) into an Int and check for a full 5 digits, then it can auto-run the search */
                 viewModel.processZipInput(it)
                 if (it.length == 5) performSearch()
                           },
@@ -156,7 +170,8 @@ fun SearchPetsScreen(
             }
         }
 
-        if (showBottomSheet.value) PetSelectionModal(
+        if (showBottomSheet.value)
+            PetSelectionModal(
             sheetState = sheetState,
             scope = scope,
             showBottomSheet = showBottomSheet
@@ -186,8 +201,9 @@ fun SearchPetsScreen(
         if (isLoadingOn) {
             SpinningLoader(modifier = Modifier.padding(top = 16.dp))
             Text(
-                modifier = Modifier.padding(vertical = 16.dp),
-                text = "Finding your next pet! \uD83D\uDC31\uD83D\uDC36"
+                modifier = Modifier.padding(16.dp),
+                text = if (storedZip == zipText) "Using your saved ZIP Code to find your next pet! \uD83D\uDC31\uD83D\uDC36" else "Finding your next pet! \uD83D\uDC31\uD83D\uDC36",
+                textAlign = TextAlign.Center
             )
         }
 
@@ -310,5 +326,7 @@ fun PetSelectionModal(
 @Preview
 @Composable
 fun SearchPesScreenPreview() {
-    SearchPetsScreen()
+//    SearchPetsScreen(
+//        settingsViewModel = TODO(),
+//    )
 }
