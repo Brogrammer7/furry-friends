@@ -32,6 +32,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     // repository using application context (no DI)
     private val repository = (application as App).settingsRepository
 
+    private val _granted = MutableStateFlow(false)
+    val granted: StateFlow<Boolean> = _granted.asStateFlow()
+
     private val _zip = MutableStateFlow<String?>(null)
     val zip: StateFlow<String?> = _zip.asStateFlow()
 
@@ -45,6 +48,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val darkThemeOverride: StateFlow<Boolean> = _darkThemeOverride.asStateFlow()
 
     init {
+        // Check initial permission state
+        checkLocationPermission(getApplication<Application>().applicationContext)
+
         // Initialize dark theme state from repository and keep it in sync
         viewModelScope.launch {
             // Read current persisted value once
@@ -54,6 +60,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 repository.darkThemeOverride.collectLatest { _darkThemeOverride.value = it }
             }
         }
+
     }
 
     fun setDarkThemeOverride(enabled: Boolean) {
@@ -67,14 +74,21 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun checkLocationPermission(context: Context) {
+        _granted.value = ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun grantPermission(isGranted: Boolean) {
+        _granted.value = isGranted
+    }
+
     /**
      * Public entry: call only when fine location permission is granted.
      */
     @SuppressLint("MissingPermission")
     fun fetchZipFromLastLocation() {
         val appCtx: Context = getApplication<Application>().applicationContext
-        val perm = android.Manifest.permission.ACCESS_FINE_LOCATION
-        if (ContextCompat.checkSelfPermission(appCtx, perm) != PackageManager.PERMISSION_GRANTED) {
+        if (!granted.value) {
             _message.value = "Location permission not granted."
             _zip.value = null
             return
@@ -136,9 +150,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         fused: FusedLocationProviderClient
     ): Location? = withContext(Dispatchers.Main) {
         val appCtx = getApplication<Application>().applicationContext
-        if (ContextCompat.checkSelfPermission(appCtx, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            Log.w(TAG,"permission missing before lastLocation")
+        if (ContextCompat.checkSelfPermission(appCtx, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.w(TAG, "permission missing before lastLocation")
             return@withContext null
         }
         suspendCancellableCoroutine { cont ->
@@ -150,7 +163,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                         if (cont.isActive) cont.resumeWith(Result.success(null))
                     }
             } catch (se: SecurityException) {
-                Log.w(TAG,"SecurityException calling lastLocation", se)
+                Log.w(TAG, "SecurityException calling lastLocation", se)
                 if (cont.isActive) cont.resumeWith(Result.success(null))
             } catch (e: Exception) {
                 Log.w(TAG, "Exception calling lastLocation", e)
@@ -174,7 +187,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     }
                 cont.invokeOnCancellation { cts.cancel() }
             } catch (se: SecurityException) {
-                Log.w(TAG,"SecurityException calling lastLocation", se)
+                Log.w(TAG, "SecurityException calling lastLocation", se)
                 if (cont.isActive) cont.resumeWith(Result.success(null))
             } catch (e: Exception) {
                 Log.w(TAG, "Exception calling getCurrentLocation", e)
@@ -229,7 +242,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     handler.removeCallbacks(timeoutRunnable)
                 }
             } catch (se: SecurityException) {
-                Log.w(TAG,"SecurityException calling lastLocation", se)
+                Log.w(TAG, "SecurityException calling lastLocation", se)
                 if (cont.isActive) cont.resumeWith(Result.success(null))
             } catch (e: Exception) {
                 Log.w(TAG, "Exception requesting location updates", e)
@@ -266,8 +279,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun reDetectZip() {
         val appCtx: Context = getApplication<Application>().applicationContext
-        val perm = android.Manifest.permission.ACCESS_FINE_LOCATION
-        if (ContextCompat.checkSelfPermission(appCtx, perm) != PackageManager.PERMISSION_GRANTED) {
+        if (!granted.value) {
             _message.value = "Location permission not granted."
             _zip.value = null
             return
@@ -309,14 +321,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-
     fun saveManualZip(manual: String) {
         _zip.value = manual.trim().takeIf { it.isNotEmpty() }
     }
 
     fun isCoarsePermissionGranted(): Boolean {
         val appCtx = getApplication<Application>().applicationContext
-        val perm = android.Manifest.permission.ACCESS_COARSE_LOCATION
-        return ContextCompat.checkSelfPermission(appCtx, perm) == PackageManager.PERMISSION_GRANTED
+        return ContextCompat.checkSelfPermission(appCtx, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 }

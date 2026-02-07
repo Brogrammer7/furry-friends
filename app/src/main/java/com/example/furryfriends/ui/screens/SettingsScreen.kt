@@ -1,7 +1,8 @@
 package com.example.furryfriends.ui.screens
 
+import android.Manifest
+import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
@@ -24,9 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.furryfriends.R
@@ -74,6 +71,8 @@ fun SettingsScreen(
         }
     }
 
+    val granted by viewModel.granted.collectAsState()
+
     val darkThemeOverride by viewModel.darkThemeOverride.collectAsState()
 
     Column(
@@ -85,9 +84,13 @@ fun SettingsScreen(
             modifier = Modifier.padding(16.dp)
         )
 
-        HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
+        HorizontalDivider(modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
 
-        LocationPermissionSetting(viewModel = viewModel)
+        LocationPermissionSetting(
+            viewModel = viewModel,
+            granted = granted,
+            onGrantedChange = { newGranted -> viewModel.grantPermission(newGranted) }
+        )
 
         Column(modifier = Modifier.padding(16.dp)) {
             if (loading) {
@@ -122,39 +125,42 @@ fun SettingsScreen(
                         }
                     }
 
-                    if (zip.isNullOrEmpty()) {
-                        TextButton(
-                            onClick = { viewModel.fetchZipFromLastLocation() },
-                            modifier = Modifier.padding(start = 12.dp)
-                        ) {
-                            Text(
-                                text = "Retry",
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    } else {
-                        TextButton(
-                            onClick = { viewModel.reDetectZip() },
-                            modifier = Modifier.padding(start = 12.dp)
-                        ) {
-                            Text(
-                                text = "Re-detect",
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                    if (granted) {
+                        if (zip.isNullOrEmpty()) {
+                            TextButton(
+                                onClick = { viewModel.fetchZipFromLastLocation() },
+                                modifier = Modifier.padding(start = 12.dp)
+                            ) {
+                                Text(
+                                    text = "Retry",
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        } else {
+                            TextButton(
+                                onClick = { viewModel.reDetectZip() },
+                                modifier = Modifier.padding(start = 12.dp)
+                            ) {
+                                Text(
+                                    text = "Re-detect",
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
+
                 }
             }
 
-            HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
+            HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
 
             if (!isSystemInDarkTheme()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 12.dp),
+                        .padding(top = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -174,26 +180,20 @@ fun SettingsScreen(
 @Composable
 fun LocationPermissionSetting(
     viewModel: SettingsViewModel,
+    granted: Boolean,
+    onGrantedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val permission = android.Manifest.permission.ACCESS_FINE_LOCATION
-    val activity = context as android.app.Activity
+    val activity = context as? Activity
 
-    var granted by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
-        )
-    }
-
-    // Observe zip so UI can show detected value inline
-    val zip by viewModel.zip.collectAsState()
+    requireNotNull(activity) { "The Composable function must be called within an Activity context." }
 
     // Launcher to request permission
     val requestLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        granted = isGranted
+        onGrantedChange(isGranted)  // Update the hoisted state
         if (isGranted) {
             Toast.makeText(context, "Permission granted — detecting ZIP...", Toast.LENGTH_SHORT).show()
             viewModel.fetchZipFromLastLocation()
@@ -207,7 +207,7 @@ fun LocationPermissionSetting(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
         // Refresh state when returning from settings
-        granted = ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+        viewModel.checkLocationPermission(context)
         if (granted) {
             viewModel.fetchZipFromLastLocation()
         }
@@ -215,19 +215,19 @@ fun LocationPermissionSetting(
 
     val onClick = {
         when {
-            ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED -> {
+            granted -> {
                 // Open app settings so user can revoke or re-check location
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", context.packageName, null)
                 }
                 settingsLauncher.launch(intent)
             }
-            ActivityCompat.shouldShowRequestPermissionRationale(activity, permission) -> {
+            ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION) -> {
                 Toast.makeText(context, "Location is needed for this feature.", Toast.LENGTH_SHORT).show()
-                requestLauncher.launch(permission)
+                requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
             else -> {
-                requestLauncher.launch(permission)
+                requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
         }
     }
@@ -235,7 +235,7 @@ fun LocationPermissionSetting(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -244,7 +244,7 @@ fun LocationPermissionSetting(
 
             Text(
                 text = if (granted) "Granted" else "Denied",
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 8.dp)
             )
