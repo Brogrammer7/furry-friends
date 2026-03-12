@@ -325,8 +325,4 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         _zip.value = manual.trim().takeIf { it.isNotEmpty() }
     }
 
-    fun isCoarsePermissionGranted(): Boolean {
-        val appCtx = getApplication<Application>().applicationContext
-        return ContextCompat.checkSelfPermission(appCtx, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-    }
 }

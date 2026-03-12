@@ -54,16 +54,22 @@ fun SettingsScreen(
     val message by viewModel.message.collectAsState()
 
     val detectedZipAnnotatedString = buildAnnotatedString {
-        append("Your detected ZIP")
-        append(": \n")
+        append("Your detected ZIP: ")
+        append("\n")
         withStyle(
             style = if (zip != null) {
-                SpanStyle(color = MaterialTheme.colorScheme.primary)
+                SpanStyle(
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                )
             } else {
-                SpanStyle(color = MaterialTheme.colorScheme.error)
+                SpanStyle(
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                    )
             }
         ) {
-            append(zip ?: "Not found")
+            append(zip ?: "Not set")
         }
     }
 
@@ -239,7 +245,7 @@ fun LocationPermissionSetting(
             Text(text = "Location access", style = MaterialTheme.typography.bodyLarge)
 
             Text(
-                text = if (granted) "Granted" else "Denied",
+                text = if (granted) "Granted" else "Disabled",
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 8.dp)
