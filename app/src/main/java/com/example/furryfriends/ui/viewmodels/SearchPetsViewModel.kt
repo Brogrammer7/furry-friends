@@ -180,4 +180,8 @@ class SearchPetsViewModel: ViewModel() {
         }
     }
 
+    fun updateSelectedSpecies(species: Species) {
+        _selectedSpecies.value = species
+    }
+
 }

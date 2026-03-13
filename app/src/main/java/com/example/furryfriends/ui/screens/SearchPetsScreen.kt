@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,13 +18,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -81,27 +88,8 @@ fun SearchPetsScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
 
-    fun hideKeyboard() {
-        scope.launch {
-            keyboardController?.hide()
-        }
-        focusManager.clearFocus()
-    }
-
-    fun performSearch() {
-        viewModel.clearSearchData()
-        viewModel.searchPetData(Species.CATS.type)
-        hideKeyboard()
-    }
-
-    fun clearResults() {
-        viewModel.clearZip()
-        viewModel.clearSearchData()
-        hideKeyboard()
-    }
-
     val showBottomSheet = remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
     val selectedSpecies by viewModel.selectedSpecies.collectAsState()
     val isLoadingOn by viewModel.isLoadingOn.collectAsState()
@@ -111,6 +99,25 @@ fun SearchPetsScreen(
     val includedList = itemsRetrieved?.included
     val animalsWithOrgs = viewModel.getAnimalsWithOrgs(searchList, includedList)
 
+    fun hideKeyboard() {
+        scope.launch {
+            keyboardController?.hide()
+        }
+        focusManager.clearFocus()
+    }
+
+    fun performSearch() {
+        viewModel.clearSearchData()
+        viewModel.searchPetData(selectedSpecies.type)
+        hideKeyboard()
+    }
+
+    fun clearResults() {
+        viewModel.clearZip()
+        viewModel.clearSearchData()
+        hideKeyboard()
+    }
+    
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -172,10 +179,11 @@ fun SearchPetsScreen(
 
         if (showBottomSheet.value)
             PetSelectionModal(
-            sheetState = sheetState,
-            scope = scope,
-            showBottomSheet = showBottomSheet
-        )
+                sheetState = sheetState,
+                scope = scope,
+                showBottomSheet = showBottomSheet,
+                viewModel = viewModel,
+            )
 
         HorizontalDivider()
 
@@ -294,8 +302,14 @@ fun ZipSearchField(
 fun PetSelectionModal(
     sheetState: SheetState,
     scope: CoroutineScope,
-    showBottomSheet: MutableState<Boolean>
+    showBottomSheet: MutableState<Boolean>,
+    viewModel: SearchPetsViewModel,
+    speciesList: List<Species> = Species.entries.toList()
 ) {
+    LaunchedEffect(sheetState) { sheetState.show() }
+
+    val selectedSpecies by viewModel.selectedSpecies.collectAsState()
+    var expandedDropdown by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         modifier = Modifier
@@ -315,11 +329,63 @@ fun PetSelectionModal(
             }
         }
     ) {
-        //content:
-        Text(
-            text = "Filter options",
-            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Filter options",
+                modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Dropdown selector
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                OutlinedButton(
+                    onClick = { expandedDropdown = !expandedDropdown },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = selectedSpecies.type.replaceFirstChar { it.uppercase() },
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Start
+                    )
+                    Icon(
+                        imageVector = if (expandedDropdown)
+                            Icons.Default.KeyboardArrowUp
+                        else
+                            Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Dropdown arrow"
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = expandedDropdown,
+                    onDismissRequest = { expandedDropdown = false },
+                    modifier = Modifier.fillMaxWidth(0.9f)
+                ) {
+                    speciesList.forEach { species ->
+                        DropdownMenuItem(
+                            text = { Text(species.type.replaceFirstChar { it.uppercase() }) },
+                            onClick = {
+                                viewModel.updateSelectedSpecies(species)
+                                expandedDropdown = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 
