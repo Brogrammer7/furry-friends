@@ -94,7 +94,7 @@ class SearchPetsViewModel: ViewModel() {
 //                    ),
 //                    filterProcessing = "1 AND (2 OR 3)",
                         filterRadius = FilterRadius(
-                            miles = 10,
+                            miles = setSearchRange(),
                             postalCode = zipState.value
                         )
                     )
@@ -182,6 +182,16 @@ class SearchPetsViewModel: ViewModel() {
 
     fun updateSelectedSpecies(species: Species) {
         _selectedSpecies.value = species
+    }
+
+    fun setSearchRange(): Int {
+        return when (selectedSpecies.value) {
+            Species.CATS -> 10
+            Species.DOGS -> 10
+            Species.RABBITS -> 100
+            Species.BIRDS -> 500
+            Species.HORSES -> 1000
+        }
     }
 
 }

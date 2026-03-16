@@ -1,12 +1,13 @@
 package com.example.furryfriends.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -45,7 +46,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -215,19 +218,40 @@ fun SearchPetsScreen(
             )
         }
 
-        Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.onPrimaryContainer)
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (animalsWithOrgs.isEmpty()) {
-                Image(
-                    painter = painterResource(R.drawable.mart_dom_2),
-                    contentDescription = null,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
-                )
+                val defaultImage = when (selectedSpecies){
+                    Species.CATS -> R.drawable.mart_dom_2
+                    Species.DOGS -> R.drawable.stock_dog
+                    Species.RABBITS -> R.drawable.stock_rabbit
+                    Species.BIRDS -> R.drawable.stock_bird
+                    Species.HORSES -> R.drawable.stock_horse
+                }
+                Box(Modifier.background(color = MaterialTheme.colorScheme.onPrimaryContainer)) {
+                    Image(
+                        painter = painterResource(defaultImage),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 24.dp)
+                            .size(250.dp)
+                            .clip(CircleShape)
+                    )
+                }
+
+
             } else {
                 PetSearchList(animalsWithOrgs)
             }
         }
     }
+
 }
 
 @Composable
