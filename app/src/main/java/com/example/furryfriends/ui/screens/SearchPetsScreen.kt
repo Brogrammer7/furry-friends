@@ -141,6 +141,15 @@ fun SearchPetsScreen(
             }
         }
 
+        LaunchedEffect(zipIntState) {
+            if (zipIntState != -1 && zipIntState.toString().length == 5 && storedZip != zipIntState.toString()) {
+                delay(300)
+                if (viewModel.checkValidZip(zipIntState)) {
+                    performSearch()
+                }
+            }
+        }
+
         val customPlaceHolderTitle = buildAnnotatedString {
             append(stringResource(R.string.enter_zip_code_to_find))
             withStyle(style = SpanStyle(
@@ -156,7 +165,6 @@ fun SearchPetsScreen(
             onZipChange = {
                 /* viewModel must turn zipText (String) into an Int and check for a full 5 digits, then it can auto-run the search */
                 viewModel.processZipInput(it)
-                if (it.length == 5) performSearch()
                           },
             placeHolderTitle = customPlaceHolderTitle,
             onIconPressed = { if (viewModel.checkValidZip(zipIntState)) performSearch() },
@@ -333,7 +341,6 @@ fun PetSelectionModal(
     viewModel: SearchPetsViewModel,
     speciesList: List<Species> = Species.entries.toList()
 ) {
-    LaunchedEffect(sheetState) { sheetState.show() }
 
     val selectedSpecies by viewModel.selectedSpecies.collectAsState()
     var expandedDropdown by remember { mutableStateOf(false) }
@@ -405,6 +412,15 @@ fun PetSelectionModal(
                             onClick = {
                                 viewModel.updateSelectedSpecies(species)
                                 expandedDropdown = false
+                                // Close the modal
+                                scope.launch {
+                                    sheetState.hide()
+                                }.invokeOnCompletion {
+                                    if (!sheetState.isVisible) {
+                                        showBottomSheet.value = false
+                                        viewModel.clearSearchData()
+                                    }
+                                }
                             }
                         )
                     }
