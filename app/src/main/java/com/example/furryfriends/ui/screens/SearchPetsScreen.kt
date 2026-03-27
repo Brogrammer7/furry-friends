@@ -120,6 +120,14 @@ fun SearchPetsScreen(
         viewModel.clearSearchData()
         hideKeyboard()
     }
+
+    fun getDefaultImageForSpecies(species: Species): Int = when (species) {
+        Species.CATS -> R.drawable.mart_dom_2
+        Species.DOGS -> R.drawable.stock_dog
+        Species.RABBITS -> R.drawable.stock_rabbit
+        Species.BIRDS -> R.drawable.stock_bird
+        Species.HORSES -> R.drawable.stock_horse
+    }
     
     Column(
         modifier = modifier.fillMaxSize(),
@@ -185,7 +193,7 @@ fun SearchPetsScreen(
                 sheetState = sheetState,
                 scope = scope,
                 showBottomSheet = showBottomSheet,
-                viewModel = viewModel,
+                viewModel = viewModel
             )
 
         HorizontalDivider()
@@ -226,26 +234,21 @@ fun SearchPetsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (animalsWithOrgs.isEmpty()) {
-                val defaultImage = when (selectedSpecies){
-                    Species.CATS -> R.drawable.mart_dom_2
-                    Species.DOGS -> R.drawable.stock_dog
-                    Species.RABBITS -> R.drawable.stock_rabbit
-                    Species.BIRDS -> R.drawable.stock_bird
-                    Species.HORSES -> R.drawable.stock_horse
-                }
-                Box(Modifier.background(color = MaterialTheme.colorScheme.onPrimaryContainer)) {
+                val defaultImage = getDefaultImageForSpecies(selectedSpecies)
+                Box(Modifier.background(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = CircleShape)
+                ) {
                     Image(
                         painter = painterResource(defaultImage),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 24.dp)
-                            .size(250.dp)
+                            .size(300.dp)
                             .clip(CircleShape)
                     )
                 }
-
-
             } else {
                 PetSearchList(animalsWithOrgs)
             }

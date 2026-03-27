@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -57,14 +58,18 @@ fun PetSearchList(
             key = { it.first.id }
         ) { (animal, org) ->
             animal.let {
-                Card (
+                Card(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .border(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = RoundedCornerShape(8.dp)
+                    ),
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(
-                        contentColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                        contentColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Row(
                         modifier = Modifier
