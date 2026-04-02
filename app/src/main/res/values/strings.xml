@@ -14,8 +14,8 @@
     <string name="dedicated_to_vestie">Dedicated to Vestie, the best rescue kitty ever ❤</string>
     <string name="search">Search</string>
     <string name="enter_zip_code_to_find">"Enter ZIP Code to find "</string>
-    <string name="invalid_zip_entered">Invalid ZIP Code entered. Please double-check your input and re-enter</string>
-    <string name="search_options">Search options</string>
+    <string name="invalid_zip_entered">Invalid ZIP Code entered. Please double-check your input and re-enter.</string>
+    <string name="search_options">Change Animal</string>
     <string name="clear_results">Clear Results</string>
     <string name="contact_info">Contact info:</string>
 </resources>

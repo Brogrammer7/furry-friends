@@ -11,10 +11,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -60,13 +59,13 @@ fun PetSearchList(
             animal.let {
                 Card(
                     modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.outline,
-                        shape = RoundedCornerShape(8.dp)
-                    ),
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .border(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.outline,
+                            shape = RoundedCornerShape(8.dp)
+                        ),
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(
                         contentColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -90,96 +89,112 @@ fun PetSearchList(
                                 contentDescription = "",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
-                                    .padding(top = 8.dp)
-                                    .size(130.dp)
+                                    .size(100.dp)
                                     .clip(RoundedCornerShape(10.dp))
                             )
-                            FormatPetName(
-                                input = animal.attributes.name,
-                                fontSize = 16.sp
-                            )
-
-                            org?.attributes?.let {
-                                Text(
-                                    text = it.name!!,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = TextStyle(fontSize = 10.sp),
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                )
-                                Text(
-                                    text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    textAlign = TextAlign.Center,
-                                    style = TextStyle(fontSize = 10.sp),
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                )
-                            }
                         }
 
                         Column(
-                            modifier = Modifier
-                                .weight(1f),         // <- fill same height as left column
-                            verticalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            PetModalButton {
-                                FormatPetName(animal.attributes.name, 22.sp)
-                                Text(
-                                    text = animal.attributes.ageString ?: "(Age Unknown)",
-                                    textAlign = TextAlign.Center,
-                                    style = TextStyle(fontSize = 12.sp),
-                                    modifier = Modifier.padding(vertical = 4.dp)
-                                )
-
-                                Text(
-                                    text = stringResource(R.string.contact_info),
-                                    modifier = Modifier.padding(vertical = 8.dp )
-                                )
-                                org?.attributes?.let {
-                                    it.name?.let { value ->
-                                        Text(
-                                            text = value,
-                                            textAlign = TextAlign.Start,
-                                            modifier = Modifier.padding(horizontal = 16.dp)
-                                        )
-                                    }
-                                    it.street?.let { value ->
-                                        Text(
-                                            text = value,
-                                            textAlign = TextAlign.Start,
-                                            modifier = Modifier.padding(horizontal = 16.dp)
-                                        )
-                                    }
+                            // Buttons row
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                PetModalButton(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    FormatPetName(animal.attributes.name, 22.sp)
                                     Text(
-                                        text = it.city + ", " + it.state?.uppercase(Locale.getDefault()),
-                                        textAlign = TextAlign.Start,
-                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                        text = animal.attributes.ageString ?: "(Age Unknown)",
+                                        textAlign = TextAlign.Center,
+                                        style = TextStyle(fontSize = 12.sp),
+                                        modifier = Modifier.padding(vertical = 4.dp)
                                     )
 
-                                    SetClickableContactInfo(
-                                        phone = it.phone,
-                                        url = it.url
+                                    Text(
+                                        text = stringResource(R.string.contact_info),
+                                        modifier = Modifier.padding(vertical = 8.dp)
                                     )
-
-                                    if (it.adoptionProcess?.isNotBlank() == true) {
+                                    org?.attributes?.let {
+                                        it.name?.let { value ->
+                                            Text(
+                                                text = value,
+                                                textAlign = TextAlign.Start,
+                                                modifier = Modifier.padding(horizontal = 16.dp)
+                                            )
+                                        }
+                                        it.street?.let { value ->
+                                            Text(
+                                                text = value,
+                                                textAlign = TextAlign.Start,
+                                                modifier = Modifier.padding(horizontal = 16.dp)
+                                            )
+                                        }
                                         Text(
-                                            text = "Adoption process:\n${it.adoptionProcess}",
+                                            text = it.city + ", " + it.state?.uppercase(Locale.getDefault()),
                                             textAlign = TextAlign.Start,
-                                            fontSize = 12.sp,
                                             modifier = Modifier.padding(horizontal = 16.dp)
                                         )
+
+                                        SetClickableContactInfo(
+                                            phone = it.phone,
+                                            url = it.url
+                                        )
+
+                                        if (it.adoptionProcess?.isNotBlank() == true) {
+                                            Text(
+                                                text = "Adoption process:\n${it.adoptionProcess}",
+                                                textAlign = TextAlign.Start,
+                                                fontSize = 12.sp,
+                                                modifier = Modifier.padding(horizontal = 16.dp)
+                                            )
+                                        }
                                     }
                                 }
+                                ShareButton(
+                                    modifier = Modifier.weight(1f),
+                                    linkUrl = org?.attributes?.url,
+                                    petName = animal.attributes.name,
+                                    petBreed = animal.attributes.breedPrimary,
+                                    pictureUrl = animal.attributes.pictureThumbnailUrl
+                                )
                             }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            ShareButton(
-                                label = "Share me!",
-                                linkUrl = org?.attributes?.url,
-                                petName = animal.attributes.name,
-                                petBreed = animal.attributes.breedPrimary,
-                                pictureUrl = animal.attributes.pictureThumbnailUrl
-                            )
+
+                            // Info column
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .offset(y = -8.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                FormatPetName(
+                                    input = animal.attributes.name,
+                                    fontSize = 16.sp
+                                )
+                                org?.attributes?.let {
+                                    Text(
+                                        text = it.name!!,
+                                        textAlign = TextAlign.Center,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        style = TextStyle(fontSize = 10.sp),
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                    )
+                                    Text(
+                                        text = it.city!! + ", " + it.state!!.uppercase(Locale.getDefault()),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        textAlign = TextAlign.Center,
+                                        style = TextStyle(fontSize = 10.sp),
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                }
+                            }
                         }
 
                     }
