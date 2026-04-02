@@ -114,7 +114,7 @@ fun LocalListLazyRow(petPhotos: List<Int>) {
                 modifier = Modifier
                     .size(200.dp)
                     .clip(CircleShape)
-                    .border(width = 2.dp, color = Color.Blue, shape = CircleShape),
+                    .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = CircleShape),
                 contentScale = ContentScale.Crop
             )
         }

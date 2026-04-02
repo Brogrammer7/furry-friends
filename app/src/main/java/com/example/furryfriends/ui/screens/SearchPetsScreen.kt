@@ -1,5 +1,6 @@
 package com.example.furryfriends.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
@@ -49,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -80,6 +83,8 @@ fun SearchPetsScreen(
     settingsViewModel: SettingsViewModel,
     viewModel: SearchPetsViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+
     val storedZip by settingsViewModel.zip.collectAsState()
 
     val zipIntState by viewModel.zipState.collectAsState()
@@ -170,7 +175,22 @@ fun SearchPetsScreen(
             onIconPressed = { if (viewModel.checkValidZip(zipIntState)) performSearch() },
             )
 
-        Row(modifier = Modifier.padding(bottom = 8.dp)) {
+        Row(
+            modifier = Modifier.padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+            IconButton(
+                onClick = {
+                    //TODO add sorting action
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.Sort,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
             Button(
                 onClick = {
                     showBottomSheet.value = true
@@ -185,6 +205,7 @@ fun SearchPetsScreen(
                     stringResource(R.string.search_options)
                 )
             }
+
             TextButton(
                 enabled = zipText.isNotEmpty(),
                 onClick = { clearResults() },
@@ -213,14 +234,20 @@ fun SearchPetsScreen(
             color = MaterialTheme.colorScheme.error
         )
 
-        itemsRetrieved?.meta?.countReturned?.let { count ->
-            CustomText(
-                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                text = if (count >= 2) "$count ${selectedSpecies.type} found"
+        LaunchedEffect(itemsRetrieved) {
+            itemsRetrieved?.meta?.countReturned?.let { count ->
+                val petCount = if (count >= 2) "$count ${selectedSpecies.type} found"
                 else if (count == 1) "$count ${selectedSpecies.type.replace("s", "")} found"
-                else "No ${selectedSpecies.type} are available in this area. Please try a different ZIP Code.",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                else "No ${selectedSpecies.type} are available in this area. Please try a different ZIP Code."
+
+                Toast.makeText(context, petCount, Toast.LENGTH_LONG).show()
+
+//            CustomText(
+//                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+//                text = petCount,
+//                color = MaterialTheme.colorScheme.onPrimaryContainer,
+//                )
+            }
         }
 
         HorizontalDivider()
@@ -370,7 +397,7 @@ fun PetSelectionModal(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Filter options",
+                text = stringResource(R.string.help_me_find),
                 modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.headlineSmall
             )
@@ -419,6 +446,7 @@ fun PetSelectionModal(
                                     if (!sheetState.isVisible) {
                                         showBottomSheet.value = false
                                         viewModel.clearSearchData()
+                                        viewModel.searchPetData(species.type)
                                     }
                                 }
                             }
@@ -427,7 +455,7 @@ fun PetSelectionModal(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }
