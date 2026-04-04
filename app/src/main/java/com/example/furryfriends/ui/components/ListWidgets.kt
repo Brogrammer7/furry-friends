@@ -73,7 +73,7 @@ fun PetSearchList(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp, bottom = 8.dp, start = 16.dp),
+                            .padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start
                     ) {
@@ -104,6 +104,18 @@ fun PetSearchList(
                                 horizontalArrangement = Arrangement.SpaceEvenly,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                FavoriteButton(
+                                    //TODO implement click logic
+                                    isFavorite = false,
+                                    onFavoriteClick = { }
+                                )
+                                ShareButton(
+                                    modifier = Modifier.weight(1f),
+                                    pictureUrl = animal.attributes.pictureThumbnailUrl,
+                                    petName = animal.attributes.name,
+                                    petBreed = animal.attributes.breedPrimary,
+                                    linkUrl = org?.attributes?.url
+                                    )
                                 PetModalButton(
                                     modifier = Modifier.weight(1f)
                                 ) {
@@ -155,13 +167,6 @@ fun PetSearchList(
                                         }
                                     }
                                 }
-                                ShareButton(
-                                    modifier = Modifier.weight(1f),
-                                    linkUrl = org?.attributes?.url,
-                                    petName = animal.attributes.name,
-                                    petBreed = animal.attributes.breedPrimary,
-                                    pictureUrl = animal.attributes.pictureThumbnailUrl
-                                )
                             }
 
                             // Info column

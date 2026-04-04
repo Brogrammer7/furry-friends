@@ -168,7 +168,7 @@ fun SearchPetsScreen(
         ZipSearchField(
             zipText = zipText,
             onZipChange = {
-                /* viewModel must turn zipText (String) into an Int and check for a full 5 digits, then it can auto-run the search */
+                /* viewModel must turn zipText String into an Int and check for a full 5 digits, then it can auto-run the search */
                 viewModel.processZipInput(it)
                           },
             placeHolderTitle = customPlaceHolderTitle,
@@ -179,18 +179,6 @@ fun SearchPetsScreen(
             modifier = Modifier.padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-            IconButton(
-                onClick = {
-                    //TODO add sorting action
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.Sort,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-
             Button(
                 onClick = {
                     showBottomSheet.value = true
@@ -215,14 +203,31 @@ fun SearchPetsScreen(
                     stringResource(R.string.clear_results)
                 )
             }
+
+            IconButton(
+                onClick = {
+                    //TODO add sorting action
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.Sort,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
 
         if (showBottomSheet.value)
             PetSelectionModal(
                 sheetState = sheetState,
-                scope = scope,
                 showBottomSheet = showBottomSheet,
-                viewModel = viewModel
+                scope = scope,
+                viewModel = viewModel,
+                onClose = {
+                    if (viewModel.checkValidZip(zipIntState)) {
+                        performSearch()
+                    }
+                }
             )
 
         HorizontalDivider()
@@ -363,10 +368,11 @@ fun ZipSearchField(
 @Composable
 fun PetSelectionModal(
     sheetState: SheetState,
-    scope: CoroutineScope,
     showBottomSheet: MutableState<Boolean>,
+    scope: CoroutineScope,
     viewModel: SearchPetsViewModel,
-    speciesList: List<Species> = Species.entries.toList()
+    speciesList: List<Species> = Species.entries.toList(),
+    onClose: () -> Unit = {}
 ) {
 
     val selectedSpecies by viewModel.selectedSpecies.collectAsState()
@@ -445,8 +451,7 @@ fun PetSelectionModal(
                                 }.invokeOnCompletion {
                                     if (!sheetState.isVisible) {
                                         showBottomSheet.value = false
-                                        viewModel.clearSearchData()
-                                        viewModel.searchPetData(species.type)
+                                        onClose()
                                     }
                                 }
                             }

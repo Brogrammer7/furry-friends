@@ -18,7 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.PhoneInTalk
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Icon
@@ -95,11 +95,11 @@ fun PetModalButton(
 @Composable
 fun ShareButton(
     modifier: Modifier = Modifier,
-    linkUrl: String?,
+    pictureUrl: String?,
+    subject: String? = "Give this pet a home:", // optional email subject
     petName: String?,
     petBreed: String?,
-    pictureUrl: String?,
-    subject: String? = "Give this fur baby a home:", // optional email subject
+    linkUrl: String?,
     chooserTitle: String = "Share via",
 ) {
     val context = LocalContext.current
@@ -108,10 +108,10 @@ fun ShareButton(
         if (linkUrl == null) return@IconButton
 
         val shareMessage = buildString {
+            pictureUrl?.let { append("$it\n\n") }
             subject?.let { append("$it\n") }
             petName?.let { append("$it\n") }
-            petBreed?.let { append("$it\n") }
-            pictureUrl?.let { append("$it\n\n") }
+            petBreed?.let { append("$it\n\n") }
             append("Adoption link: $linkUrl")
         }
 
@@ -133,5 +133,20 @@ fun ShareButton(
         )
     }
 }
+
+@Composable
+fun FavoriteButton(
+    isFavorite: Boolean,
+    onFavoriteClick: (Boolean) -> Unit
+) {
+    IconButton(onClick = {
+        onFavoriteClick(!isFavorite)
+        //TODO implement click logic
+    }) {
+        Icon(
+            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+            contentDescription = null,
+            tint = if (isFavorite) Color.Yellow else MaterialTheme.colorScheme.primary
+        )
     }
 }
