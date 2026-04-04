@@ -31,8 +31,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -84,7 +88,7 @@ fun PetSearchList(
                             AsyncImage(
                                 model = animal.attributes.pictureThumbnailUrl
                                     ?: R.drawable.no_image_icon,
-                                contentDescription = "",
+                                contentDescription = "pet image",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .size(100.dp)
@@ -121,7 +125,7 @@ fun PetSearchList(
                                 ) {
                                     FormatPetName(animal.attributes.name, 22.sp)
                                     Text(
-                                        text = animal.attributes.ageString ?: "(Age Unknown)",
+                                        text = animal.attributes.ageString ?: stringResource(R.string.age_unknown),
                                         textAlign = TextAlign.Center,
                                         style = TextStyle(fontSize = 12.sp),
                                         modifier = Modifier.padding(vertical = 4.dp)
@@ -159,7 +163,12 @@ fun PetSearchList(
 
                                         if (it.adoptionProcess?.isNotBlank() == true) {
                                             Text(
-                                                text = "Adoption process:\n${it.adoptionProcess}",
+                                                text = buildAnnotatedString {
+                                                    withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
+                                                        append(stringResource(id = R.string.adoption_process))
+                                                    }
+                                                    append("\n${it.adoptionProcess}")
+                                                },
                                                 textAlign = TextAlign.Start,
                                                 fontSize = 12.sp,
                                                 modifier = Modifier.padding(horizontal = 16.dp)

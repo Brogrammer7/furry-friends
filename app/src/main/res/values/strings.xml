@@ -31,4 +31,6 @@
     <string name="granted">Granted</string>
     <string name="disabled">Disabled</string>
     <string name="location_access">Location access</string>
+    <string name="age_unknown">(Age Unknown)</string>
+    <string name="adoption_process">Adoption process:</string>
 </resources>

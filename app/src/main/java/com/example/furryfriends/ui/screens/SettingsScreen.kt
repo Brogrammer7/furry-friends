@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -77,15 +77,43 @@ fun SettingsScreen(
     val darkThemeOverride by viewModel.darkThemeOverride.collectAsState()
 
     Column(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
     ) {
-        Text(
-            text = stringResource(R.string.settings_disclosure),
-            style = TextStyle(fontSize = 12.sp),
-            modifier = Modifier.padding(16.dp)
-        )
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(text = "System Theme", style = MaterialTheme.typography.bodyLarge)
 
-        HorizontalDivider(modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
+                val themeName = when(darkThemeOverride) {
+                    true -> "Dark"
+                    false -> "Light"
+                    null -> "System Default"
+                }
+
+                Text(
+                    text = themeName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            Button(
+                onClick = onNavigateToTheme,
+            ) {
+                Text(
+                    text = stringResource(R.string.change_theme),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
         LocationPermissionSetting(
             viewModel = viewModel,
@@ -93,101 +121,77 @@ fun SettingsScreen(
             onGrantedChange = { newGranted -> viewModel.grantPermission(newGranted) }
         )
 
-        Column(modifier = Modifier.padding(16.dp)) {
-            if (loading) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+        if (loading) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.detecting_zip),
+                    fontStyle = FontStyle.Italic
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                SpinningLoader()
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Left column constrained with weight so the Retry button has room
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = stringResource(R.string.detecting_zip),
-                        fontStyle = FontStyle.Italic
+                        text = detectedZipAnnotatedString,
+                        softWrap = true
                     )
-                    Spacer(modifier = Modifier.weight(1f))
-                    SpinningLoader()
-                }
-            } else {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Left column constrained with weight so the Retry button has room
-                    Column(modifier = Modifier.weight(1f)) {
+                    message?.let {
                         Text(
-                            text = detectedZipAnnotatedString,
-                            softWrap = true
+                            text = it,
+                            softWrap = true,
+                            color = MaterialTheme.colorScheme.error
                         )
-                        message?.let {
+                    }
+                }
+
+                if (granted) {
+                    if (zip.isNullOrEmpty()) {
+                        TextButton(
+                            onClick = { viewModel.fetchZipFromLastLocation() },
+                            modifier = Modifier.padding(start = 12.dp)
+                        ) {
                             Text(
-                                text = it,
-                                softWrap = true,
+                                text = stringResource(R.string.retry),
+                                textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.error
                             )
                         }
-                    }
-
-                    if (granted) {
-                        if (zip.isNullOrEmpty()) {
-                            TextButton(
-                                onClick = { viewModel.fetchZipFromLastLocation() },
-                                modifier = Modifier.padding(start = 12.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.retry),
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        } else {
-                            TextButton(
-                                onClick = { viewModel.reDetectZip() },
-                                modifier = Modifier.padding(start = 12.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.re_detect),
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
+                    } else {
+                        TextButton(
+                            onClick = { viewModel.reDetectZip() },
+                            modifier = Modifier.padding(start = 12.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.re_detect),
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
-
                 }
+
             }
+        }
 
-            HorizontalDivider(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp))
+        HorizontalDivider(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp))
 
-
-            Row(
-                modifier = modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(text = "System Theme", style = MaterialTheme.typography.bodyLarge)
-
-                    val themeName = when(darkThemeOverride) {
-                        true -> "Dark"
-                        false -> "Light"
-                        null -> "System"
-                    }
-
-                    Text(
-                        text = themeName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-
-                Button(
-                    onClick = onNavigateToTheme,
-                    modifier= Modifier.width(160.dp)
-                ) {
-                    Text(stringResource(R.string.change_theme))
-                }
-            }
-
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            Text(
+                text = stringResource(R.string.settings_disclosure),
+                style = TextStyle(fontSize = 12.sp),
+            )
         }
 
     }
@@ -250,8 +254,7 @@ fun LocationPermissionSetting(
 
     Row(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -266,14 +269,10 @@ fun LocationPermissionSetting(
             )
         }
 
-        Button(
-            onClick = onClick,
-            modifier= Modifier.width(160.dp)
-        ) {
+        Button(onClick = onClick) {
             Text(
                 text = if (granted) stringResource(R.string.open_settings) else stringResource(R.string.enable),
-                textAlign = TextAlign.Center,
-                maxLines = 2
+                textAlign = TextAlign.Center
             )
         }
     }

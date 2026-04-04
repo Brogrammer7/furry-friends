@@ -243,7 +243,7 @@ fun SearchPetsScreen(
             itemsRetrieved?.meta?.countReturned?.let { count ->
                 val petCount = if (count >= 2) "$count ${selectedSpecies.type} found"
                 else if (count == 1) "$count ${selectedSpecies.type.replace("s", "")} found"
-                else "No ${selectedSpecies.type} are available in this area. Please try a different ZIP Code."
+                else "No ${selectedSpecies.type} available. Please try a different ZIP Code."
 
                 Toast.makeText(context, petCount, Toast.LENGTH_LONG).show()
 
