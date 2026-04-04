@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +34,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
@@ -53,7 +53,7 @@ fun SettingsScreen(
     val message by viewModel.message.collectAsState()
 
     val detectedZipAnnotatedString = buildAnnotatedString {
-        append("Your detected ZIP: ")
+        append(stringResource(R.string.your_detected_zip))
         append("\n")
         withStyle(
             style = if (zip != null) {
@@ -68,7 +68,7 @@ fun SettingsScreen(
                 )
             }
         ) {
-            append(zip ?: "Not set")
+            append(zip ?: stringResource(R.string.not_set))
         }
     }
 
@@ -100,7 +100,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Detecting ZIP…",
+                        text = stringResource(R.string.detecting_zip),
                         fontStyle = FontStyle.Italic
                     )
                     Spacer(modifier = Modifier.weight(1f))
@@ -133,7 +133,7 @@ fun SettingsScreen(
                                 modifier = Modifier.padding(start = 12.dp)
                             ) {
                                 Text(
-                                    text = "Retry",
+                                    text = stringResource(R.string.retry),
                                     textAlign = TextAlign.Center,
                                     color = MaterialTheme.colorScheme.error
                                 )
@@ -144,7 +144,7 @@ fun SettingsScreen(
                                 modifier = Modifier.padding(start = 12.dp)
                             ) {
                                 Text(
-                                    text = "Re-detect",
+                                    text = stringResource(R.string.re_detect),
                                     textAlign = TextAlign.Center,
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -157,12 +157,37 @@ fun SettingsScreen(
 
             HorizontalDivider(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp))
 
-            Button(
-                onClick = onNavigateToTheme,
-                modifier = Modifier.fillMaxWidth()
+
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Theme Settings")
+                Column {
+                    Text(text = "System Theme", style = MaterialTheme.typography.bodyLarge)
+
+                    val themeName = when(darkThemeOverride) {
+                        true -> "Dark"
+                        false -> "Light"
+                        null -> "System"
+                    }
+
+                    Text(
+                        text = themeName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                Button(
+                    onClick = onNavigateToTheme,
+                    modifier= Modifier.width(160.dp)
+                ) {
+                    Text(stringResource(R.string.change_theme))
+                }
             }
+
         }
 
     }
@@ -231,18 +256,25 @@ fun LocationPermissionSetting(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text(text = "Location access", style = MaterialTheme.typography.bodyLarge)
+            Text(text = stringResource(R.string.location_access), style = MaterialTheme.typography.bodyLarge)
 
             Text(
-                text = if (granted) "Granted" else "Disabled",
+                text = if (granted) stringResource(R.string.granted) else stringResource(R.string.disabled),
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
 
-        Button(onClick = onClick) {
-            Text(text = if (granted) "Open settings" else "Enable")
+        Button(
+            onClick = onClick,
+            modifier= Modifier.width(160.dp)
+        ) {
+            Text(
+                text = if (granted) stringResource(R.string.open_settings) else stringResource(R.string.enable),
+                textAlign = TextAlign.Center,
+                maxLines = 2
+            )
         }
     }
 
@@ -252,12 +284,4 @@ fun LocationPermissionSetting(
             viewModel.fetchZipFromLastLocation()
         }
     }
-}
-
-@Preview
-@Composable
-fun SettingsScreenPreview() {
-//    SettingsScreen(
-//        viewModel = TODO()
-//    )
 }

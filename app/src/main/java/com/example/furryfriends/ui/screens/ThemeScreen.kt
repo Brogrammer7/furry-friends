@@ -16,7 +16,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.furryfriends.R
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 
 enum class ThemeOption {
@@ -57,7 +59,7 @@ fun ThemeScreen(
                 )
             }
             Text(
-                text = "Theme",
+                text = stringResource(R.string.change_system_theme),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(start = 8.dp)
             )

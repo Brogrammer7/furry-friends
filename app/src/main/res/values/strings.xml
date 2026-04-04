@@ -19,4 +19,16 @@
     <string name="clear_results">Clear Results</string>
     <string name="contact_info">Contact info:</string>
     <string name="help_me_find">Help me find:</string>
+    <string name="change_theme">Change Theme</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="enable">Enable</string>
+    <string name="change_system_theme">Change System Theme</string>
+    <string name="re_detect">Re-detect</string>
+    <string name="retry">Retry</string>
+    <string name="detecting_zip">Detecting ZIP…</string>
+    <string name="not_set">Not set</string>
+    <string name="your_detected_zip">"Your detected ZIP"</string>
+    <string name="granted">Granted</string>
+    <string name="disabled">Disabled</string>
+    <string name="location_access">Location access</string>
 </resources>
