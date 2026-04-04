@@ -8,7 +8,6 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -46,7 +44,8 @@ import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    onNavigateToTheme: () -> Unit = {}
 ) {
 
     val zip by viewModel.zip.collectAsState()
@@ -66,7 +65,7 @@ fun SettingsScreen(
                 SpanStyle(
                     color = MaterialTheme.colorScheme.error,
                     fontSize = MaterialTheme.typography.bodyMedium.fontSize
-                    )
+                )
             }
         ) {
             append(zip ?: "Not set")
@@ -156,24 +155,14 @@ fun SettingsScreen(
                 }
             }
 
-            HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
+            HorizontalDivider(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp))
 
-            if (!isSystemInDarkTheme()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "Enable Dark Theme", style = MaterialTheme.typography.bodyLarge)
-                    Switch(
-                        checked = darkThemeOverride,
-                        onCheckedChange = { checked -> viewModel.setDarkThemeOverride(checked) }
-                    )
-                }
+            Button(
+                onClick = onNavigateToTheme,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Theme Settings")
             }
-
         }
 
     }

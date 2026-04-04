@@ -27,13 +27,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.furryfriends.navigation.SettingsNavGraph
 import com.example.furryfriends.navigation.TabBarItem
 import com.example.furryfriends.navigation.TabView
 import com.example.furryfriends.ui.components.FurryFriendsAppBar
 import com.example.furryfriends.ui.screens.AboutScreen
 import com.example.furryfriends.ui.screens.DashboardScreen
 import com.example.furryfriends.ui.screens.SearchPetsScreen
-import com.example.furryfriends.ui.screens.SettingsScreen
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
 import com.example.furryfriends.ui.viewmodels.MainActivityViewModel
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val screenTitle by mainViewModel.screenTitleState.collectAsState()
             val darkThemeOverride by settingsViewModel.darkThemeOverride.collectAsState()
-            val darkThemeLogic = isSystemInDarkTheme() || darkThemeOverride
+            val darkThemeLogic = darkThemeOverride ?: isSystemInDarkTheme()
 
             val dashboardTab = TabBarItem(
                 title = stringResource(R.string.dashboard_tab_title),
@@ -104,7 +104,8 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(settingsTab.title) {
                                 mainViewModel.setTitle(stringResource(R.string.settings_screen_title))
-                                SettingsScreen(
+                                // Use nested navigation for Settings and Theme screens
+                                SettingsNavGraph(
                                     modifier = Modifier.padding(innerPadding),
                                     viewModel = settingsViewModel
                                 )

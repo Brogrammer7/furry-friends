@@ -44,8 +44,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _message = MutableStateFlow<String?>(null)
     val message: StateFlow<String?> = _message.asStateFlow()
 
-    private val _darkThemeOverride = MutableStateFlow(false)
-    val darkThemeOverride: StateFlow<Boolean> = _darkThemeOverride.asStateFlow()
+    private val _darkThemeOverride = MutableStateFlow<Boolean?>(null)
+    val darkThemeOverride: StateFlow<Boolean?> = _darkThemeOverride.asStateFlow()
 
     init {
         // Check initial permission state
@@ -60,10 +60,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 repository.darkThemeOverride.collectLatest { _darkThemeOverride.value = it }
             }
         }
-
     }
 
-    fun setDarkThemeOverride(enabled: Boolean) {
+    /**
+     * Set theme preference.
+     * @param enabled true for dark, false for light, null for system default
+     */
+    fun setDarkThemeOverride(enabled: Boolean?) {
         _darkThemeOverride.value = enabled
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -324,5 +327,4 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun saveManualZip(manual: String) {
         _zip.value = manual.trim().takeIf { it.isNotEmpty() }
     }
-
 }
