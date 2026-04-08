@@ -118,7 +118,8 @@ fun PetSearchList(
                                     pictureUrl = animal.attributes.pictureThumbnailUrl,
                                     petName = animal.attributes.name,
                                     petBreed = animal.attributes.breedPrimary,
-                                    linkUrl = org?.attributes?.url
+                                    linkUrl = org?.attributes?.url,
+                                    phoneNumber = org?.attributes?.phone
                                     )
                                 PetModalButton(
                                     modifier = Modifier.weight(1f)

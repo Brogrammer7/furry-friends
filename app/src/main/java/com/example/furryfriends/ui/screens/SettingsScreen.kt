@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -121,11 +122,19 @@ fun SettingsScreen(
             onGrantedChange = { newGranted -> viewModel.grantPermission(newGranted) }
         )
 
-        if (loading) {
+        @Composable
+        fun ZipDetectionRow(content: @Composable RowScope.() -> Unit) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                content = content
+            )
+        }
+
+        if (loading) {
+            ZipDetectionRow {
                 Text(
                     text = stringResource(R.string.detecting_zip),
                     fontStyle = FontStyle.Italic
@@ -134,11 +143,7 @@ fun SettingsScreen(
                 SpinningLoader()
             }
         } else {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Left column constrained with weight so the Retry button has room
+            ZipDetectionRow {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = detectedZipAnnotatedString,
@@ -152,33 +157,9 @@ fun SettingsScreen(
                         )
                     }
                 }
-
-                if (granted) {
-                    if (zip.isNullOrEmpty()) {
-                        TextButton(
-                            onClick = { viewModel.fetchZipFromLastLocation() },
-                            modifier = Modifier.padding(start = 12.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.retry),
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    } else {
-                        TextButton(
-                            onClick = { viewModel.reDetectZip() },
-                            modifier = Modifier.padding(start = 12.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.re_detect),
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
+                TextButton(onClick = { viewModel.fetchZipFromLastLocation() }) {
+                    Text("Re-detect")
                 }
-
             }
         }
 

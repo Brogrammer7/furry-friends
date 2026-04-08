@@ -8,6 +8,7 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 /.idea/vcs.xml
+/.idea/misc.xml
 .DS_Store
 /build
 /captures
@@ -17,3 +18,4 @@ local.properties
 .idea/deploymentTargetSelector.xml
 /app/build.gradle.kts
 /app/src/main/java/com/example/furryfriends/network
+app/src/main/res/drawable/vest_b.jpg

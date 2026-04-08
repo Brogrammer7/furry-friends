@@ -460,7 +460,7 @@ fun PetSelectionModal(
                 }
             }
 
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(160.dp))
         }
     }
 }

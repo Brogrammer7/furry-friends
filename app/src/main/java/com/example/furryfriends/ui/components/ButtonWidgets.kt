@@ -100,6 +100,7 @@ fun ShareButton(
     petName: String?,
     petBreed: String?,
     linkUrl: String?,
+    phoneNumber: String?,
     chooserTitle: String = "Share via",
 ) {
     val context = LocalContext.current
@@ -110,15 +111,15 @@ fun ShareButton(
         val shareMessage = buildString {
             pictureUrl?.let { append("$it\n\n") }
             subject?.let { append("$it\n") }
-            petName?.let { append("$it\n") }
+            petName?.let { append("$it, ") }
             petBreed?.let { append("$it\n\n") }
             append("Adoption link: $linkUrl")
+            phoneNumber?.let { append("\nContact: \n$it") }
         }
 
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, shareMessage)
-            subject?.let { putExtra(Intent.EXTRA_SUBJECT, it) }
         }
 
         val chooser = Intent.createChooser(intent, chooserTitle)
