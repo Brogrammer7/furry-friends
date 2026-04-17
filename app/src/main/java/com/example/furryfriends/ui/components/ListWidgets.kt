@@ -116,7 +116,7 @@ fun PetSearchList(
                                 ShareButton(
                                     modifier = Modifier.weight(1f),
                                     pictureUrl = animal.attributes.pictureThumbnailUrl,
-                                    petName = animal.attributes.name,
+                                    petName = formatPetName(animal.attributes.name),
                                     petBreed = animal.attributes.breedPrimary,
                                     linkUrl = org?.attributes?.url,
                                     phoneNumber = org?.attributes?.phone

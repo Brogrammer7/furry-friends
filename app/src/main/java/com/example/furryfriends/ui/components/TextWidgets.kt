@@ -43,12 +43,8 @@ fun CustomText(
 
 /* The string input for pet names needs extensive cleanup because many shelters use inappropriate characters and phrases unrelated to the pet's actual name. This returns a clean name for the pet without any additional nonsense.
  */
-@Composable
-fun FormatPetName(
-    input: String?,
-    fontSize: TextUnit = 18.sp
-) {
-    val cleaned = input
+fun formatPetName(input: String?): String {
+    val cleanedName = input
         // remove phrases: "courtesy post" and "adopt me" (any case, allows multiple whitespace)
         ?.replace(Regex("\\bcourtesy\\s+post\\b", RegexOption.IGNORE_CASE), "")
         ?.replace(Regex("\\badopt\\s+me\\b", RegexOption.IGNORE_CASE), "")
@@ -58,7 +54,7 @@ fun FormatPetName(
         ?.replace("\\s+".toRegex(), " ")
         ?.trim()
 
-    val properCase = cleaned
+    val properCase = cleanedName
         ?.lowercase(Locale.getDefault())
         ?.split("\\s+".toRegex())
         ?.joinToString(" ") { word ->
@@ -67,8 +63,18 @@ fun FormatPetName(
             }
         }
 
+    return properCase?.ifEmpty { "Name error" } ?: "Name error"
+}
+
+@Composable
+fun FormatPetName(
+    input: String?,
+    fontSize: TextUnit = 18.sp
+) {
+    val formatted = formatPetName(input)
+
     Text(
-        text = properCase?.ifEmpty { "Name error" } ?: "Name error",
+        text = formatted,
         color = MaterialTheme.colorScheme.onPrimaryContainer,
         style = TextStyle(fontWeight = FontWeight.Bold, fontSize = fontSize),
         textAlign = TextAlign.Center,
