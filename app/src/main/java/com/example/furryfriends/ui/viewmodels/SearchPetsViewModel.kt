@@ -82,7 +82,9 @@ class SearchPetsViewModel: ViewModel() {
             _searchUiState.update {
                 it.copy(
                     isLoading = true,
-                    error = null) }
+                    error = null
+                )
+            }
             try {
                 val requestBody = SearchRequest(
                     data = DataNode(

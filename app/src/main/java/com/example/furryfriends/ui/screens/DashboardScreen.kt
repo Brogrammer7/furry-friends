@@ -1,11 +1,10 @@
 package com.example.furryfriends.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -26,35 +25,31 @@ import com.example.furryfriends.ui.components.CustomText
 fun DashboardScreen(
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
+        Image(
+            painter = painterResource(R.drawable.mart_dom_1),
+            contentDescription = null,
             modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CustomText(
-                text = stringResource(R.string.dashboard_mission_statement),
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-            )
+                .padding(start = 16.dp, top = 48.dp, end = 16.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .border(
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = RoundedCornerShape(16.dp)
+                )
+        )
 
-            Image(
-                painter = painterResource(R.drawable.mart_dom_1),
-                contentDescription = null,
-                modifier = Modifier.padding(24.dp)
-                    .clip(RoundedCornerShape(16.dp))
-            )
-
-        }
-
+        CustomText(
+            text = stringResource(R.string.dashboard_mission_statement),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
 
