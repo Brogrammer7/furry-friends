@@ -60,6 +60,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 repository.darkThemeOverride.collectLatest { _darkThemeOverride.value = it }
             }
         }
+
+        // Initialize zip code from repository and keep it in sync
+        viewModelScope.launch {
+            // Load persisted zip on init
+            _zip.value = repository.getZip()
+            // Sync ongoing updates from repository
+            launch {
+                repository.zip.collectLatest { _zip.value = it }
+            }
+        }
     }
 
     /**
@@ -68,7 +78,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      */
     fun setDarkThemeOverride(enabled: Boolean?) {
         _darkThemeOverride.value = enabled
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 repository.setDarkThemeOverride(enabled)
             } catch (e: Exception) {
@@ -130,9 +140,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     Log.d(TAG, "Got location: lat=${loc.latitude}, lon=${loc.longitude}")
                     val postal = reverseGeocodeToZip(loc.latitude, loc.longitude, appCtx)
                     if (!postal.isNullOrEmpty()) {
-                        _zip.value = postal
-                        _message.value = null
-                        Log.d(TAG, "Resolved postal code: $postal")
+                        try {
+                            repository.setZip(postal)
+                            _zip.value = postal
+                            _message.value = null
+                            Log.d(TAG, "Resolved postal code: $postal")
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to persist zip code", e)
+                            _zip.value = null
+                        }
                     } else {
                         Log.w(TAG, "Could not resolve postal code from location")
                         _message.value = "Could not resolve postal code from location."
@@ -308,8 +324,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 } else {
                     val postal = reverseGeocodeToZip(loc.latitude, loc.longitude, appCtx)
                     if (!postal.isNullOrEmpty()) {
-                        _zip.value = postal
-                        _message.value = null
+                        try {
+                            repository.setZip(postal)
+                            _zip.value = postal
+                            _message.value = null
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to persist zip code", e)
+                            _zip.value = null
+                        }
                     } else {
                         _message.value = "Could not resolve postal code from location."
                         _zip.value = null
@@ -325,6 +347,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun saveManualZip(manual: String) {
-        _zip.value = manual.trim().takeIf { it.isNotEmpty() }
+        val trimmed = manual.trim().takeIf { it.isNotEmpty() }
+        _zip.value = trimmed
+        viewModelScope.launch {
+            try {
+                repository.setZip(trimmed)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to persist zip code", e)
+            }
+        }
     }
 }
