@@ -106,7 +106,7 @@ fun CustomVideoPlayer(videoUri: String, modifier: Modifier = Modifier) {
                 .heightIn(max = 400.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .border(
-                    width = 2.dp,
+                    width = 3.dp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     shape = RoundedCornerShape(16.dp)
                 )

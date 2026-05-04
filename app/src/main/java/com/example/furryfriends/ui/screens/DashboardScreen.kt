@@ -37,7 +37,7 @@ fun DashboardScreen(
                 .padding(start = 16.dp, top = 48.dp, end = 16.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .border(
-                    width = 2.dp,
+                    width = 5.dp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     shape = RoundedCornerShape(16.dp)
                 )

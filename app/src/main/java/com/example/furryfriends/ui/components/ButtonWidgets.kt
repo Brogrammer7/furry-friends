@@ -113,8 +113,8 @@ fun ShareButton(
             subject?.let { append("$it\n") }
             petName?.let { append("$it, ") }
             petBreed?.let { append("$it\n\n") }
-            append("Adoption link: $linkUrl")
-            phoneNumber?.let { append("\nContact: \n$it") }
+            append("Adoption link: $linkUrl\n")
+            phoneNumber?.let { append("\nContact:\n$it") }
         }
 
         val intent = Intent(Intent.ACTION_SEND).apply {
