@@ -15,7 +15,7 @@
     <string name="search">Search</string>
     <string name="enter_zip_code_to_find">"Enter ZIP Code to find "</string>
     <string name="invalid_zip_entered">ZIP Code invalid or empty. Please double-check your input and re-enter.</string>
-    <string name="search_options">Change Animal</string>
+    <string name="change_animal">Change Animal</string>
     <string name="clear_results">Clear Results</string>
     <string name="contact_info">Contact info:</string>
     <string name="help_me_find">Help me find:</string>
@@ -33,4 +33,7 @@
     <string name="location_access">Location access</string>
     <string name="age_unknown">(Age Unknown)</string>
     <string name="adoption_process">Adoption process:</string>
+    <string name="sign_out">Sign out</string>
+    <string name="feature_coming_soon">Feature coming soon!</string>
+    <string name="your_saved_pets_list">Your saved pets list</string>
 </resources>

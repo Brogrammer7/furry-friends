@@ -190,7 +190,7 @@ fun SearchPetsScreen(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Text(
-                    stringResource(R.string.search_options)
+                    stringResource(R.string.change_animal)
                 )
             }
 
