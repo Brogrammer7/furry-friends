@@ -1,7 +1,6 @@
 package com.example.furryfriends
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,7 +18,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.furryfriends.ui.screens.LoginScreen
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
-import kotlin.getValue
 
 class LoginActivity : ComponentActivity() {
     private val settingsViewModel: SettingsViewModel by viewModels()

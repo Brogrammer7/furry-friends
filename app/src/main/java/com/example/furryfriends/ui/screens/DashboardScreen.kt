@@ -32,7 +32,9 @@ fun DashboardScreen(
     val context = LocalContext.current
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -40,7 +42,7 @@ fun DashboardScreen(
             painter = painterResource(R.drawable.dashboard_screen_background),
             contentDescription = null,
             modifier = Modifier
-                .padding(start = 24.dp, top = 48.dp, end = 24.dp, bottom = 16.dp)
+                .padding(top = 48.dp, bottom = 16.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .border(
                     width = 5.dp,
@@ -50,11 +52,11 @@ fun DashboardScreen(
         )
 
         CustomText(
-            text = stringResource(R.string.dashboard_mission_statement),
+            text = "We hope you find your next furry bundle of jou here",
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
         Button(
@@ -62,10 +64,10 @@ fun DashboardScreen(
             onClick = {
                 Toast.makeText(context, R.string.feature_coming_soon, Toast.LENGTH_SHORT).show()
             },
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
         ) {
             Text(
-                text = stringResource(R.string.your_saved_pets_list)
+                text = stringResource(R.string.view_your_saved_pets_list)
             )
         }
 
