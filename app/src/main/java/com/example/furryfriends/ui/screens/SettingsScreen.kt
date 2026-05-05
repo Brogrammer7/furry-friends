@@ -133,7 +133,7 @@ fun SettingsScreen(
             )
         }
 
-        if (loading) {
+        if (loading && zip == null) {
             ZipDetectionRow {
                 Text(
                     text = stringResource(R.string.detecting_zip),
@@ -197,7 +197,7 @@ fun LocationPermissionSetting(
         onGrantedChange(isGranted)  // Update the hoisted state
         if (isGranted) {
             Toast.makeText(context, "Permission granted — detecting ZIP...", Toast.LENGTH_SHORT).show()
-            viewModel.fetchZipFromLastLocation()
+            if (viewModel.zip != null) viewModel.fetchZipFromLastLocation()
         } else {
             Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
         }
