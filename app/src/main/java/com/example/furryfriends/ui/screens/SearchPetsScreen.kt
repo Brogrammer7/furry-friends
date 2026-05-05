@@ -97,7 +97,7 @@ fun SearchPetsScreen(
     val scope = rememberCoroutineScope()
 
     val showBottomSheet = remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val selectedSpecies by viewModel.selectedSpecies.collectAsState()
     val isLoadingOn by viewModel.isLoadingOn.collectAsState()
@@ -399,12 +399,12 @@ fun PetSelectionModal(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .fillMaxHeight(0.7f)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = stringResource(R.string.help_me_find),
-                modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.headlineSmall
             )
 
@@ -460,8 +460,8 @@ fun PetSelectionModal(
                 }
             }
 
-            Spacer(modifier = Modifier.height(160.dp))
         }
+
     }
 }
 
