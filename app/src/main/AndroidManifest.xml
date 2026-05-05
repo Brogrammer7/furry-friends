@@ -16,15 +16,20 @@
         android:theme="@style/Theme.FurryFriends"
         >
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.FurryFriends">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.FurryFriends" />
+
     </application>
     <queries>
         <!-- apps that can handle VIEW URIs (web links) -->
