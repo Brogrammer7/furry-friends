@@ -1,16 +1,17 @@
 <resources>
     <string name="app_name">Furry Friends</string>
-    <string name="dashboard_tab_title">Dashboard</string>
-    <string name="dashboard_screen_title">Welcome to Furry Friends Adoption Service</string>
+    <string name="dashboard_screen_title">Furry Friends Adoption Service</string>
     <string name="dashboard_mission_statement">Furry Friends is a not-for-profit mobile app designed to help you find your next pet!</string>
-    <string name="search_pets_tab_title">Search</string>
     <string name="search_pets_screen_title">Search for your next pet here</string>
     <string name="find_pets_screen_title">Check out these fur babies:</string>
-    <string name="settings_tab_title">Settings</string>
     <string name="settings_screen_title">Settings</string>
-    <string name="settings_disclosure">Location is an optional permission which allows us to help you find pets in your area without having to manually enter your ZIP code. Your information is only used to help find your next furry loved one and never shared or sold.</string>
-    <string name="about_tab_title">About</string>
     <string name="about_screen_title">About the developer</string>
+    <string name="login_screen_title">Welcome to Furry Friends Adoption Service</string>
+    <string name="dashboard_tab_title">Dashboard</string>
+    <string name="search_pets_tab_title">Search</string>
+    <string name="settings_tab_title">Settings</string>
+    <string name="about_tab_title">About</string>
+    <string name="settings_disclosure">Location is an optional permission which allows us to help you find pets in your area without having to manually enter your ZIP code. Your information is only used to help find your next furry loved one and never shared or sold.</string>
     <string name="dedicated_to_vestie">Dedicated to Vestie, the best rescue kitty ever ❤</string>
     <string name="search">Search</string>
     <string name="enter_zip_code_to_find">"Enter ZIP Code to find "</string>
@@ -36,4 +37,5 @@
     <string name="sign_out">Sign out</string>
     <string name="feature_coming_soon">Feature coming soon!</string>
     <string name="your_saved_pets_list">Your saved pets list</string>
+    <string name="login">Login</string>
 </resources>
