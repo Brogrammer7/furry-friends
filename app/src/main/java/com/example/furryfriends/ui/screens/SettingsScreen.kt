@@ -38,6 +38,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import com.example.furryfriends.LoginActivity
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
@@ -48,7 +49,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     onNavigateToTheme: () -> Unit = {}
 ) {
-
+    val context = LocalContext.current
     val zip by viewModel.zip.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val message by viewModel.message.collectAsState()
@@ -169,6 +170,24 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.Bottom
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                TextButton(
+                    //TODO Complete exit action
+                    onClick = {
+                        val intent = Intent(context, LoginActivity::class.java)
+                        context.startActivity(intent)
+                        (context as? Activity)?.finish()
+                    }
+                ) {
+                    Text(text = stringResource(R.string.sign_out))
+                }
+            }
+
             Text(
                 text = stringResource(R.string.settings_disclosure),
                 style = TextStyle(fontSize = 12.sp),
@@ -245,7 +264,7 @@ fun LocationPermissionSetting(
             Text(
                 text = if (granted) stringResource(R.string.granted) else stringResource(R.string.disabled),
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
