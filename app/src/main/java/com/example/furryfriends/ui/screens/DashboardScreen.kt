@@ -52,7 +52,7 @@ fun DashboardScreen(
         )
 
         CustomText(
-            text = "We hope you find your next furry bundle of jou here",
+            text = stringResource(R.string.we_hope_you_find_your_next_furry),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             overflow = TextOverflow.Ellipsis,

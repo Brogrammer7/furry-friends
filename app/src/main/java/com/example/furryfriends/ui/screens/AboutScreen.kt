@@ -1,5 +1,7 @@
 package com.example.furryfriends.ui.screens
 
+import android.widget.FrameLayout
+import androidx.annotation.OptIn
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -26,9 +30,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.example.furryfriends.R
+import com.example.furryfriends.ui.components.CopyrightText
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.LocalListLazyRow
 import com.example.furryfriends.ui.viewmodels.AboutViewModel
@@ -42,11 +49,13 @@ fun AboutScreen(
     val vesterPhotos = viewModel.vestPhotosList
 
     Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CustomText(
             text = "Chris is an avid mobile app developer who loves Android and helping pets find forever homes.",
+            lineHeight = 16.sp,
             modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
         )
         Column(
@@ -59,7 +68,7 @@ fun AboutScreen(
                 text = stringResource(R.string.dedicated_to_vestie),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp),
+                modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
                 style = TextStyle(fontStyle = FontStyle.Italic),
                 maxLines = 2
             )
@@ -68,11 +77,15 @@ fun AboutScreen(
                 videoUri = "android.resource://${context.packageName}/raw/vest_box",
                 modifier = Modifier.fillMaxWidth()
             )
+
+            CopyrightText()
+
         }
 
     }
 }
 
+@OptIn(UnstableApi::class)
 @Composable
 fun CustomVideoPlayer(videoUri: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -99,11 +112,12 @@ fun CustomVideoPlayer(videoUri: String, modifier: Modifier = Modifier) {
             factory = { context ->
                 PlayerView(context, null).apply {
                     this.player = player
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
                 }
             },
             modifier = Modifier
-                .fillMaxWidth(0.75f)
-                .heightIn(max = 400.dp)
+                .fillMaxWidth()
+                .heightIn(max = 240.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .border(
                     width = 3.dp,
