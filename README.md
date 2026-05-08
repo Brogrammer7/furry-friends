@@ -2,28 +2,66 @@ This is a pet adoption app I've written entirely in Jetpack Compose using variou
 
 It makes calls to a non-profit Rescue Group's APIs to help find adoptable pets in your local area.
 
-App Launcher Icon
+<img width="289" height="289" alt="app_launcher_icon" src="https://github.com/user-attachments/assets/b3d199c2-2b7e-4f22-9d8d-db90930be967" />
 
-![FF1](https://github.com/user-attachments/assets/b7aa6a81-a924-41c7-90b9-77ceb86eb3d3)
+App Launcher Icon.
 
-App automatically runs Retrofit API query after ZIP Code is entered from keyboard input or if info was saved in Settings
+<img width="1080" height="2316" alt="entry_point" src="https://github.com/user-attachments/assets/dc5a63b2-b85c-4493-9385-9e8b0ff3a264" />
 
-![FF2](https://github.com/user-attachments/assets/9fc19071-7df8-4d1f-8bf0-ac607aa06e7f)
+Welcome / Login screen.
 
-Search results from real available pets displayed in a LazyColumn
+<img width="1080" height="2316" alt="dashboard_screen" src="https://github.com/user-attachments/assets/888e8f7a-e1a0-40a9-b881-0ebf413fe09c" />
 
-![FF3](https://github.com/user-attachments/assets/21478ed1-e2f2-4884-aea7-1d73b9eaddef)
+Dashboard screen with intro. Saved pet list feature coming soon!
 
-Details button clicked launches modal with pet's contact info with phone number and link that dial and navigate to web browser via Android Intents system
+<img width="1080" height="2316" alt="settings_no_location" src="https://github.com/user-attachments/assets/dd8341b6-bb42-4235-a9b6-44a152fa9321" />
 
-![FF4](https://github.com/user-attachments/assets/4e34d168-163f-43fc-a496-81c7acc5ae4c)
+Settings screen (no location set)
 
-Settings screen that prompts user via Android Permissions system and uses GPS to pull Lon/Lat coordinates, then converts them into a ZIP Code:
+<img width="1080" height="2316" alt="settings_location_request_launcher" src="https://github.com/user-attachments/assets/7e299b67-6ecd-4a6e-8282-327b86d65a7f" />
 
-![FF5](https://github.com/user-attachments/assets/b3540f4e-7bc6-40c8-b68b-6d0f8bfd0120)
+GPS location permission request via Android Permissions system that pulls Lon/Lat coordinates, then converts them into a ZIP Code.
 
-User's retrieved ZIP Code is now stored and will automatically populate and run a search query with this info once they navigate to Search Screen
+<img width="1080" height="2316" alt="settings_location_detected" src="https://github.com/user-attachments/assets/43a4d2f9-62ff-4a75-a278-cc1e792bbd4b" />
 
-![FF6](https://github.com/user-attachments/assets/205ea22b-696d-4f99-a6ac-bdb69a11ac01)
+Successful location detection. The DataStore API is employed behind the scenes to store the zip code into memory to survive screen exit and process death. 
 
+<img width="1080" height="2316" alt="search_screen_query" src="https://github.com/user-attachments/assets/de413624-67e7-4951-804a-927c5f3ca564" />
 
+With location stored, we now navigate to the search screen to find our next pet!
+
+<img width="1080" height="2316" alt="search_result_cats" src="https://github.com/user-attachments/assets/14759db3-8381-4b88-badd-14c69534a6d4" />
+
+A successful search result, returning 56 cats in our area. Results are displayed in a LazyColumn.
+
+<img width="1080" height="2316" alt="message_intent1" src="https://github.com/user-attachments/assets/5d62d85b-cdd6-4c17-90e6-4bff669699e8" />
+
+The share button lets us select an app of our choosing to send this pet to a friend.
+
+<img width="1080" height="2316" alt="pet_modal" src="https://github.com/user-attachments/assets/39396283-9dec-42b2-8cdc-3a2822db27fd" />
+
+The phone button brings up a Dialog Composable that gives us contact info and more details on the selected pet. 
+
+<img width="1080" height="2316" alt="dialer_intent" src="https://github.com/user-attachments/assets/c4b2528a-679d-47db-a726-61b523322ab2" />
+
+Clicking the phone number causes a dialer intent picked up by the phone app.
+
+<img width="1080" height="2316" alt="browser_intent" src="https://github.com/user-attachments/assets/6e944c06-e05a-40ff-ac69-3303d2c81aea" />
+
+...and the interactive link takes us to the shelter's webpage on your favorite browser.
+
+<img width="1080" height="2316" alt="search_selection_slider" src="https://github.com/user-attachments/assets/aaa16107-4e12-4481-8d27-7bc32a2fda33" />
+
+The 'Change Animal' button lets us select a different pet type and automatically runs a new query.
+
+<img width="1080" height="2316" alt="search_result_rabbits" src="https://github.com/user-attachments/assets/53107c9e-3d1c-47e9-9c37-b40e238f4b9e" />
+
+New return result with rabbits.
+
+<img width="1080" height="2316" alt="about_screen" src="https://github.com/user-attachments/assets/eb601a57-e3c3-4adb-946f-3efd4edc60ec" />
+
+About screen with information on the developer and commemorative photos of his cat in a scrollable LazyRow along with a playable video.
+
+<img width="1080" height="2316" alt="settings_sign_out" src="https://github.com/user-attachments/assets/86b800cd-0cbd-465c-9f1b-e0d7ba3c0b92" />
+
+We can now sign out of the application and return to the Login page.
