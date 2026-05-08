@@ -67,7 +67,7 @@ fun DashboardScreen(
             modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
         ) {
             Text(
-                text = stringResource(R.string.view_your_saved_pets_list)
+                text = stringResource(R.string.view_saved_pets)
             )
         }
 

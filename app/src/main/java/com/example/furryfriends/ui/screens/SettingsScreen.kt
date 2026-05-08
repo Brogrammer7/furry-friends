@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import com.example.furryfriends.LoginActivity
 import com.example.furryfriends.R
+import com.example.furryfriends.ui.components.SignOutButton
 import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 
@@ -176,16 +177,13 @@ fun SettingsScreen(
                     .padding(bottom = 16.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
-                TextButton(
-                    //TODO Complete exit action
-                    onClick = {
-                        val intent = Intent(context, LoginActivity::class.java)
-                        context.startActivity(intent)
-                        (context as? Activity)?.finish()
-                    }
-                ) {
-                    Text(text = stringResource(R.string.sign_out))
+                fun signOutAction() {
+                    val intent = Intent(context, LoginActivity::class.java)
+                    context.startActivity(intent)
+                    (context as? Activity)?.finish()
                 }
+
+                SignOutButton(onSignOut = { signOutAction() })
             }
 
             Text(

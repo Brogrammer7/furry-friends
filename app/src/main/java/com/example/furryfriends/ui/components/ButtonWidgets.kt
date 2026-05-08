@@ -33,11 +33,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.furryfriends.R
 
 @Composable
 fun PetModalButton(
@@ -149,5 +152,55 @@ fun FavoriteButton(
             contentDescription = null,
             tint = if (isFavorite) Color.Yellow else MaterialTheme.colorScheme.primary
         )
+    }
+}
+
+@Composable
+fun SignOutButton(
+    modifier: Modifier = Modifier,
+    onSignOut: () -> Unit = {}
+) {
+    var open by remember { mutableStateOf(false) }
+
+    TextButton(onClick = { open = true }, modifier = modifier) {
+        Text(stringResource(R.string.sign_out))
+    }
+
+    if (open) {
+        Dialog(onDismissRequest = {}) {
+            Box(
+                modifier
+                    .widthIn(max = 360.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.are_you_sure_you_want_to_exit))
+                        Spacer(Modifier.height(16.dp))
+                        Row(Modifier.fillMaxWidth()) {
+                            TextButton(
+                                onClick = {},
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(stringResource(R.string.no))
+                            }
+                            Text("|", modifier = Modifier.align(Alignment.CenterVertically))
+                            TextButton(
+                                onClick = { onSignOut() },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(stringResource(R.string.yes))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
