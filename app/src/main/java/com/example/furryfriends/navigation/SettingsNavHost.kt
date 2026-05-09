@@ -10,30 +10,30 @@ import com.example.furryfriends.ui.screens.ThemeScreen
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 
 @Composable
-fun SettingsNavGraph(
+fun SettingsNavHost(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel
 ) {
-    val settingsNavController = rememberNavController()
+    val navController = rememberNavController()
 
     NavHost(
-        navController = settingsNavController,
-        startDestination = "settings_main",
+        navController = navController,
+        startDestination = RouteSettings.Main.route,
         modifier = modifier
     ) {
-        composable("settings_main") {
+        composable(RouteSettings.Main.route) {
             SettingsScreen(
                 viewModel = viewModel,
                 onNavigateToTheme = {
-                    settingsNavController.navigate("theme")
+                    navController.navigate(RouteSettings.Theme.route)
                 }
             )
         }
-        composable("theme") {
+        composable(RouteSettings.Theme.route) {
             ThemeScreen(
                 viewModel = viewModel,
                 onNavigateBack = {
-                    settingsNavController.popBackStack()
+                    navController.popBackStack()
                 }
             )
         }

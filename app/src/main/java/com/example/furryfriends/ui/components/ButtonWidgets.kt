@@ -60,7 +60,7 @@ fun PetModalButton(
     }
 
     if (open) {
-        Dialog(onDismissRequest = { open = false; onDismiss() }) {
+        Dialog(onDismissRequest = { onDismiss() }) {
             // constrain max height so content can scroll
             Box(
                 modifier
