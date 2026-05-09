@@ -60,7 +60,8 @@ fun PetModalButton(
     }
 
     if (open) {
-        Dialog(onDismissRequest = { onDismiss() }) {
+        // Ignore incorrect warning on greyed out open variable - 'open = false' MUST be in the lambda to close Dialog from off-screen clicks or when pressing the No button
+        Dialog(onDismissRequest = { open = false; onDismiss() }) {
             // constrain max height so content can scroll
             Box(
                 modifier
@@ -86,6 +87,7 @@ fun PetModalButton(
                         Column(content = content)
                         Spacer(Modifier.height(16.dp))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            // Ignore incorrect warning on greyed out open variable - 'open = false' MUST be in the lambda to close Dialog from off-screen clicks or when pressing the No button
                             TextButton(onClick = { open = false; onDismiss() }) { Text("Close") }
                         }
                     }
@@ -167,7 +169,8 @@ fun SignOutButton(
     }
 
     if (open) {
-        Dialog(onDismissRequest = {}) {
+        // Ignore incorrect warning on greyed out open variable - 'open = false' MUST be in the lambda to close Dialog from off-screen clicks or when pressing the No button
+        Dialog(onDismissRequest = { open = false }) {
             Box(
                 modifier
                     .widthIn(max = 360.dp)
@@ -185,7 +188,8 @@ fun SignOutButton(
                         Spacer(Modifier.height(16.dp))
                         Row(Modifier.fillMaxWidth()) {
                             TextButton(
-                                onClick = {},
+                                // Ignore incorrect warning on greyed out open variable - 'open = false' MUST be in the lambda to close Dialog from off-screen clicks or when pressing the No button
+                                onClick = { open = false },
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(stringResource(R.string.no))
