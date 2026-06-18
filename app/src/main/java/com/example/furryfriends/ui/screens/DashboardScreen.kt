@@ -1,6 +1,5 @@
 package com.example.furryfriends.ui.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -27,10 +26,9 @@ import com.example.furryfriends.ui.components.CustomText
 
 @Composable
 fun DashboardScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onViewSavedPetsClick: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -62,7 +60,7 @@ fun DashboardScreen(
         Button(
             //TODO Add caching for saved pets list
             onClick = {
-                Toast.makeText(context, R.string.feature_coming_soon, Toast.LENGTH_SHORT).show()
+                onViewSavedPetsClick()
             },
             modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
         ) {

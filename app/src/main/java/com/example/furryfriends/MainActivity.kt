@@ -16,6 +16,9 @@ import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
@@ -23,18 +26,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.furryfriends.navigation.MainNavHost
+import com.example.furryfriends.navigation.RouteMain
 import com.example.furryfriends.navigation.TabBarItem
 import com.example.furryfriends.navigation.TabView
 import com.example.furryfriends.ui.components.FurryFriendsAppBar
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
 import com.example.furryfriends.ui.viewmodels.MainActivityViewModel
+import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainActivityViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
+    private val searchPetsViewModel: SearchPetsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +76,13 @@ class MainActivity : ComponentActivity() {
             val tabBarItems = listOf(dashboardTab, searchPetsTab, settingsTab, aboutTab)
 
             val navController = rememberNavController()
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
+            val canNavigateBack = currentRoute != null && 
+                                  currentRoute != RouteMain.Dashboard.route && 
+                                  currentRoute != RouteMain.Search.route && 
+                                  currentRoute != RouteMain.Settings.route && 
+                                  currentRoute != RouteMain.About.route
 
             FurryFriendsTheme(darkTheme = darkThemeLogic) {
                 Surface(
@@ -76,7 +90,21 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Scaffold(
-                        topBar = { FurryFriendsAppBar(titleText = screenTitle) },
+                        topBar = {
+                            FurryFriendsAppBar(
+                                titleText = screenTitle,
+                                navigationIcon = {
+                                    if (canNavigateBack) {
+                                        IconButton(onClick = { navController.navigateUp() }) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = "Back"
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        },
                         bottomBar = {
                             TabView(
                                 tabBarItems = tabBarItems,
@@ -88,6 +116,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             mainViewModel = mainViewModel,
                             settingsViewModel = settingsViewModel,
+                            searchPetsViewModel = searchPetsViewModel,
                             innerPadding = innerPadding
                         )
                     }
