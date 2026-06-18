@@ -13,6 +13,8 @@ import com.example.furryfriends.ui.screens.AboutScreen
 import com.example.furryfriends.ui.screens.DashboardScreen
 import com.example.furryfriends.ui.screens.SavedPetsScreen
 import com.example.furryfriends.ui.screens.SearchPetsScreen
+import com.example.furryfriends.ui.screens.SettingsScreen
+import com.example.furryfriends.ui.screens.ThemeScreen
 import com.example.furryfriends.ui.viewmodels.MainActivityViewModel
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
@@ -46,10 +48,12 @@ fun MainNavHost(
         }
         composable(RouteMain.Settings.route) {
             mainViewModel.setTitle(stringResource(R.string.settings_screen_title))
-            SettingsNavHost(
+            SettingsScreen(
                 modifier = Modifier.padding(innerPadding),
                 viewModel = settingsViewModel
-            )
+            ) {
+                navController.navigate(RouteMain.Theme.route)
+            }
         }
         composable(RouteMain.About.route) {
             mainViewModel.setTitle(stringResource(R.string.about_screen_title))
@@ -60,6 +64,13 @@ fun MainNavHost(
             SavedPetsScreen(
                 modifier = Modifier.padding(innerPadding),
                 viewModel = searchPetsViewModel
+            )
+        }
+        composable(RouteMain.Theme.route) {
+            mainViewModel.setTitle(stringResource(R.string.change_system_theme_screen_title))
+            ThemeScreen(
+                modifier = Modifier.padding(innerPadding),
+                viewModel = settingsViewModel
             )
         }
     }

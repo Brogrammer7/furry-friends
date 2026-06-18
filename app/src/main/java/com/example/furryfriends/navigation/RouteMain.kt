@@ -6,4 +6,5 @@ sealed class RouteMain(val route: String) {
     data object Settings : RouteMain("settings")
     data object About : RouteMain("about")
     data object SavedPets : RouteMain("saved_pets")
+    data object Theme : RouteMain("theme")
 }

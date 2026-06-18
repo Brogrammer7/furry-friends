@@ -31,10 +31,7 @@ fun SettingsNavHost(
         }
         composable(RouteSettings.Theme.route) {
             ThemeScreen(
-                viewModel = viewModel,
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
+                viewModel = viewModel
             )
         }
     }
