@@ -67,6 +67,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.furryfriends.R
+import com.example.furryfriends.model.IncludedItem
 import com.example.furryfriends.network.Species
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PetSearchList
@@ -101,11 +102,16 @@ fun SearchPetsScreen(
 
     val selectedSpecies by viewModel.selectedSpecies.collectAsState()
     val isLoadingOn by viewModel.isLoadingOn.collectAsState()
+    val favoritePetIds by viewModel.favoritePetIds.collectAsState()
 
     val itemsRetrieved by viewModel.itemsRetrieved.collectAsState()
     val searchList = itemsRetrieved?.data ?: emptyList()
     val includedList = itemsRetrieved?.included
     val animalsWithOrgs = viewModel.getAnimalsWithOrgs(searchList, includedList)
+
+    fun sortname(includedList: List<IncludedItem>){
+        includedList.sortedBy { it.attributes.name }
+    }
 
     fun hideKeyboard() {
         scope.launch {
@@ -290,7 +296,11 @@ fun SearchPetsScreen(
                     )
                 }
             } else {
-                PetSearchList(animalsWithOrgs)
+                PetSearchList(
+                    animalsWithOrgs = animalsWithOrgs,
+                    favoritePetIds = favoritePetIds,
+                    onFavoriteClick = { viewModel.toggleFavorite(it) }
+                )
             }
         }
     }

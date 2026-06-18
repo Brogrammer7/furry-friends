@@ -152,7 +152,7 @@ fun FavoriteButton(
         Icon(
             imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
             contentDescription = null,
-            tint = if (isFavorite) Color.Yellow else MaterialTheme.colorScheme.primary
+            tint = if (isFavorite) Color(0xFFFF4081) else MaterialTheme.colorScheme.primary
         )
     }
 }

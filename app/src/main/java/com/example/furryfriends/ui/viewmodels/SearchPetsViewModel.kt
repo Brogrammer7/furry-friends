@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -57,6 +58,24 @@ class SearchPetsViewModel: ViewModel() {
 
     private val _invalidZipProvided = MutableStateFlow(false)
     val invalidZipProvided: StateFlow<Boolean> = _invalidZipProvided.asStateFlow()
+
+    private val _favoritePetIds = MutableStateFlow<Set<String>>(emptySet())
+    val favoritePetIds: StateFlow<Set<String>> = _favoritePetIds.asStateFlow()
+
+    val favoriteAnimalsWithOrgs: StateFlow<List<Pair<ResourceItem, IncludedItem?>>> = combine(
+        itemsRetrieved,
+        favoritePetIds
+    ) { items, favorites ->
+        val searchList = items?.data ?: emptyList()
+        val includedList = items?.included
+        getAnimalsWithOrgs(searchList, includedList).filter { favorites.contains(it.first.id) }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    fun toggleFavorite(petId: String) {
+        _favoritePetIds.update { current ->
+            if (current.contains(petId)) current - petId else current + petId
+        }
+    }
 
     fun processZipInput(raw: String) {
         val filtered = raw.filter { it.isDigit() }.take(5)

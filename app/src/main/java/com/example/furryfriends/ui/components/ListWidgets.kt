@@ -48,10 +48,13 @@ import java.util.Locale
 
 @Composable
 fun PetSearchList(
-    animalsWithOrgs: List<Pair<ResourceItem, IncludedItem?>>
+    modifier: Modifier = Modifier,
+    animalsWithOrgs: List<Pair<ResourceItem, IncludedItem?>>,
+    favoritePetIds: Set<String> = emptySet(),
+    onFavoriteClick: (String) -> Unit = {}
 ) {
     LazyColumn(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.primaryContainer),
         contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
@@ -109,9 +112,8 @@ fun PetSearchList(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 FavoriteButton(
-                                    //TODO implement click logic
-                                    isFavorite = false,
-                                    onFavoriteClick = { }
+                                    isFavorite = favoritePetIds.contains(animal.id),
+                                    onFavoriteClick = { onFavoriteClick(animal.id) }
                                 )
                                 ShareButton(
                                     modifier = Modifier.weight(1f),
