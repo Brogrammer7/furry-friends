@@ -2,7 +2,7 @@ package com.example.furryfriends.model
 
 data class SearchResponse(
     val meta: Meta,
-    val data: List<ResourceItem>,
+    val data: List<ResourceItem> = emptyList(),
     val included: List<IncludedItem> = emptyList(),
     val errors: List<ApiError>? = null
 )

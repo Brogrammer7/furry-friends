@@ -66,7 +66,7 @@ class SearchPetsViewModel: ViewModel() {
         itemsRetrieved,
         favoritePetIds
     ) { items, favorites ->
-        val searchList = items?.data ?: emptyList()
+        val searchList = items?.data
         val includedList = items?.included
         getAnimalsWithOrgs(searchList, includedList).filter { favorites.contains(it.first.id) }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -193,12 +193,12 @@ class SearchPetsViewModel: ViewModel() {
     }
 
     fun getAnimalsWithOrgs(
-        searchList: List<ResourceItem>,
+        searchList: List<ResourceItem>?,
         includedList: List<IncludedItem>?
     ): List<Pair<ResourceItem, IncludedItem?>> {
-        return searchList.map { animal ->
+        return searchList?.map { animal ->
             animal to getOrganizationForAnimal(animal, includedList)
-        }
+        } ?: emptyList()
     }
 
     fun updateSelectedSpecies(species: Species) {

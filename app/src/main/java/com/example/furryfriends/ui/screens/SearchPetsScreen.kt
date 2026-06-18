@@ -105,7 +105,7 @@ fun SearchPetsScreen(
     val favoritePetIds by viewModel.favoritePetIds.collectAsState()
 
     val itemsRetrieved by viewModel.itemsRetrieved.collectAsState()
-    val searchList = itemsRetrieved?.data ?: emptyList()
+    val searchList = itemsRetrieved?.data
     val includedList = itemsRetrieved?.included
     val animalsWithOrgs = viewModel.getAnimalsWithOrgs(searchList, includedList)
 
