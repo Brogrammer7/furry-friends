@@ -43,7 +43,8 @@ import kotlin.math.min
 @Composable
 fun FurryFriendsAppBar(
     titleText: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -55,6 +56,7 @@ fun FurryFriendsAppBar(
                 modifier = Modifier.fillMaxWidth(0.7f)
             )
         },
+        navigationIcon = navigationIcon,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),

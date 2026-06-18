@@ -5,4 +5,5 @@ sealed class RouteMain(val route: String) {
     data object Search : RouteMain("search")
     data object Settings : RouteMain("settings")
     data object About : RouteMain("about")
+    data object SavedPets : RouteMain("saved_pets")
 }
