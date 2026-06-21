@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
+import kotlin.time.Duration.Companion.milliseconds
 
 data class PetsUiState(
     val items: FindResponse? = null,
@@ -45,9 +46,9 @@ class FindPetsViewModel: ViewModel() {
             var attempt = 0
             var lastError: Throwable? = null
 
-            while (attempt <= maxRetries) {
+            while (true) {
                 try {
-                    val petsApiResult: FindResponse = PetsApi.retrofitService.getAvailablePets()
+                    val petsApiResult = PetsApi.retrofitService.getAvailablePets()
 
                     _petsUiState.value = _petsUiState.value.copy(
                         items = filterAvailablePets(petsApiResult),
@@ -63,7 +64,7 @@ class FindPetsViewModel: ViewModel() {
                     Log.w("check1", "Network attempt $attempt failed", e)
                     if (attempt > maxRetries) break
                     val backoff = initialDelayMs * (1 shl (attempt - 1))
-                    delay(backoff)
+                    delay(backoff.milliseconds)
                 } catch (e: Exception) {
                     // non-network error -> stop retrying
                     Log.e("FindPetsViewModel", "Unexpected error fetching pets", e)
