@@ -1,8 +1,10 @@
 package com.example.furryfriends.ui.viewmodels
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.furryfriends.App
 import com.example.furryfriends.model.DataNode
 import com.example.furryfriends.model.FilterRadius
 import com.example.furryfriends.model.IncludedItem
@@ -12,11 +14,14 @@ import com.example.furryfriends.model.SearchResponse
 import com.example.furryfriends.network.PetsApi
 import com.example.furryfriends.network.Species
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -30,7 +35,9 @@ data class SearchUiState(
     val error: String? = null
 )
 
-class SearchPetsViewModel: ViewModel() {
+class SearchPetsViewModel(application: Application): AndroidViewModel(application) {
+
+    private val repository = (application as App).petsRepository
 
     private val _searchUiState = MutableStateFlow(SearchUiState())
     val searchUiState: StateFlow<SearchUiState> = _searchUiState.asStateFlow()
@@ -62,18 +69,51 @@ class SearchPetsViewModel: ViewModel() {
     private val _favoritePetIds = MutableStateFlow<Set<String>>(emptySet())
     val favoritePetIds: StateFlow<Set<String>> = _favoritePetIds.asStateFlow()
 
-    val favoriteAnimalsWithOrgs: StateFlow<List<Pair<ResourceItem, IncludedItem?>>> = combine(
-        itemsRetrieved,
-        favoritePetIds
-    ) { items, favorites ->
-        val searchList = items?.data
-        val includedList = items?.included
-        getAnimalsWithOrgs(searchList, includedList).filter { favorites.contains(it.first.id) }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    private val _newResultsEvent = MutableSharedFlow<SearchResponse>(replay = 0)
+    val newResultsEvent: SharedFlow<SearchResponse> = _newResultsEvent.asSharedFlow()
+
+    init {
+        viewModelScope.launch {
+            launch {
+                repository.favoriteIds.collectLatest { ids ->
+                    _favoritePetIds.value = ids
+                }
+            }
+            launch {
+                repository.favoritePets.collectLatest { favorites ->
+                    _favoriteAnimalsWithOrgs.value = favorites.map { it.animal to it.org }
+                }
+            }
+            launch {
+                repository.lastSearchResults.collectLatest { results ->
+                    if (results != null && _searchUiState.value.items == null) {
+                        _searchUiState.update { it.copy(items = results) }
+                    }
+                }
+            }
+        }
+    }
+
+    private val _favoriteAnimalsWithOrgs = MutableStateFlow<List<Pair<ResourceItem, IncludedItem?>>>(emptyList())
+    val favoriteAnimalsWithOrgs: StateFlow<List<Pair<ResourceItem, IncludedItem?>>> = _favoriteAnimalsWithOrgs.asStateFlow()
 
     fun toggleFavorite(petId: String) {
-        _favoritePetIds.update { current ->
-            if (current.contains(petId)) current - petId else current + petId
+        viewModelScope.launch {
+            // 1. Find the animal in the current search results
+            val currentResults = itemsRetrieved.value?.data ?: emptyList()
+            val includedList = itemsRetrieved.value?.included
+            val animalInResults = currentResults.find { it.id == petId }
+            
+            if (animalInResults != null) {
+                val org = getOrganizationForAnimal(animalInResults, includedList)
+                repository.toggleFavorite(animalInResults, org)
+            } else {
+                // 2. If not in current results, it must be in the favorites list already (to be removed)
+                val existingFavorite = _favoriteAnimalsWithOrgs.value.find { it.first.id == petId }
+                if (existingFavorite != null) {
+                    repository.toggleFavorite(existingFavorite.first, existingFavorite.second)
+                }
+            }
         }
     }
 
@@ -124,12 +164,17 @@ class SearchPetsViewModel: ViewModel() {
                 val response = PetsApi.retrofitService.searchPets(species = petType, body = requestBody)
 
                 if (response.isSuccessful) {
+                    val body = response.body()
                     _searchUiState.update {
                         it.copy(
-                            items = response.body(),
+                            items = body,
                             isLoading = false,
                             error = null
                         )
+                    }
+                    if (body != null) {
+                        repository.saveSearchResults(body)
+                        _newResultsEvent.emit(body)
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -179,6 +224,9 @@ class SearchPetsViewModel: ViewModel() {
                 items = null,
                 isLoading = false,
                 error = null)
+        }
+        viewModelScope.launch {
+            repository.clearSearchResults()
         }
     }
 
