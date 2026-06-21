@@ -88,8 +88,7 @@ fun LoginScreen(
                 },
                 modifier = Modifier
                     .padding(vertical = 16.dp)
-                    .fillMaxWidth(),
-                shape = RectangleShape
+                    .fillMaxWidth()
             ) {
                 Text(text = stringResource(R.string.login))
             }

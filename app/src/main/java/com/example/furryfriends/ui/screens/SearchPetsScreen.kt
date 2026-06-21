@@ -77,6 +77,7 @@ import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SearchPetsScreen(
@@ -146,15 +147,19 @@ fun SearchPetsScreen(
     ) {
         LaunchedEffect(storedZip) {
             if (storedZip != null) {
-                delay(1000)
                 viewModel.processZipInput(storedZip!!)
-                performSearch()
+                // Only auto-search if we have NO cached results
+                if (itemsRetrieved == null) {
+                    delay(1000.milliseconds)
+                    performSearch()
+                }
             }
         }
 
         LaunchedEffect(zipIntState) {
-            if (zipIntState != -1 && zipIntState.toString().length == 5 && storedZip != zipIntState.toString()) {
-                delay(300)
+            // Only auto-search if we don't have results yet
+            if (itemsRetrieved == null && zipIntState != -1 && zipIntState.toString().length == 5 && storedZip != zipIntState.toString()) {
+                delay(300.milliseconds)
                 if (viewModel.checkValidZip(zipIntState)) {
                     performSearch()
                 }
@@ -229,8 +234,8 @@ fun SearchPetsScreen(
                 showBottomSheet = showBottomSheet,
                 scope = scope,
                 viewModel = viewModel,
-                onClose = {
-                    if (viewModel.checkValidZip(zipIntState)) {
+                onSpeciesSelected = {
+                    if (viewModel.checkValidZip(viewModel.zipState.value)) {
                         performSearch()
                     }
                 }
@@ -245,19 +250,15 @@ fun SearchPetsScreen(
             color = MaterialTheme.colorScheme.error
         )
 
-        LaunchedEffect(itemsRetrieved) {
-            itemsRetrieved?.meta?.countReturned?.let { count ->
-                val petCount = if (count >= 2) "$count ${selectedSpecies.type} found"
-                else if (count == 1) "$count ${selectedSpecies.type.replace("s", "")} found"
-                else "No ${selectedSpecies.type} available. Please try a different ZIP Code."
+        LaunchedEffect(Unit) {
+            viewModel.newResultsEvent.collect { response ->
+                response.meta.countReturned.let { count ->
+                    val petCount = if (count >= 2) "$count ${selectedSpecies.type} found"
+                    else if (count == 1) "$count ${selectedSpecies.type.replace("s", "")} found"
+                    else "No ${selectedSpecies.type} available. Please try a different ZIP Code."
 
-                Toast.makeText(context, petCount, Toast.LENGTH_LONG).show()
-
-//            CustomText(
-//                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-//                text = petCount,
-//                color = MaterialTheme.colorScheme.onPrimaryContainer,
-//                )
+                    Toast.makeText(context, petCount, Toast.LENGTH_LONG).show()
+                }
             }
         }
 
@@ -382,7 +383,7 @@ fun PetSelectionModal(
     scope: CoroutineScope,
     viewModel: SearchPetsViewModel,
     speciesList: List<Species> = Species.entries.toList(),
-    onClose: () -> Unit = {}
+    onSpeciesSelected: () -> Unit = {}
 ) {
 
     val selectedSpecies by viewModel.selectedSpecies.collectAsState()
@@ -458,11 +459,8 @@ fun PetSelectionModal(
                                 // Close the modal
                                 scope.launch {
                                     sheetState.hide()
-                                }.invokeOnCompletion {
-                                    if (!sheetState.isVisible) {
-                                        showBottomSheet.value = false
-                                        onClose()
-                                    }
+                                    showBottomSheet.value = false
+                                    onSpeciesSelected()
                                 }
                             }
                         )
