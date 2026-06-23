@@ -12,17 +12,21 @@ import com.example.furryfriends.model.ResourceItem
 import com.example.furryfriends.model.SearchResponse
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
 data class FavoritePet(
     val animal: ResourceItem,
     val org: IncludedItem?
 )
 
-class PetsRepository(context: Context) {
+@Singleton
+class PetsRepository @Inject constructor(@ApplicationContext context: Context) {
     private val dataStore: DataStore<Preferences> = context.applicationContext.dataStore
     private val gson = Gson()
 

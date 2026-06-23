@@ -3,8 +3,10 @@ package com.example.furryfriends.ui.viewmodels
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.furryfriends.App
+import com.example.furryfriends.data.PetsRepository
 import com.example.furryfriends.model.DataNode
 import com.example.furryfriends.model.FilterRadius
 import com.example.furryfriends.model.IncludedItem
@@ -13,6 +15,7 @@ import com.example.furryfriends.model.SearchRequest
 import com.example.furryfriends.model.SearchResponse
 import com.example.furryfriends.network.PetsApi
 import com.example.furryfriends.network.Species
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +31,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
+import javax.inject.Inject
 
 data class SearchUiState(
     val isLoading: Boolean = false,
@@ -35,9 +39,10 @@ data class SearchUiState(
     val error: String? = null
 )
 
-class SearchPetsViewModel(application: Application): AndroidViewModel(application) {
-
-    private val repository = (application as App).petsRepository
+@HiltViewModel
+class SearchPetsViewModel @Inject constructor(
+    private val repository: PetsRepository
+): ViewModel() {
 
     private val _searchUiState = MutableStateFlow(SearchUiState())
     val searchUiState: StateFlow<SearchUiState> = _searchUiState.asStateFlow()

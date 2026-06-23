@@ -7,13 +7,17 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.example.furryfriends.data.PreferencesKeys.DARK_THEME_KEY
 import com.example.furryfriends.data.PreferencesKeys.ZIP_KEY
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class SettingsRepository(private val context: Context) {
+@Singleton
+class SettingsRepository @Inject constructor(@ApplicationContext private val context: Context) {
 
     // DataStore instance from the singleton extension
     private val dataStore: DataStore<Preferences> = context.applicationContext.dataStore

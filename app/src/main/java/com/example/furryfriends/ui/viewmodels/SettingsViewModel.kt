@@ -8,13 +8,15 @@ import android.location.Geocoder
 import android.location.Location
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.furryfriends.App
+import com.example.furryfriends.data.SettingsRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,12 +27,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.util.Locale
+import javax.inject.Inject
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    @ApplicationContext private val applicationContext: Context,
+    private val repository: SettingsRepository
+) : ViewModel() {
     private val TAG = "SettingsViewModel"
-
-    // repository using application context (no DI)
-    private val repository = (application as App).settingsRepository
 
     private val _granted = MutableStateFlow(false)
     val granted: StateFlow<Boolean> = _granted.asStateFlow()
@@ -49,7 +53,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     init {
         // Check initial permission state
-        checkLocationPermission(getApplication<Application>().applicationContext)
+        checkLocationPermission(applicationContext)
 
         // Initialize dark theme state from repository and keep it in sync
         viewModelScope.launch {
@@ -100,7 +104,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      */
     @SuppressLint("MissingPermission")
     fun fetchZipFromLastLocation() {
-        val appCtx: Context = getApplication<Application>().applicationContext
         if (!granted.value) {
             _message.value = "Location permission not granted."
             _zip.value = null
@@ -110,7 +113,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             _loading.value = true
             _message.value = null
             try {
-                val fused = LocationServices.getFusedLocationProviderClient(appCtx)
+                val fused = LocationServices.getFusedLocationProviderClient(applicationContext)
 
                 // Try cached lastLocation, retry once after short delay
                 var loc = getLastLocationSuspend(fused)
@@ -138,7 +141,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     _zip.value = null
                 } else {
                     Log.d(TAG, "Got location: lat=${loc.latitude}, lon=${loc.longitude}")
-                    val postal = reverseGeocodeToZip(loc.latitude, loc.longitude, appCtx)
+                    val postal = reverseGeocodeToZip(loc.latitude, loc.longitude, applicationContext)
                     if (!postal.isNullOrEmpty()) {
                         try {
                             repository.setZip(postal)
@@ -168,8 +171,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private suspend fun getLastLocationSuspend(
         fused: FusedLocationProviderClient
     ): Location? = withContext(Dispatchers.Main) {
-        val appCtx = getApplication<Application>().applicationContext
-        if (ContextCompat.checkSelfPermission(appCtx, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.w(TAG, "permission missing before lastLocation")
             return@withContext null
         }
@@ -297,7 +299,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
 
     fun reDetectZip() {
-        val appCtx: Context = getApplication<Application>().applicationContext
         if (!granted.value) {
             _message.value = "Location permission not granted."
             _zip.value = null
@@ -308,7 +309,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             _loading.value = true
             _message.value = null
             try {
-                val fused = LocationServices.getFusedLocationProviderClient(appCtx)
+                val fused = LocationServices.getFusedLocationProviderClient(applicationContext)
 
                 // Try getCurrentLocation first
                 var loc = getCurrentLocationSuspend(fused)
@@ -322,7 +323,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     _message.value = "No recent location available. Please enable device Location or try again."
                     _zip.value = null
                 } else {
-                    val postal = reverseGeocodeToZip(loc.latitude, loc.longitude, appCtx)
+                    val postal = reverseGeocodeToZip(loc.latitude, loc.longitude, applicationContext)
                     if (!postal.isNullOrEmpty()) {
                         try {
                             repository.setZip(postal)
