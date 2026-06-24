@@ -14,6 +14,7 @@ import com.example.furryfriends.network.PetsApi
 import com.example.furryfriends.network.Species
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -159,6 +160,8 @@ class SearchPetsViewModel @Inject constructor(
                     error = null
                 )
             }
+            // Artificial delay for search query to show off SpinningLoader
+            delay(1200)
             try {
                 val requestBody = SearchRequest(
                     data = DataNode(

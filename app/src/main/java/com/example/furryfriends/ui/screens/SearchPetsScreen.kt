@@ -150,7 +150,6 @@ fun SearchPetsScreen(
                 viewModel.processZipInput(storedZip!!)
                 // Only auto-search if we have NO cached results
                 if (itemsRetrieved == null) {
-                    delay(1000.milliseconds)
                     performSearch()
                 }
             }
@@ -159,7 +158,6 @@ fun SearchPetsScreen(
         LaunchedEffect(zipIntState) {
             // Only auto-search if we don't have results yet
             if (itemsRetrieved == null && zipIntState != -1 && zipIntState.toString().length == 5 && storedZip != zipIntState.toString()) {
-                delay(300.milliseconds)
                 if (viewModel.checkValidZip(zipIntState)) {
                     performSearch()
                 }

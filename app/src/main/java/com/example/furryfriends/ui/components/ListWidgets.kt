@@ -9,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -27,7 +28,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
 import com.example.furryfriends.R
 import com.example.furryfriends.model.IncludedItem
 import com.example.furryfriends.model.ResourceItem
@@ -92,15 +97,29 @@ fun PetSearchList(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            AsyncImage(
-                                model = animal.attributes.pictureThumbnailUrl
-                                    ?: R.drawable.no_image_icon,
-                                contentDescription = "pet image",
-                                contentScale = ContentScale.Crop,
+                            var isLoading by remember { mutableStateOf(true) }
+
+                            Box(
                                 modifier = Modifier
                                     .size(100.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                            )
+                                    .clip(RoundedCornerShape(10.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                AsyncImage(
+                                    model = animal.attributes.pictureThumbnailUrl
+                                        ?: R.drawable.no_image_icon,
+                                    contentDescription = "pet image",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize(),
+                                    onState = { state ->
+                                        isLoading = state is AsyncImagePainter.State.Loading
+                                    }
+                                )
+
+                                if (isLoading) {
+                                    SpinningLoader(size = 32.dp)
+                                }
+                            }
                         }
 
                         Column(
