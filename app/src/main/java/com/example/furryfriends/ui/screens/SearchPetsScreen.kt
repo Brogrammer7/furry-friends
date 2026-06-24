@@ -262,6 +262,13 @@ fun SearchPetsScreen(
             }
         }
 
+        LaunchedEffect(Unit) {
+            viewModel.favoriteEvent.collect { isFavorite ->
+                val message = if (isFavorite) "Pet saved!" else "Pet removed."
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         HorizontalDivider()
 
         if (isLoadingOn) {

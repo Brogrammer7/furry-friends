@@ -1,11 +1,8 @@
 package com.example.furryfriends.ui.viewmodels
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.furryfriends.App
 import com.example.furryfriends.data.PetsRepository
 import com.example.furryfriends.model.DataNode
 import com.example.furryfriends.model.FilterRadius
@@ -77,6 +74,9 @@ class SearchPetsViewModel @Inject constructor(
     private val _newResultsEvent = MutableSharedFlow<SearchResponse>(replay = 0)
     val newResultsEvent: SharedFlow<SearchResponse> = _newResultsEvent.asSharedFlow()
 
+    private val _favoriteEvent = MutableSharedFlow<Boolean>(replay = 0)
+    val favoriteEvent: SharedFlow<Boolean> = _favoriteEvent.asSharedFlow()
+
     init {
         viewModelScope.launch {
             launch {
@@ -108,15 +108,18 @@ class SearchPetsViewModel @Inject constructor(
             val currentResults = itemsRetrieved.value?.data ?: emptyList()
             val includedList = itemsRetrieved.value?.included
             val animalInResults = currentResults.find { it.id == petId }
-            
+
             if (animalInResults != null) {
                 val org = getOrganizationForAnimal(animalInResults, includedList)
+                val isCurrentlyFavorite = favoritePetIds.value.contains(petId)
                 repository.toggleFavorite(animalInResults, org)
+                _favoriteEvent.emit(!isCurrentlyFavorite)
             } else {
                 // 2. If not in current results, it must be in the favorites list already (to be removed)
                 val existingFavorite = _favoriteAnimalsWithOrgs.value.find { it.first.id == petId }
                 if (existingFavorite != null) {
                     repository.toggleFavorite(existingFavorite.first, existingFavorite.second)
+                    _favoriteEvent.emit(false)
                 }
             }
         }
