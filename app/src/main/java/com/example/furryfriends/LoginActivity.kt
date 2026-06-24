@@ -18,7 +18,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.furryfriends.ui.screens.LoginScreen
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LoginActivity : ComponentActivity() {
     private val settingsViewModel: SettingsViewModel by viewModels()
 
