@@ -44,4 +44,10 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="are_you_sure_you_want_to_exit">Are you sure you want to exit?</string>
+    <string name="sort_results_by">Sort Results By:</string>
+    <string name="pet_name">Pet Name</string>
+    <string name="shelter_name">Shelter Name</string>
+    <string name="location">Location</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

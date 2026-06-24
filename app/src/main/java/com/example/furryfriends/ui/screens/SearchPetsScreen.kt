@@ -67,10 +67,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.furryfriends.R
-import com.example.furryfriends.model.IncludedItem
 import com.example.furryfriends.network.Species
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PetSearchList
+import com.example.furryfriends.ui.components.SortModal
 import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
@@ -101,17 +101,17 @@ fun SearchPetsScreen(
     val showBottomSheet = remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    val showSortModal = remember { mutableStateOf(false) }
+    val currentSortOption by viewModel.currentSortOption.collectAsState()
+
     val selectedSpecies by viewModel.selectedSpecies.collectAsState()
     val isLoadingOn by viewModel.isLoadingOn.collectAsState()
     val favoritePetIds by viewModel.favoritePetIds.collectAsState()
 
     val itemsRetrieved by viewModel.itemsRetrieved.collectAsState()
-    val searchList = itemsRetrieved?.data
-    val includedList = itemsRetrieved?.included
-    val animalsWithOrgs = viewModel.getAnimalsWithOrgs(searchList, includedList)
 
-    fun sortname(includedList: List<IncludedItem>){
-        includedList.sortedBy { it.attributes.name }
+    val animalsWithOrgs = remember(itemsRetrieved, currentSortOption) {
+        viewModel.getAnimalsWithOrgs(itemsRetrieved?.data, itemsRetrieved?.included)
     }
 
     fun hideKeyboard() {
@@ -216,17 +216,24 @@ fun SearchPetsScreen(
             }
 
             IconButton(
+                enabled = animalsWithOrgs.isNotEmpty(),
                 onClick = {
-                    //TODO add sorting action
+                    showSortModal.value = true
                 }
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.Sort,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = if (animalsWithOrgs.isNotEmpty()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
                 )
             }
         }
+
+        SortModal(
+            showSortModal = showSortModal,
+            currentSortOption = currentSortOption,
+            onSortOptionSelected = { viewModel.updateSortOption(it) }
+        )
 
         if (showBottomSheet.value)
             PetSelectionModal(

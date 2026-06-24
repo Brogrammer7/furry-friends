@@ -6,38 +6,43 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.furryfriends.R
+import com.example.furryfriends.ui.viewmodels.SortOption
 import kotlin.math.min
 
 @Composable
@@ -105,27 +110,6 @@ fun SpinningLoader(
 }
 
 @Composable
-fun LocalListLazyRow(petPhotos: List<Int>) {
-    LazyRow(
-        modifier = Modifier.padding(end = 16.dp),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(petPhotos) { resId ->
-            Image(
-                painter = painterResource(id = resId),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(200.dp)
-                    .clip(CircleShape)
-                    .border(width = 3.dp, color = MaterialTheme.colorScheme.primary, shape = CircleShape),
-                contentScale = ContentScale.Crop
-            )
-        }
-    }
-}
-
-@Composable
 fun CopyrightText() {
     val currentYear = remember {
         java.time.LocalDate.now().year
@@ -137,4 +121,71 @@ fun CopyrightText() {
         color = MaterialTheme.colorScheme.onPrimaryContainer,
         modifier = Modifier.padding(bottom = 16.dp)
     )
+}
+
+@Composable
+fun SortModal(
+    showSortModal: MutableState<Boolean>,
+    currentSortOption: SortOption,
+    onSortOptionSelected: (SortOption) -> Unit
+) {
+    if (showSortModal.value) {
+        var selectedOption by remember { mutableStateOf(currentSortOption) }
+
+        AlertDialog(
+            onDismissRequest = { showSortModal.value = false },
+            title = { Text(stringResource(R.string.sort_results_by)) },
+            text = {
+                Column {
+                    SortOptionRow(stringResource(R.string.pet_name), SortOption.PET_NAME, selectedOption) { selectedOption = it }
+                    SortOptionRow(stringResource(R.string.shelter_name), SortOption.SHELTER_NAME, selectedOption) { selectedOption = it }
+                    SortOptionRow(stringResource(R.string.location), SortOption.CITY, selectedOption) { selectedOption = it }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onSortOptionSelected(selectedOption)
+                    showSortModal.value = false
+                }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSortModal.value = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun SortOptionRow(
+    label: String,
+    option: SortOption,
+    selectedOption: SortOption,
+    onClick: (SortOption) -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .selectable(
+                selected = (option == selectedOption),
+                onClick = { onClick(option) },
+                role = Role.RadioButton
+            )
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = (option == selectedOption),
+            onClick = null
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+    }
 }

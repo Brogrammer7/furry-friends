@@ -36,6 +36,10 @@ data class SearchUiState(
     val error: String? = null
 )
 
+enum class SortOption {
+    NONE, PET_NAME, SHELTER_NAME, CITY
+}
+
 @HiltViewModel
 class SearchPetsViewModel @Inject constructor(
     private val repository: PetsRepository
@@ -76,6 +80,9 @@ class SearchPetsViewModel @Inject constructor(
 
     private val _favoriteEvent = MutableSharedFlow<Boolean>(replay = 0)
     val favoriteEvent: SharedFlow<Boolean> = _favoriteEvent.asSharedFlow()
+
+    private val _currentSortOption = MutableStateFlow(SortOption.NONE)
+    val currentSortOption: StateFlow<SortOption> = _currentSortOption.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -252,9 +259,20 @@ class SearchPetsViewModel @Inject constructor(
         searchList: List<ResourceItem>?,
         includedList: List<IncludedItem>?
     ): List<Pair<ResourceItem, IncludedItem?>> {
-        return searchList?.map { animal ->
+        val list = searchList?.map { animal ->
             animal to getOrganizationForAnimal(animal, includedList)
         } ?: emptyList()
+
+        return when (_currentSortOption.value) {
+            SortOption.NONE -> list
+            SortOption.PET_NAME -> list.sortedBy { it.first.attributes.name?.lowercase() ?: "" }
+            SortOption.SHELTER_NAME -> list.sortedBy { it.second?.attributes?.name?.lowercase() ?: "" }
+            SortOption.CITY -> list.sortedBy { it.second?.attributes?.city?.lowercase() ?: "" }
+        }
+    }
+
+    fun updateSortOption(option: SortOption) {
+        _currentSortOption.value = option
     }
 
     fun updateSelectedSpecies(species: Species) {
