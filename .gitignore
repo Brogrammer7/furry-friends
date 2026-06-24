@@ -15,9 +15,11 @@
 .externalNativeBuild
 .cxx
 local.properties
+secrets.properties
 .idea/deploymentTargetSelector.xml
-/app/build.gradle.kts
-/app/src/main/java/com/example/furryfriends/network
-app/src/main/res/drawable/vest_b.jpg
 .idea/studiobot.xml
 .idea/appInsightsSettings.xml
+.idea/planningMode.xml
+/app/src/main/java/com/example/furryfriends/network
+app/src/main/res/drawable/vest_b.jpg
+
