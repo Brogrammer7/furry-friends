@@ -137,19 +137,21 @@ fun SortModal(
             title = { Text(stringResource(R.string.sort_results_by)) },
             text = {
                 Column {
-                    SortOptionRow(stringResource(R.string.pet_name), SortOption.PET_NAME, selectedOption) { selectedOption = it }
-                    SortOptionRow(stringResource(R.string.shelter_name), SortOption.SHELTER_NAME, selectedOption) { selectedOption = it }
-                    SortOptionRow(stringResource(R.string.location), SortOption.CITY, selectedOption) { selectedOption = it }
+                    SortOptionRow(stringResource(R.string.pet_name), SortOption.PET_NAME, selectedOption) { 
+                        onSortOptionSelected(it)
+                        showSortModal.value = false
+                    }
+                    SortOptionRow(stringResource(R.string.shelter_name), SortOption.SHELTER_NAME, selectedOption) { 
+                        onSortOptionSelected(it)
+                        showSortModal.value = false
+                    }
+                    SortOptionRow(stringResource(R.string.location), SortOption.CITY, selectedOption) { 
+                        onSortOptionSelected(it)
+                        showSortModal.value = false
+                    }
                 }
             },
-            confirmButton = {
-                TextButton(onClick = {
-                    onSortOptionSelected(selectedOption)
-                    showSortModal.value = false
-                }) {
-                    Text(stringResource(R.string.ok))
-                }
-            },
+            confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showSortModal.value = false }) {
                     Text(stringResource(R.string.cancel))
