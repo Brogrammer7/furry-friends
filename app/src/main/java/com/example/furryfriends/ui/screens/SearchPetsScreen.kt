@@ -267,9 +267,16 @@ fun SearchPetsScreen(
             }
         }
 
+        val petAddedMessage = stringResource(R.string.pet_added_to_favorites)
+        val petRemovedMessage = stringResource(R.string.pet_removed)
+
         LaunchedEffect(Unit) {
-            viewModel.favoriteEvent.collect { isFavorite ->
-                val message = if (isFavorite) "Pet saved!" else "Pet removed."
+            viewModel.favoriteEvent.collect { event ->
+                val message = if (event.isFavorite) {
+                    petAddedMessage.format(event.petName)
+                } else {
+                    petRemovedMessage
+                }
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
         }

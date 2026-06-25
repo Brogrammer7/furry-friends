@@ -44,6 +44,11 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="are_you_sure_you_want_to_exit">Are you sure you want to exit?</string>
+    <string name="pet_removed">Pet removed</string>
+    <string name="pet_added_to_favorites">%s added to favorites</string>
+    <string name="clear_all_saved_pets">Clear all</string>
+    <string name="clear_all_saved_pets_title">Clear All Saved Pets</string>
+    <string name="clear_all_saved_pets_message">Are you sure you want to clear all your saved pets? This action cannot be undone.</string>
     <string name="sort_results_by">Sort Results By:</string>
     <string name="pet_name">Pet Name</string>
     <string name="shelter_name">Shelter Name</string>

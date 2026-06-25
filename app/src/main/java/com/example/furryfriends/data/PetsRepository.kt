@@ -72,6 +72,15 @@ class PetsRepository @Inject constructor(@ApplicationContext context: Context) {
         }
     }
 
+    suspend fun clearAllFavorites() {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { prefs ->
+                prefs.remove(FAVORITE_IDS_KEY)
+                prefs.remove(FAVORITE_PETS_DATA_KEY)
+            }
+        }
+    }
+
     suspend fun toggleFavorite(animal: ResourceItem, org: IncludedItem?) {
         withContext(Dispatchers.IO) {
             dataStore.edit { prefs ->

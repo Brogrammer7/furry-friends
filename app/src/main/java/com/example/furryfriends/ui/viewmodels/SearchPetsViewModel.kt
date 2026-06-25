@@ -12,6 +12,7 @@ import com.example.furryfriends.model.SearchRequest
 import com.example.furryfriends.model.SearchResponse
 import com.example.furryfriends.network.PetsApi
 import com.example.furryfriends.network.Species
+import com.example.furryfriends.ui.components.formatPetName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -79,8 +80,9 @@ class SearchPetsViewModel @Inject constructor(
     private val _newResultsEvent = MutableSharedFlow<SearchResponse>(replay = 0)
     val newResultsEvent: SharedFlow<SearchResponse> = _newResultsEvent.asSharedFlow()
 
-    private val _favoriteEvent = MutableSharedFlow<Boolean>(replay = 0)
-    val favoriteEvent: SharedFlow<Boolean> = _favoriteEvent.asSharedFlow()
+    data class FavoriteEvent(val petName: String, val isFavorite: Boolean)
+    private val _favoriteEvent = MutableSharedFlow<FavoriteEvent>(replay = 0)
+    val favoriteEvent: SharedFlow<FavoriteEvent> = _favoriteEvent.asSharedFlow()
 
     private val _currentSortOption = MutableStateFlow(SortOption.NONE)
     val currentSortOption: StateFlow<SortOption> = _currentSortOption.asStateFlow()
@@ -121,13 +123,17 @@ class SearchPetsViewModel @Inject constructor(
                 val org = getOrganizationForAnimal(animalInResults, includedList)
                 val isCurrentlyFavorite = favoritePetIds.value.contains(petId)
                 repository.toggleFavorite(animalInResults, org)
-                _favoriteEvent.emit(!isCurrentlyFavorite)
+                
+                val formattedName = formatPetName(animalInResults.attributes.name)
+                _favoriteEvent.emit(FavoriteEvent(formattedName, !isCurrentlyFavorite))
             } else {
                 // 2. If not in current results, it must be in the favorites list already (to be removed)
                 val existingFavorite = _favoriteAnimalsWithOrgs.value.find { it.first.id == petId }
                 if (existingFavorite != null) {
                     repository.toggleFavorite(existingFavorite.first, existingFavorite.second)
-                    _favoriteEvent.emit(false)
+                    
+                    val formattedName = formatPetName(existingFavorite.first.attributes.name)
+                    _favoriteEvent.emit(FavoriteEvent(formattedName, false))
                 }
             }
         }
@@ -245,6 +251,12 @@ class SearchPetsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             repository.clearSearchResults()
+        }
+    }
+
+    fun clearAllFavorites() {
+        viewModelScope.launch {
+            repository.clearAllFavorites()
         }
     }
 

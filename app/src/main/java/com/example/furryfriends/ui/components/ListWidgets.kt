@@ -27,6 +27,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,14 +61,31 @@ fun PetSearchList(
     modifier: Modifier = Modifier,
     animalsWithOrgs: List<Pair<ResourceItem, IncludedItem?>>,
     favoritePetIds: Set<String> = emptySet(),
-    onFavoriteClick: (String) -> Unit = {}
+    onFavoriteClick: (String) -> Unit = {},
+    onClearAllClick: (() -> Unit)? = null,
+    petCountText: String? = null
 ) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.primaryContainer),
-        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp)
+        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if (petCountText != null && animalsWithOrgs.isNotEmpty()) {
+            item {
+                Text(
+                    text = petCountText,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp, bottom = 8.dp),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
+
         items(
             items = animalsWithOrgs,
             key = { it.first.id }
@@ -236,6 +254,20 @@ fun PetSearchList(
                         }
 
                     }
+                }
+            }
+        }
+
+        if (onClearAllClick != null && animalsWithOrgs.isNotEmpty()) {
+            item {
+                TextButton(
+                    onClick = onClearAllClick,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.clear_all_saved_pets),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }
