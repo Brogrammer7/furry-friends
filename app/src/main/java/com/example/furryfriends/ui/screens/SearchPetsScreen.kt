@@ -76,7 +76,6 @@ import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds

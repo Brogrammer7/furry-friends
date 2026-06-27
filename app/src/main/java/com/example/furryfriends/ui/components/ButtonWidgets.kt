@@ -1,6 +1,9 @@
 package com.example.furryfriends.ui.components
 
 import android.content.Intent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,11 +15,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.PhoneInTalk
@@ -25,10 +31,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,30 +51,19 @@ import androidx.compose.ui.window.Dialog
 import com.example.furryfriends.R
 
 @Composable
-fun PetModalButton(
+fun PetModal(
+    showModal: MutableState<Boolean>,
     modifier: Modifier = Modifier,
     title: String? = null,
     onDismiss: () -> Unit = {},
     content: @Composable ColumnScope.() -> Unit
 ) {
-    var open by remember { mutableStateOf(false) }
-
-    IconButton(onClick = { open = true }) {
-        Icon(
-            imageVector = Icons.Outlined.PhoneInTalk,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
-        )
-    }
-
-    if (open) {
-        // Ignore incorrect warning on greyed out open variable - 'open = false' MUST be in the lambda to close Dialog from off-screen clicks or when pressing the No button
-        Dialog(onDismissRequest = { open = false; onDismiss() }) {
-            // constrain max height so content can scroll
+    if (showModal.value) {
+        Dialog(onDismissRequest = { showModal.value = false; onDismiss() }) {
             Box(
-                modifier
+                modifier = modifier
                     .widthIn(max = 360.dp)
-                    .heightIn(max = 480.dp)
+                    .heightIn(max = 600.dp)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceContainer,
                         shape = RoundedCornerShape(12.dp)
@@ -76,24 +73,67 @@ fun PetModalButton(
                 val scrollState = rememberScrollState()
                 CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .verticalScroll(scrollState)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         if (title != null) {
                             Text(title, style = MaterialTheme.typography.titleMedium)
+                            Spacer(Modifier.height(8.dp))
                         }
+
+                        // Scrollable area
+                        Box(
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .verticalScroll(scrollState)
+                        ) {
+                            Column(content = content)
+                        }
+
                         Spacer(Modifier.height(8.dp))
-                        Column(content = content)
-                        Spacer(Modifier.height(16.dp))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                            // Ignore incorrect warning on greyed out open variable - 'open = false' MUST be in the lambda to close Dialog from off-screen clicks or when pressing the No button
-                            TextButton(onClick = { open = false; onDismiss() }) { Text("Close") }
+                            TextButton(onClick = { showModal.value = false; onDismiss() }) { Text("Close") }
+                        }
+                    }
+
+                    // Floating scroll indicator
+                    AnimatedVisibility(
+                        visible = scrollState.canScrollForward,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(bottom = 48.dp, end = 16.dp) // above the Close button area
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            shadowElevation = 4.dp
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowDownward,
+                                contentDescription = "Scroll down",
+                                modifier = Modifier.size(24.dp)
+                            )
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun PetModalButton(
+    showModal: MutableState<Boolean>,
+    modifier: Modifier = Modifier
+) {
+    IconButton(onClick = { showModal.value = true }, modifier = modifier) {
+        Icon(
+            imageVector = Icons.Outlined.PhoneInTalk,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
+        )
     }
 }
 
@@ -143,12 +183,13 @@ fun ShareButton(
 @Composable
 fun FavoriteButton(
     isFavorite: Boolean,
+    modifier: Modifier = Modifier,
     onFavoriteClick: (Boolean) -> Unit
 ) {
-    IconButton(onClick = {
-        onFavoriteClick(!isFavorite)
-        //TODO implement click logic
-    }) {
+    IconButton(
+        onClick = { onFavoriteClick(!isFavorite) },
+        modifier = modifier
+    ) {
         Icon(
             imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
             contentDescription = null,
