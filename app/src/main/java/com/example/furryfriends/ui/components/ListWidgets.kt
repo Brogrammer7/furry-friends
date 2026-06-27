@@ -246,7 +246,12 @@ fun PetSearchList(
                                 .fillMaxWidth()
                                 .height(240.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .border(
+                                    width = 4.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = RoundedCornerShape(8.dp)
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
                             AsyncImage(

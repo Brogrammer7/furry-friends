@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.shadow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Favorite
@@ -64,8 +66,14 @@ fun PetModal(
                 modifier = modifier
                     .widthIn(max = 360.dp)
                     .heightIn(max = 600.dp)
+                    .shadow(elevation = 12.dp, shape = RoundedCornerShape(12.dp))
                     .background(
                         color = MaterialTheme.colorScheme.surfaceContainer,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .border(
+                        width = 4.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant,
                         shape = RoundedCornerShape(12.dp)
                     )
                     .padding(16.dp)
