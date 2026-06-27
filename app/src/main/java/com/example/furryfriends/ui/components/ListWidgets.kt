@@ -152,6 +152,11 @@ fun PetSearchList(
                                     modifier = Modifier
                                         .size(100.dp)
                                         .clip(RoundedCornerShape(10.dp))
+                                        .border(
+                                            width = 2.dp,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
                                         .clickable { showModal.value = true },
                                     contentAlignment = Alignment.Center
                                 ) {
