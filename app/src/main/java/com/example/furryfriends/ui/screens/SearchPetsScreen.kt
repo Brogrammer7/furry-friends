@@ -75,10 +75,13 @@ import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
 import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(FlowPreview::class)
 @Composable
 fun SearchPetsScreen(
     modifier: Modifier = Modifier,
@@ -271,14 +274,16 @@ fun SearchPetsScreen(
         val petRemovedMessage = stringResource(R.string.pet_removed)
 
         LaunchedEffect(Unit) {
-            viewModel.favoriteEvent.collect { event ->
-                val message = if (event.isFavorite) {
-                    petAddedMessage.format(event.petName)
-                } else {
-                    petRemovedMessage
+            viewModel.favoriteEvent
+                .debounce(400.milliseconds)
+                .collect { event ->
+                    val message = if (event.isFavorite) {
+                        petAddedMessage.format(event.petName)
+                    } else {
+                        petRemovedMessage
+                    }
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            }
         }
 
         HorizontalDivider()

@@ -26,7 +26,11 @@ import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PetSearchList
 import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(FlowPreview::class)
 @Composable
 fun SavedPetsScreen(
     viewModel: SearchPetsViewModel,
@@ -40,11 +44,13 @@ fun SavedPetsScreen(
     var showClearConfirmation by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.favoriteEvent.collect { event ->
-            if (!event.isFavorite) {
-                Toast.makeText(context, petRemovedMessage, Toast.LENGTH_SHORT).show()
+        viewModel.favoriteEvent
+            .debounce(400.milliseconds)
+            .collect { event ->
+                if (!event.isFavorite) {
+                    Toast.makeText(context, petRemovedMessage, Toast.LENGTH_SHORT).show()
+                }
             }
-        }
     }
 
     if (showClearConfirmation) {
