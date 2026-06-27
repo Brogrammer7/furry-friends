@@ -101,8 +101,8 @@ fun PetModal(
                         enter = fadeIn(),
                         exit = fadeOut(),
                         modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(bottom = 48.dp, end = 16.dp) // above the Close button area
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 48.dp) // above the Close button area
                     ) {
                         Surface(
                             shape = CircleShape,
