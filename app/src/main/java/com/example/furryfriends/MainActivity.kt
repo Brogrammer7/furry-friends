@@ -54,10 +54,14 @@ class MainActivity : ComponentActivity() {
             val darkThemeOverride by settingsViewModel.darkThemeOverride.collectAsState()
             val darkThemeLogic = darkThemeOverride ?: isSystemInDarkTheme()
 
+            val favoritePetIds by searchPetsViewModel.favoritePetIds.collectAsState()
+            val favoriteCount = if (favoritePetIds.isEmpty()) null else favoritePetIds.size
+
             val dashboardTab = TabBarItem(
                 title = stringResource(R.string.dashboard_tab_title),
                 selectedIcon = Icons.Filled.Dashboard,
-                unselectedIcon = Icons.Outlined.Dashboard
+                unselectedIcon = Icons.Outlined.Dashboard,
+                iconTicker = favoriteCount
             )
             val searchPetsTab = TabBarItem(
                 title = stringResource(R.string.search_pets_tab_title),

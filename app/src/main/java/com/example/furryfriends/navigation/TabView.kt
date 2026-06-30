@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
@@ -76,7 +77,10 @@ fun TabBarIconView(
 @Composable
 fun TabBarBadgeView(count: Int? = null) {
     if (count != null) {
-        Badge {
+        Badge(
+            containerColor = Color.Red,
+            contentColor = Color.White
+        ) {
             Text(count.toString())
         }
     }

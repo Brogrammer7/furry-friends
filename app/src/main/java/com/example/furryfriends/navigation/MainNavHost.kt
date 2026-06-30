@@ -2,6 +2,8 @@ package com.example.furryfriends.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,6 +29,8 @@ fun MainNavHost(
     searchPetsViewModel: SearchPetsViewModel,
     innerPadding: PaddingValues
 ) {
+    val favoritePetIds by searchPetsViewModel.favoritePetIds.collectAsState()
+
     NavHost(
         navController = navController,
         startDestination = RouteMain.Dashboard.route
@@ -35,6 +39,7 @@ fun MainNavHost(
             mainViewModel.setTitle(stringResource(R.string.dashboard_screen_title))
             DashboardScreen(
                 modifier = Modifier.padding(innerPadding),
+                savedPetsCount = favoritePetIds.size,
                 onViewSavedPetsClick = { navController.navigate(RouteMain.SavedPets.route) }
             )
         }
