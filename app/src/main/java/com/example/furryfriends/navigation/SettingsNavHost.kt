@@ -5,9 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.furryfriends.ui.screens.SettingsScreen
-import com.example.furryfriends.ui.screens.ThemeScreen
-import com.example.furryfriends.ui.viewmodels.SettingsViewModel
+import com.example.furryfriends.features.settings.SettingsScreen
+import com.example.furryfriends.features.settings.ThemeScreen
+import com.example.furryfriends.features.settings.SettingsViewModel
 
 @Composable
 fun SettingsNavHost(
