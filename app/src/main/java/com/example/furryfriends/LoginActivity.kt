@@ -15,9 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.furryfriends.ui.screens.LoginScreen
+import com.example.furryfriends.features.auth.LoginScreen
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
-import com.example.furryfriends.ui.viewmodels.SettingsViewModel
+import com.example.furryfriends.features.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

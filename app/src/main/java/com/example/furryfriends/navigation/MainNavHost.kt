@@ -11,15 +11,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.furryfriends.R
-import com.example.furryfriends.ui.screens.AboutScreen
-import com.example.furryfriends.ui.screens.DashboardScreen
-import com.example.furryfriends.ui.screens.SavedPetsScreen
-import com.example.furryfriends.ui.screens.SearchPetsScreen
-import com.example.furryfriends.ui.screens.SettingsScreen
-import com.example.furryfriends.ui.screens.ThemeScreen
-import com.example.furryfriends.ui.viewmodels.MainActivityViewModel
-import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
-import com.example.furryfriends.ui.viewmodels.SettingsViewModel
+import com.example.furryfriends.features.about.AboutScreen
+import com.example.furryfriends.features.dashboard.DashboardScreen
+import com.example.furryfriends.features.savedpets.SavedPetsScreen
+import com.example.furryfriends.features.search.SearchPetsScreen
+import com.example.furryfriends.features.search.SearchPetsViewModel
+import com.example.furryfriends.features.settings.SettingsScreen
+import com.example.furryfriends.features.settings.SettingsViewModel
+import com.example.furryfriends.features.settings.ThemeScreen
+import com.example.furryfriends.MainActivityViewModel
 
 @Composable
 fun MainNavHost(

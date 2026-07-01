@@ -1,7 +1,6 @@
-package com.example.furryfriends.ui.viewmodels
+package com.example.furryfriends.features.settings
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder

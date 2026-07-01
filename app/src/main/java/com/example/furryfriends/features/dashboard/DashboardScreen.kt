@@ -1,4 +1,4 @@
-package com.example.furryfriends.ui.screens
+package com.example.furryfriends.features.dashboard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border

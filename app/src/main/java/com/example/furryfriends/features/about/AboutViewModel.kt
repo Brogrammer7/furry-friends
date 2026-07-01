@@ -1,4 +1,4 @@
-package com.example.furryfriends.ui.viewmodels
+package com.example.furryfriends.features.about
 
 import androidx.lifecycle.ViewModel
 import com.example.furryfriends.R
@@ -13,6 +13,7 @@ class AboutViewModel : ViewModel() {
         R.drawable.vest5,
         R.drawable.vest6,
         R.drawable.vest7,
+        R.drawable.vest_b
     )
 
 }

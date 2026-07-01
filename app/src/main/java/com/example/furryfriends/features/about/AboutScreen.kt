@@ -1,6 +1,5 @@
-package com.example.furryfriends.ui.screens
+package com.example.furryfriends.features.about
 
-import android.widget.FrameLayout
 import androidx.annotation.OptIn
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -38,7 +37,6 @@ import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.CopyrightText
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.LocalListLazyRow
-import com.example.furryfriends.ui.viewmodels.AboutViewModel
 
 @Composable
 fun AboutScreen(

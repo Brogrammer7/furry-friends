@@ -1,4 +1,4 @@
-package com.example.furryfriends.ui.viewmodels
+package com.example.furryfriends
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

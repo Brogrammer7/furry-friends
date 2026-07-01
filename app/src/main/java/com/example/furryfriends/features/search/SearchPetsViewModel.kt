@@ -1,4 +1,4 @@
-package com.example.furryfriends.ui.viewmodels
+package com.example.furryfriends.features.search
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

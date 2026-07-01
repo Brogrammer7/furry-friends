@@ -1,11 +1,8 @@
-package com.example.furryfriends.ui.viewmodels
+package com.example.furryfriends.features.search
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.furryfriends.model.DataNode
-import com.example.furryfriends.model.Filter
-import com.example.furryfriends.model.FilterRadius
 import com.example.furryfriends.model.FindResponse
 import com.example.furryfriends.network.PetsApi
 import kotlinx.coroutines.delay

@@ -1,4 +1,4 @@
-package com.example.furryfriends.ui.screens
+package com.example.furryfriends.features.search
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.FurryFriendsAppBar
-import com.example.furryfriends.ui.viewmodels.FindPetsViewModel
 
 @Composable
 fun FindPetsScreen(

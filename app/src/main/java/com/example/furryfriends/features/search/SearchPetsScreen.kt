@@ -1,4 +1,4 @@
-package com.example.furryfriends.ui.screens
+package com.example.furryfriends.features.search
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -72,8 +72,7 @@ import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PetSearchList
 import com.example.furryfriends.ui.components.SortModal
 import com.example.furryfriends.ui.components.SpinningLoader
-import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
-import com.example.furryfriends.ui.viewmodels.SettingsViewModel
+import com.example.furryfriends.features.settings.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce

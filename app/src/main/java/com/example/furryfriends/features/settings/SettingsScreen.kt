@@ -1,4 +1,4 @@
-package com.example.furryfriends.ui.screens
+package com.example.furryfriends.features.settings
 
 import android.Manifest
 import android.app.Activity
@@ -32,7 +32,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -42,7 +41,6 @@ import com.example.furryfriends.LoginActivity
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.SignOutButton
 import com.example.furryfriends.ui.components.SpinningLoader
-import com.example.furryfriends.ui.viewmodels.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
@@ -139,7 +137,7 @@ fun SettingsScreen(
             ZipDetectionRow {
                 Text(
                     text = stringResource(R.string.detecting_zip),
-                    fontStyle = FontStyle.Italic
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 SpinningLoader()

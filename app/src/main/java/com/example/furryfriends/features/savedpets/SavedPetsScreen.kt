@@ -1,4 +1,4 @@
-package com.example.furryfriends.ui.screens
+package com.example.furryfriends.features.savedpets
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PetSearchList
-import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
+import com.example.furryfriends.features.search.SearchPetsViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlin.time.Duration.Companion.milliseconds

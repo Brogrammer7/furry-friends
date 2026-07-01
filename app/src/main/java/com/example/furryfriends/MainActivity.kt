@@ -34,9 +34,9 @@ import com.example.furryfriends.navigation.TabBarItem
 import com.example.furryfriends.navigation.TabView
 import com.example.furryfriends.ui.components.FurryFriendsAppBar
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
-import com.example.furryfriends.ui.viewmodels.MainActivityViewModel
-import com.example.furryfriends.ui.viewmodels.SearchPetsViewModel
-import com.example.furryfriends.ui.viewmodels.SettingsViewModel
+import com.example.furryfriends.MainActivityViewModel
+import com.example.furryfriends.features.search.SearchPetsViewModel
+import com.example.furryfriends.features.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

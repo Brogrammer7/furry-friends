@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.furryfriends.R
-import com.example.furryfriends.ui.viewmodels.SortOption
+import com.example.furryfriends.features.search.SortOption
 import kotlin.math.min
 
 @Composable
