@@ -1,4 +1,4 @@
-package com.example.furryfriends.data
+package com.example.furryfriends.data.local
 
 import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore

@@ -1,12 +1,13 @@
-package com.example.furryfriends.data
+package com.example.furryfriends.data.repository
 
 import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import com.example.furryfriends.data.PreferencesKeys.DARK_THEME_KEY
-import com.example.furryfriends.data.PreferencesKeys.ZIP_KEY
+import com.example.furryfriends.data.local.dataStore
+import com.example.furryfriends.data.local.PreferencesKeys.DARK_THEME_KEY
+import com.example.furryfriends.data.local.PreferencesKeys.ZIP_KEY
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

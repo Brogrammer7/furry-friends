@@ -1,12 +1,13 @@
-package com.example.furryfriends.data
+package com.example.furryfriends.data.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import com.example.furryfriends.data.PreferencesKeys.FAVORITE_IDS_KEY
-import com.example.furryfriends.data.PreferencesKeys.FAVORITE_PETS_DATA_KEY
-import com.example.furryfriends.data.PreferencesKeys.LAST_SEARCH_RESULTS_KEY
+import com.example.furryfriends.data.local.dataStore
+import com.example.furryfriends.data.local.PreferencesKeys.FAVORITE_IDS_KEY
+import com.example.furryfriends.data.local.PreferencesKeys.FAVORITE_PETS_DATA_KEY
+import com.example.furryfriends.data.local.PreferencesKeys.LAST_SEARCH_RESULTS_KEY
 import com.example.furryfriends.model.IncludedItem
 import com.example.furryfriends.model.ResourceItem
 import com.example.furryfriends.model.SearchResponse

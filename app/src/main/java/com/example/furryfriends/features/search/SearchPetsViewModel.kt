@@ -3,7 +3,7 @@ package com.example.furryfriends.features.search
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.furryfriends.data.PetsRepository
+import com.example.furryfriends.data.repository.PetsRepository
 import com.example.furryfriends.model.DataNode
 import com.example.furryfriends.model.FilterRadius
 import com.example.furryfriends.model.IncludedItem
