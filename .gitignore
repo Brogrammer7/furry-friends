@@ -20,6 +20,9 @@ secrets.properties
 .idea/studiobot.xml
 .idea/appInsightsSettings.xml
 .idea/planningMode.xml
-/app/src/main/java/com/example/furryfriends/network
+.idea/markdown.xml
+.idea/deviceManager.xml
+.idea/misc.xml
+app/src/main/java/com/example/furryfriends/network
 app/src/main/res/drawable/vest_b.jpg
 
