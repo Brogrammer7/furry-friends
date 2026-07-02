@@ -12,7 +12,7 @@ import com.example.furryfriends.model.SearchRequest
 import com.example.furryfriends.model.SearchResponse
 import com.example.furryfriends.network.PetsApi
 import com.example.furryfriends.network.Species
-import com.example.furryfriends.ui.components.formatPetName
+import com.example.furryfriends.util.formatPetName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
