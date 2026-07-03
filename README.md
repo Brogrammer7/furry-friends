@@ -1,67 +1,71 @@
-## <b>This is a pet adoption app I've written entirely in Jetpack Compose using the most modern Android libraries, including: Retrofit, Coroutines, Flows, & Material Theme.</b> 
+## <b>This is a pet adoption app I've written entirely in Jetpack Compose using the most modern Android libraries, including: Retrofit, Coroutines, Flows, DataStore, Dagger-Hilt Dependency Injection, Material Theme & MVVM architecture.</b> 
 
-It accesses a non-profit Rescue Group's API and receives real data of adoptable pets in your local area.
+The app accesses a non-profit Rescue Group's API with a private key and receives real data of adoptable pets in your local area
 
-<img width="15%" height="15%" alt="app_launcher_icon" src="https://github.com/user-attachments/assets/b3d199c2-2b7e-4f22-9d8d-db90930be967" />
+<img width="15%" height="15%" alt="app_launcher_icon" src="https://github.com/user-attachments/assets/0a8b06b6-ceb6-451d-86b7-9cf6b4126c87" />
 
 App Launcher Icon
 
-<img width="25%" height="25%" alt="entry_point" src="https://github.com/user-attachments/assets/dc5a63b2-b85c-4493-9385-9e8b0ff3a264" />
+<img width="25%" height="25%" alt="login_screen" src="https://github.com/user-attachments/assets/68060cad-6bbe-4e15-8e07-2413937c2876" />
 
-Welcome / Login screen
+Login Screen
 
-<img width="25%" height="25%" alt="dashboard_screen" src="https://github.com/user-attachments/assets/888e8f7a-e1a0-40a9-b881-0ebf413fe09c" />
+<img width="25%" height="25%" alt="dashboard_screen" src="https://github.com/user-attachments/assets/448cdf11-a83e-4169-b88c-1f6452679eb6" />
 
-Dashboard screen with intro
-
-<img width="25%" height="25%" alt="settings_no_location" src="https://github.com/user-attachments/assets/dd8341b6-bb42-4235-a9b6-44a152fa9321" />
-
-Settings screen before location is granted
-
-<img width="25%" height="25%" alt="settings_location_request_launcher" src="https://github.com/user-attachments/assets/7e299b67-6ecd-4a6e-8282-327b86d65a7f" />
-
-GPS location request via Android Permissions system that detects your ZIP Code
+Intro with navigation tabs
 
 <img width="25%" height="25%" alt="settings_location_detected" src="https://github.com/user-attachments/assets/43a4d2f9-62ff-4a75-a278-cc1e792bbd4b" />
 
-Location is successfully detected and stored via internal DataStore API to survive screen exit and process death 
+Location detected and stored if user grants permission 
+
+<img width="25%" height="25%" alt="settings_location_request_launcher" src="https://github.com/user-attachments/assets/7e299b67-6ecd-4a6e-8282-327b86d65a7f" />
+
+GPS request converts location into a stored ZIP code
 
 <img width="25%" height="25%" alt="search_screen_query" src="https://github.com/user-attachments/assets/de413624-67e7-4951-804a-927c5f3ca564" />
 
-With location stored, we now navigate to the search screen to find our next pet!
+Search Screen auto populates the saved location or allows for manual entry
 
-<img width="25%" height="25%" alt="search_result_cats" src="https://github.com/user-attachments/assets/14759db3-8381-4b88-badd-14c69534a6d4" />
+<img width="25%" height="25%" alt="search_result_ cats_save_feature" src="https://github.com/user-attachments/assets/d56f8078-f155-4b42-a958-67cda40b84bf" />
 
-A successful search result, returning all cats in this area and displayed in a scrollable LazyColumn
+Search result returns all available pets of selected type (sample pet shown saved via button press)
+
+<img width="25%" height="25%" alt="pet_modal" src="https://github.com/user-attachments/assets/39b638f5-45c6-4b9c-bc1e-2d8151b12e61" />
+
+Phone button opens a Dialog that gives contact info and more details on the chosen pet 
 
 <img width="25%" height="25%" alt="message_intent1" src="https://github.com/user-attachments/assets/5d62d85b-cdd6-4c17-90e6-4bff669699e8" />
 
-The share button lets us select an app of our choosing to send this pet to a friend
-
-<img width="25%" height="25%" alt="pet_modal" src="https://github.com/user-attachments/assets/39396283-9dec-42b2-8cdc-3a2822db27fd" />
-
-The phone button opens a Dialog that gives us contact info and more details on the chosen pet 
+Share button lets an app of your choosing send a pet to a friend
 
 <img width="25%" height="25%" alt="dialer_intent" src="https://github.com/user-attachments/assets/c4b2528a-679d-47db-a726-61b523322ab2" />
 
-Tapping the phone number opens the phone dialer
+Tapping the phone number initiates the phone dialer
 
 <img width="25%" height="25%" alt="browser_intent" src="https://github.com/user-attachments/assets/6e944c06-e05a-40ff-ac69-3303d2c81aea" />
 
-...and the interactive link takes us to the shelter's webpage on your favorite browser
+Clicking the interactive link opens the shelter's webpage on your default browser
 
 <img width="25%" height="25%" alt="search_selection_slider" src="https://github.com/user-attachments/assets/aaa16107-4e12-4481-8d27-7bc32a2fda33" />
 
-The Change Animal button lets us select a different pet type and automatically runs a new query
+Change Animal button switches pet type and automatically runs a new query after
 
 <img width="25%" height="25%" alt="search_result_rabbits" src="https://github.com/user-attachments/assets/53107c9e-3d1c-47e9-9c37-b40e238f4b9e" />
 
 New query returns available rabbits
 
+<img width="25%" height="25%" alt="saved_pets_screen" src="https://github.com/user-attachments/assets/c8240642-5806-4027-bc5e-5abe1864d17d" />
+
+Saved Pets Screen displaying favorited pets that persist in app cache
+
+<img width="25%" height="25%" alt="saved_pets_clear" src="https://github.com/user-attachments/assets/2b8012ec-cccb-4910-963e-8a762e32fe86" />
+
+Stored pets can be cleared fully or individually
+
 <img width="25%" height="25%" alt="about_screen" src="https://github.com/user-attachments/assets/eb601a57-e3c3-4adb-946f-3efd4edc60ec" />
 
-About screen with developer info and commemorative photos of his cat in a scrollable LazyRow & playable video beneath
+Commemorative About Screen with a scrollable LazyRow, and playable video
 
 <img width="25%" height="25%" alt="settings_sign_out" src="https://github.com/user-attachments/assets/86b800cd-0cbd-465c-9f1b-e0d7ba3c0b92" />
 
-We can now sign out of the application and return to the Login page
+Signing out of the application returns to the Login Screen
