@@ -201,19 +201,18 @@ class SearchPetsViewModel @Inject constructor(
                         _newResultsEvent.emit(body)
                     }
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    val apiErrorDetail = try {
-                        // Gson will map to your SearchResponse and ApiError types
-                        com.google.gson.Gson()
-                            .fromJson(errorBody, SearchResponse::class.java)
-                            ?.errors
-                            ?.firstOrNull()
-                            ?.detail
+                    val finalError = try {
+                        val errorBody = response.errorBody()?.string()
+                        if (errorBody != null) {
+                            kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+                                .decodeFromString<SearchResponse>(errorBody)
+                                .errors
+                                ?.firstOrNull()
+                                ?.detail
+                        } else null
                     } catch (ex: Exception) {
                         null
-                    }
-
-                    val finalError = apiErrorDetail ?: response.message() ?: "Unknown API error"
+                    } ?: response.message() ?: "Unknown API error"
 
                     _searchUiState.update {
                         it.copy(

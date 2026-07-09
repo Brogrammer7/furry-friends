@@ -1,5 +1,8 @@
 package com.example.furryfriends.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class SearchResponse(
     val meta: Meta,
     val data: List<ResourceItem> = emptyList(),
@@ -7,6 +10,7 @@ data class SearchResponse(
     val errors: List<ApiError>? = null
 )
 
+@Serializable
 data class Meta(
     val count: Int,
     val countReturned: Int,
@@ -15,6 +19,7 @@ data class Meta(
     val pages: Int,
 )
 
+@Serializable
 data class ApiError(
     val status: Int? = null,
     val title: String? = null,

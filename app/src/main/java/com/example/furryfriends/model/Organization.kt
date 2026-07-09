@@ -1,11 +1,15 @@
 package com.example.furryfriends.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class IncludedItem(
     val type: String,
     val id: String,
     val attributes: IncludedAttributes
 )
 
+@Serializable
 data class IncludedAttributes(
     // picture attributes
     val original: ImageSize? = null,
@@ -35,6 +39,7 @@ data class IncludedAttributes(
     val citystate: String? = null
 )
 
+@Serializable
 data class ImageSize(
     val resolutionX: Int? = null,
     val resolutionY: Int? = null,

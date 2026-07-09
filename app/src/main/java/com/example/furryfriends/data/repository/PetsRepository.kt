@@ -4,23 +4,24 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import com.example.furryfriends.data.local.dataStore
 import com.example.furryfriends.data.local.PreferencesKeys.FAVORITE_IDS_KEY
 import com.example.furryfriends.data.local.PreferencesKeys.FAVORITE_PETS_DATA_KEY
 import com.example.furryfriends.data.local.PreferencesKeys.LAST_SEARCH_RESULTS_KEY
+import com.example.furryfriends.data.local.dataStore
 import com.example.furryfriends.model.IncludedItem
 import com.example.furryfriends.model.ResourceItem
 import com.example.furryfriends.model.SearchResponse
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Serializable
 data class FavoritePet(
     val animal: ResourceItem,
     val org: IncludedItem?
@@ -29,12 +30,15 @@ data class FavoritePet(
 @Singleton
 class PetsRepository @Inject constructor(@ApplicationContext context: Context) {
     private val dataStore: DataStore<Preferences> = context.applicationContext.dataStore
-    private val gson = Gson()
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
 
     val lastSearchResults: Flow<SearchResponse?> = dataStore.data.map { prefs ->
-        prefs[LAST_SEARCH_RESULTS_KEY]?.let { json ->
+        prefs[LAST_SEARCH_RESULTS_KEY]?.let { jsonString ->
             try {
-                gson.fromJson(json, SearchResponse::class.java)
+                json.decodeFromString<SearchResponse>(jsonString)
             } catch (e: Exception) {
                 null
             }
@@ -46,10 +50,9 @@ class PetsRepository @Inject constructor(@ApplicationContext context: Context) {
     }
 
     val favoritePets: Flow<List<FavoritePet>> = dataStore.data.map { prefs ->
-        prefs[FAVORITE_PETS_DATA_KEY]?.let { json ->
+        prefs[FAVORITE_PETS_DATA_KEY]?.let { jsonString ->
             try {
-                val type = object : TypeToken<List<FavoritePet>>() {}.type
-                gson.fromJson(json, type)
+                json.decodeFromString<List<FavoritePet>>(jsonString)
             } catch (e: Exception) {
                 emptyList()
             }
@@ -58,9 +61,9 @@ class PetsRepository @Inject constructor(@ApplicationContext context: Context) {
 
     suspend fun saveSearchResults(response: SearchResponse) {
         withContext(Dispatchers.IO) {
-            val json = gson.toJson(response)
+            val jsonString = json.encodeToString(response)
             dataStore.edit { prefs ->
-                prefs[LAST_SEARCH_RESULTS_KEY] = json
+                prefs[LAST_SEARCH_RESULTS_KEY] = jsonString
             }
         }
     }
@@ -89,10 +92,9 @@ class PetsRepository @Inject constructor(@ApplicationContext context: Context) {
                 val petId = animal.id
                 
                 val favoritePetsJson = prefs[FAVORITE_PETS_DATA_KEY]
-                val type = object : TypeToken<MutableList<FavoritePet>>() {}.type
                 val favoritePetsList: MutableList<FavoritePet> = if (favoritePetsJson != null) {
                     try {
-                        gson.fromJson(favoritePetsJson, type)
+                        json.decodeFromString<List<FavoritePet>>(favoritePetsJson).toMutableList()
                     } catch (e: Exception) {
                         mutableListOf()
                     }
@@ -108,7 +110,7 @@ class PetsRepository @Inject constructor(@ApplicationContext context: Context) {
                     favoritePetsList.add(FavoritePet(animal, org))
                 }
                 
-                prefs[FAVORITE_PETS_DATA_KEY] = gson.toJson(favoritePetsList)
+                prefs[FAVORITE_PETS_DATA_KEY] = json.encodeToString(favoritePetsList.toList())
             }
         }
     }

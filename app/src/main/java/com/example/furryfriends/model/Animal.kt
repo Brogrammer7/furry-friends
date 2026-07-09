@@ -1,5 +1,8 @@
 package com.example.furryfriends.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ResourceItem(
     val type: String,
     val id: String,
@@ -7,6 +10,7 @@ data class ResourceItem(
     val relationships: Relationships
 )
 
+@Serializable
 data class AnimalAttributes(
     val distance: Double? = null,
     val isAdoptionPending: Boolean? = null,
@@ -39,15 +43,18 @@ data class AnimalAttributes(
     val updatedDate: String? = null
 )
 
+@Serializable
 data class Relationships(
     val pictures: RelationshipDataWrapper? = null,
     val orgs: RelationshipDataWrapper? = null
 )
 
+@Serializable
 data class RelationshipDataWrapper(
     val data: List<RelationshipData> = emptyList()
 )
 
+@Serializable
 data class RelationshipData(
     val type: String,
     val id: String
