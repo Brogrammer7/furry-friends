@@ -50,13 +50,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.example.furryfriends.R
-import com.example.furryfriends.model.IncludedItem
-import com.example.furryfriends.model.ResourceItem
+import com.example.furryfriends.model.PetDisplayItem
 
 @Composable
 fun PetSearchList(
     modifier: Modifier = Modifier,
-    animalsWithOrgs: List<Pair<ResourceItem, IncludedItem?>>,
+    animalsWithOrgs: List<PetDisplayItem>,
     favoritePetIds: Set<String> = emptySet(),
     onFavoriteClick: (String) -> Unit = {},
     onClearAllClick: (() -> Unit)? = null,
@@ -100,20 +99,19 @@ fun PetSearchList(
 
             items(
                 items = animalsWithOrgs,
-                key = { it.first.id }
-            ) { (animal, org) ->
+                key = { it.animal.id }
+            ) { petDisplayItem ->
                 val showModal = remember { mutableStateOf(false) }
 
                 PetCard(
-                    animal = animal,
-                    org = org,
+                    petDisplayItem = petDisplayItem,
                     showModal = showModal,
                     favoritePetIds = favoritePetIds,
                     onFavoriteClick = onFavoriteClick
                 )
 
                 PetModal(showModal = showModal) {
-                    PetModalContent(animal = animal, org = org)
+                    PetModalContent(petDisplayItem = petDisplayItem)
                 }
             }
 

@@ -7,6 +7,7 @@ import com.example.furryfriends.data.repository.PetsRepository
 import com.example.furryfriends.model.DataNode
 import com.example.furryfriends.model.FilterRadius
 import com.example.furryfriends.model.IncludedItem
+import com.example.furryfriends.model.PetDisplayItem
 import com.example.furryfriends.model.ResourceItem
 import com.example.furryfriends.model.SearchRequest
 import com.example.furryfriends.model.SearchResponse
@@ -96,7 +97,9 @@ class SearchPetsViewModel @Inject constructor(
             }
             launch {
                 repository.favoritePets.collectLatest { favorites ->
-                    _favoriteAnimalsWithOrgs.value = favorites.map { it.animal to it.org }
+                    _favoriteAnimalsWithOrgs.value = favorites.map { 
+                        PetDisplayItem(it.animal, it.org) 
+                    }
                 }
             }
             launch {
@@ -109,8 +112,8 @@ class SearchPetsViewModel @Inject constructor(
         }
     }
 
-    private val _favoriteAnimalsWithOrgs = MutableStateFlow<List<Pair<ResourceItem, IncludedItem?>>>(emptyList())
-    val favoriteAnimalsWithOrgs: StateFlow<List<Pair<ResourceItem, IncludedItem?>>> = _favoriteAnimalsWithOrgs.asStateFlow()
+    private val _favoriteAnimalsWithOrgs = MutableStateFlow<List<PetDisplayItem>>(emptyList())
+    val favoriteAnimalsWithOrgs: StateFlow<List<PetDisplayItem>> = _favoriteAnimalsWithOrgs.asStateFlow()
 
     fun toggleFavorite(petId: String) {
         viewModelScope.launch {
@@ -128,11 +131,11 @@ class SearchPetsViewModel @Inject constructor(
                 _favoriteEvent.emit(FavoriteEvent(formattedName, !isCurrentlyFavorite))
             } else {
                 // 2. If not in current results, it must be in the favorites list already (to be removed)
-                val existingFavorite = _favoriteAnimalsWithOrgs.value.find { it.first.id == petId }
+                val existingFavorite = _favoriteAnimalsWithOrgs.value.find { it.animal.id == petId }
                 if (existingFavorite != null) {
-                    repository.toggleFavorite(existingFavorite.first, existingFavorite.second)
+                    repository.toggleFavorite(existingFavorite.animal, existingFavorite.organization)
                     
-                    val formattedName = formatPetName(existingFavorite.first.attributes.name)
+                    val formattedName = formatPetName(existingFavorite.animal.attributes.name)
                     _favoriteEvent.emit(FavoriteEvent(formattedName, false))
                 }
             }
@@ -272,16 +275,16 @@ class SearchPetsViewModel @Inject constructor(
     fun getAnimalsWithOrgs(
         searchList: List<ResourceItem>?,
         includedList: List<IncludedItem>?
-    ): List<Pair<ResourceItem, IncludedItem?>> {
+    ): List<PetDisplayItem> {
         val list = searchList?.map { animal ->
-            animal to getOrganizationForAnimal(animal, includedList)
+            PetDisplayItem(animal, getOrganizationForAnimal(animal, includedList))
         } ?: emptyList()
 
         return when (_currentSortOption.value) {
             SortOption.NONE -> list
-            SortOption.PET_NAME -> list.sortedBy { it.first.attributes.name?.lowercase() ?: "" }
-            SortOption.SHELTER_NAME -> list.sortedBy { it.second?.attributes?.name?.lowercase() ?: "" }
-            SortOption.CITY -> list.sortedBy { it.second?.attributes?.city?.lowercase() ?: "" }
+            SortOption.PET_NAME -> list.sortedBy { it.animal.attributes.name?.lowercase() ?: "" }
+            SortOption.SHELTER_NAME -> list.sortedBy { it.organization?.attributes?.name?.lowercase() ?: "" }
+            SortOption.CITY -> list.sortedBy { it.organization?.attributes?.city?.lowercase() ?: "" }
         }
     }
 

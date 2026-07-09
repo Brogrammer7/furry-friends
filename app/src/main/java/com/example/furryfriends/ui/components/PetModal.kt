@@ -33,15 +33,15 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import com.example.furryfriends.R
-import com.example.furryfriends.model.IncludedItem
-import com.example.furryfriends.model.ResourceItem
+import com.example.furryfriends.model.PetDisplayItem
 import java.util.Locale
 
 @Composable
 fun PetModalContent(
-    animal: ResourceItem,
-    org: IncludedItem?
+    petDisplayItem: PetDisplayItem
 ) {
+    val animal = petDisplayItem.animal
+    val org = petDisplayItem.organization
     if (animal.attributes.pictureThumbnailUrl != null) {
         var isModalLoading by remember { mutableStateOf(true) }
         Box(
