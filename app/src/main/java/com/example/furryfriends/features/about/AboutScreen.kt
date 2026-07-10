@@ -13,12 +13,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -27,10 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.example.furryfriends.R
@@ -43,7 +38,6 @@ fun AboutScreen(
     modifier: Modifier = Modifier,
     viewModel: AboutViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val vesterPhotos = viewModel.vestPhotosList
 
     Column(
@@ -72,7 +66,7 @@ fun AboutScreen(
             )
 
             CustomVideoPlayer(
-                videoUri = "android.resource://${context.packageName}/raw/vest_box",
+                player = viewModel.exoPlayer,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -85,22 +79,7 @@ fun AboutScreen(
 
 @OptIn(UnstableApi::class)
 @Composable
-fun CustomVideoPlayer(videoUri: String, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val player: Player = remember {
-        ExoPlayer.Builder(context).build().apply {
-            val mediaItem = MediaItem.fromUri(videoUri)
-            setMediaItem(mediaItem)
-            prepare()
-        } as Player
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            player.release()
-        }
-    }
-
+fun CustomVideoPlayer(player: Player, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 16.dp),
