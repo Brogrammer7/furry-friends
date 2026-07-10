@@ -27,12 +27,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
+import coil3.request.ImageRequest
+import coil3.request.CachePolicy
+import coil3.request.crossfade
 import com.example.furryfriends.R
 import com.example.furryfriends.model.PetDisplayItem
 import com.example.furryfriends.util.formatPetName
@@ -87,8 +91,12 @@ fun PetCard(
                     contentAlignment = Alignment.Center
                 ) {
                     AsyncImage(
-                        model = animal.attributes.pictureThumbnailUrl
-                            ?: R.drawable.no_image_icon,
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(animal.attributes.pictureThumbnailUrl ?: R.drawable.no_image_icon)
+                            .crossfade(true)
+                            .diskCachePolicy(CachePolicy.ENABLED)
+                            .memoryCachePolicy(CachePolicy.ENABLED)
+                            .build(),
                         contentDescription = "pet image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
