@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
@@ -36,7 +36,7 @@ import com.example.furryfriends.ui.components.LocalListLazyRow
 @Composable
 fun AboutScreen(
     modifier: Modifier = Modifier,
-    viewModel: AboutViewModel = viewModel()
+    viewModel: AboutViewModel = hiltViewModel()
 ) {
     val vesterPhotos = viewModel.vestPhotosList
 
