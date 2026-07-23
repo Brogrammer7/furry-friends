@@ -2,6 +2,7 @@ package com.example.furryfriends.features.settings
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
@@ -48,11 +50,44 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     onNavigateToTheme: () -> Unit = {}
 ) {
-    val context = LocalContext.current
     val zip by viewModel.zip.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val message by viewModel.message.collectAsState()
+    val granted by viewModel.granted.collectAsState()
+    val darkThemeOverride by viewModel.darkThemeOverride.collectAsState()
 
+    SettingsContent(
+        modifier = modifier,
+        zip = zip,
+        loading = loading,
+        message = message,
+        granted = granted,
+        darkThemeOverride = darkThemeOverride,
+        onNavigateToTheme = onNavigateToTheme,
+        onFetchZip = { viewModel.fetchZipFromLastLocation() },
+        onGrantPermission = { viewModel.grantPermission(it) },
+        onCheckPermission = { viewModel.checkLocationPermission(it) },
+        shouldShowRequestPermissionRationale = { activity, permission ->
+            ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
+        }
+    )
+}
+
+@Composable
+fun SettingsContent(
+    modifier: Modifier = Modifier,
+    zip: String?,
+    loading: Boolean,
+    message: String?,
+    granted: Boolean,
+    darkThemeOverride: Boolean?,
+    onNavigateToTheme: () -> Unit,
+    onFetchZip: () -> Unit,
+    onGrantPermission: (Boolean) -> Unit,
+    onCheckPermission: (Context) -> Unit,
+    shouldShowRequestPermissionRationale: (Activity, String) -> Boolean
+) {
+    val context = LocalContext.current
     val detectedZipAnnotatedString = buildAnnotatedString {
         append(stringResource(R.string.your_detected_zip))
         append("\n")
@@ -72,10 +107,6 @@ fun SettingsScreen(
             append(zip ?: stringResource(R.string.not_set))
         }
     }
-
-    val granted by viewModel.granted.collectAsState()
-
-    val darkThemeOverride by viewModel.darkThemeOverride.collectAsState()
 
     Column(
         modifier = modifier
@@ -117,9 +148,11 @@ fun SettingsScreen(
         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
         LocationPermissionSetting(
-            viewModel = viewModel,
             granted = granted,
-            onGrantedChange = { newGranted -> viewModel.grantPermission(newGranted) }
+            onGrantedChange = onGrantPermission,
+            onFetchZip = onFetchZip,
+            onCheckPermission = onCheckPermission,
+            shouldShowRequestPermissionRationale = shouldShowRequestPermissionRationale
         )
 
         @Composable
@@ -157,7 +190,7 @@ fun SettingsScreen(
                         )
                     }
                 }
-                TextButton(onClick = { viewModel.fetchZipFromLastLocation() }) {
+                TextButton(onClick = onFetchZip) {
                     Text("Re-detect")
                 }
             }
@@ -195,15 +228,15 @@ fun SettingsScreen(
 
 @Composable
 fun LocationPermissionSetting(
-    viewModel: SettingsViewModel,
     granted: Boolean,
     onGrantedChange: (Boolean) -> Unit,
+    onFetchZip: () -> Unit,
+    onCheckPermission: (Context) -> Unit,
+    shouldShowRequestPermissionRationale: (Activity, String) -> Boolean,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
-
-    requireNotNull(activity) { "The Composable function must be called within an Activity context." }
 
     // Launcher to request permission
     val requestLauncher = rememberLauncherForActivityResult(
@@ -212,7 +245,7 @@ fun LocationPermissionSetting(
         onGrantedChange(isGranted)  // Update the hoisted state
         if (isGranted) {
             Toast.makeText(context, "Permission granted — detecting ZIP...", Toast.LENGTH_SHORT).show()
-            if (viewModel.zip != null) viewModel.fetchZipFromLastLocation()
+            onFetchZip()
         } else {
             Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
         }
@@ -223,27 +256,29 @@ fun LocationPermissionSetting(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
         // Refresh state when returning from settings
-        viewModel.checkLocationPermission(context)
+        onCheckPermission(context)
         if (granted) {
-            viewModel.fetchZipFromLastLocation()
+            onFetchZip()
         }
     }
 
     val onClick = {
-        when {
-            granted -> {
-                // Open app settings so user can revoke or re-check location
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.fromParts("package", context.packageName, null)
+        if (activity != null) {
+            when {
+                granted -> {
+                    // Open app settings so user can revoke or re-check location
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    settingsLauncher.launch(intent)
                 }
-                settingsLauncher.launch(intent)
-            }
-            ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION) -> {
-                Toast.makeText(context, "Location is needed for this feature.", Toast.LENGTH_SHORT).show()
-                requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            }
-            else -> {
-                requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                    Toast.makeText(context, "Location is needed for this feature.", Toast.LENGTH_SHORT).show()
+                    requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }
+                else -> {
+                    requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }
             }
         }
     }
@@ -276,7 +311,24 @@ fun LocationPermissionSetting(
     // If permission already granted when composable enters composition, trigger fetch once.
     LaunchedEffect(granted) {
         if (granted) {
-            viewModel.fetchZipFromLastLocation()
+            onFetchZip()
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsScreenPreview() {
+    SettingsContent(
+        zip = "90210",
+        loading = false,
+        message = null,
+        granted = true,
+        darkThemeOverride = false,
+        onNavigateToTheme = {},
+        onFetchZip = {},
+        onGrantPermission = {},
+        onCheckPermission = {},
+        shouldShowRequestPermissionRationale = { _, _ -> false }
+    )
 }

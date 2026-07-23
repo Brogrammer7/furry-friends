@@ -67,6 +67,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.furryfriends.R
+import com.example.furryfriends.model.PetDisplayItem
+import com.example.furryfriends.model.SearchResponse
 import com.example.furryfriends.network.Species
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PetSearchList
@@ -75,6 +77,8 @@ import com.example.furryfriends.ui.components.SpinningLoader
 import com.example.furryfriends.features.settings.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -86,13 +90,69 @@ fun SearchPetsScreen(
     settingsViewModel: SettingsViewModel,
     viewModel: SearchPetsViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-
     val storedZip by settingsViewModel.zip.collectAsState()
-
     val zipIntState by viewModel.zipState.collectAsState()
-    val zipText = if (zipIntState == -1) "" else zipIntState.toString()
     val invalidZipProvided by viewModel.invalidZipProvided.collectAsState()
+    val currentSortOption by viewModel.currentSortOption.collectAsState()
+    val selectedSpecies by viewModel.selectedSpecies.collectAsState()
+    val isLoadingOn by viewModel.isLoadingOn.collectAsState()
+    val favoritePetIds by viewModel.favoritePetIds.collectAsState()
+    val itemsRetrieved by viewModel.itemsRetrieved.collectAsState()
+
+    val animalsWithOrgs = remember(itemsRetrieved, currentSortOption) {
+        viewModel.getAnimalsWithOrgs(itemsRetrieved?.data, itemsRetrieved?.included)
+    }
+
+    SearchPetsContent(
+        modifier = modifier,
+        storedZip = storedZip,
+        zipIntState = zipIntState,
+        invalidZipProvided = invalidZipProvided,
+        currentSortOption = currentSortOption,
+        selectedSpecies = selectedSpecies,
+        isLoadingOn = isLoadingOn,
+        favoritePetIds = favoritePetIds,
+        itemsRetrieved = itemsRetrieved,
+        animalsWithOrgs = animalsWithOrgs,
+        onProcessZipInput = { viewModel.processZipInput(it) },
+        onCheckValidZip = { viewModel.checkValidZip(it) },
+        onSearchPetData = { viewModel.searchPetData(it) },
+        onClearSearchData = { viewModel.clearSearchData() },
+        onClearZip = { viewModel.clearZip() },
+        onToggleFavorite = { viewModel.toggleFavorite(it) },
+        onUpdateSortOption = { viewModel.updateSortOption(it) },
+        onUpdateSelectedSpecies = { viewModel.updateSelectedSpecies(it) },
+        newResultsEvent = viewModel.newResultsEvent,
+        favoriteEvent = viewModel.favoriteEvent
+    )
+}
+
+@OptIn(FlowPreview::class)
+@Composable
+fun SearchPetsContent(
+    modifier: Modifier = Modifier,
+    storedZip: String?,
+    zipIntState: Int,
+    invalidZipProvided: Boolean,
+    currentSortOption: SortOption,
+    selectedSpecies: Species,
+    isLoadingOn: Boolean,
+    favoritePetIds: Set<String>,
+    itemsRetrieved: SearchResponse?,
+    animalsWithOrgs: List<PetDisplayItem>,
+    onProcessZipInput: (String) -> Unit,
+    onCheckValidZip: (Int) -> Boolean,
+    onSearchPetData: (String) -> Unit,
+    onClearSearchData: () -> Unit,
+    onClearZip: () -> Unit,
+    onToggleFavorite: (String) -> Unit,
+    onUpdateSortOption: (SortOption) -> Unit,
+    onUpdateSelectedSpecies: (Species) -> Unit,
+    newResultsEvent: SharedFlow<SearchResponse>,
+    favoriteEvent: SharedFlow<SearchPetsViewModel.FavoriteEvent>
+) {
+    val context = LocalContext.current
+    val zipText = if (zipIntState == -1) "" else zipIntState.toString()
 
     // Clear focus and collapse keyboard after search input
     val focusManager = LocalFocusManager.current
@@ -103,17 +163,6 @@ fun SearchPetsScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val showSortModal = remember { mutableStateOf(false) }
-    val currentSortOption by viewModel.currentSortOption.collectAsState()
-
-    val selectedSpecies by viewModel.selectedSpecies.collectAsState()
-    val isLoadingOn by viewModel.isLoadingOn.collectAsState()
-    val favoritePetIds by viewModel.favoritePetIds.collectAsState()
-
-    val itemsRetrieved by viewModel.itemsRetrieved.collectAsState()
-
-    val animalsWithOrgs = remember(itemsRetrieved, currentSortOption) {
-        viewModel.getAnimalsWithOrgs(itemsRetrieved?.data, itemsRetrieved?.included)
-    }
 
     fun hideKeyboard() {
         scope.launch {
@@ -123,14 +172,14 @@ fun SearchPetsScreen(
     }
 
     fun performSearch() {
-        viewModel.clearSearchData()
-        viewModel.searchPetData(selectedSpecies.type)
+        onClearSearchData()
+        onSearchPetData(selectedSpecies.type)
         hideKeyboard()
     }
 
     fun clearResults() {
-        viewModel.clearZip()
-        viewModel.clearSearchData()
+        onClearZip()
+        onClearSearchData()
         hideKeyboard()
     }
 
@@ -141,14 +190,14 @@ fun SearchPetsScreen(
         Species.BIRDS -> R.drawable.stock_bird
         Species.HORSES -> R.drawable.stock_horse
     }
-    
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         LaunchedEffect(storedZip) {
             if (storedZip != null) {
-                viewModel.processZipInput(storedZip!!)
+                onProcessZipInput(storedZip)
                 // Only auto-search if we have NO cached results
                 if (itemsRetrieved == null) {
                     performSearch()
@@ -159,7 +208,7 @@ fun SearchPetsScreen(
         LaunchedEffect(zipIntState) {
             // Only auto-search if we don't have results yet
             if (itemsRetrieved == null && zipIntState != -1 && zipIntState.toString().length == 5 && storedZip != zipIntState.toString()) {
-                if (viewModel.checkValidZip(zipIntState)) {
+                if (onCheckValidZip(zipIntState)) {
                     performSearch()
                 }
             }
@@ -179,16 +228,16 @@ fun SearchPetsScreen(
             zipText = zipText,
             onZipChange = {
                 /* viewModel must turn zipText String into an Int and check for a full 5 digits, then it can auto-run the search */
-                viewModel.processZipInput(it)
-                          },
+                onProcessZipInput(it)
+            },
             placeHolderTitle = customPlaceHolderTitle,
-            onIconPressed = { if (viewModel.checkValidZip(zipIntState)) performSearch() },
-            )
+            onIconPressed = { if (onCheckValidZip(zipIntState)) performSearch() },
+        )
 
         Row(
             modifier = Modifier.padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
+        ) {
             Button(
                 onClick = {
                     showBottomSheet.value = true
@@ -231,7 +280,7 @@ fun SearchPetsScreen(
         SortModal(
             showSortModal = showSortModal,
             currentSortOption = currentSortOption,
-            onSortOptionSelected = { viewModel.updateSortOption(it) }
+            onSortOptionSelected = onUpdateSortOption
         )
 
         if (showBottomSheet.value)
@@ -239,9 +288,10 @@ fun SearchPetsScreen(
                 sheetState = sheetState,
                 showBottomSheet = showBottomSheet,
                 scope = scope,
-                viewModel = viewModel,
+                selectedSpecies = selectedSpecies,
+                onUpdateSelectedSpecies = onUpdateSelectedSpecies,
                 onSpeciesSelected = {
-                    if (viewModel.checkValidZip(viewModel.zipState.value)) {
+                    if (onCheckValidZip(zipIntState)) {
                         performSearch()
                     }
                 }
@@ -249,15 +299,15 @@ fun SearchPetsScreen(
 
         HorizontalDivider()
 
-        if (invalidZipProvided) 
+        if (invalidZipProvided)
             CustomText(
-            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-            text = stringResource(R.string.invalid_zip_entered),
-            color = MaterialTheme.colorScheme.error
-        )
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                text = stringResource(R.string.invalid_zip_entered),
+                color = MaterialTheme.colorScheme.error
+            )
 
         LaunchedEffect(Unit) {
-            viewModel.newResultsEvent.collect { response ->
+            newResultsEvent.collect { response ->
                 response.meta.countReturned.let { count ->
                     val petCount = if (count >= 2) "$count ${selectedSpecies.type} found"
                     else if (count == 1) "$count ${selectedSpecies.type.replace("s", "")} found"
@@ -272,7 +322,7 @@ fun SearchPetsScreen(
         val petRemovedMessage = stringResource(R.string.pet_removed)
 
         LaunchedEffect(Unit) {
-            viewModel.favoriteEvent
+            favoriteEvent
                 .debounce(400.milliseconds)
                 .collect { event ->
                     val message = if (event.isFavorite) {
@@ -322,12 +372,11 @@ fun SearchPetsScreen(
                 PetSearchList(
                     animalsWithOrgs = animalsWithOrgs,
                     favoritePetIds = favoritePetIds,
-                    onFavoriteClick = { viewModel.toggleFavorite(it) }
+                    onFavoriteClick = onToggleFavorite
                 )
             }
         }
     }
-
 }
 
 @Composable
@@ -403,12 +452,11 @@ fun PetSelectionModal(
     sheetState: SheetState,
     showBottomSheet: MutableState<Boolean>,
     scope: CoroutineScope,
-    viewModel: SearchPetsViewModel,
+    selectedSpecies: Species,
+    onUpdateSelectedSpecies: (Species) -> Unit,
     speciesList: List<Species> = Species.entries.toList(),
     onSpeciesSelected: () -> Unit = {}
 ) {
-
-    val selectedSpecies by viewModel.selectedSpecies.collectAsState()
     var expandedDropdown by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
@@ -476,7 +524,7 @@ fun PetSelectionModal(
                         DropdownMenuItem(
                             text = { Text(species.type.replaceFirstChar { it.uppercase() }) },
                             onClick = {
-                                viewModel.updateSelectedSpecies(species)
+                                onUpdateSelectedSpecies(species)
                                 expandedDropdown = false
                                 // Close the modal
                                 scope.launch {
@@ -489,16 +537,32 @@ fun PetSelectionModal(
                     }
                 }
             }
-
         }
-
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-fun SearchPesScreenPreview() {
-//    SearchPetsScreen(
-//        settingsViewModel = TODO(),
-//    )
+fun SearchPetsScreenPreview() {
+    SearchPetsContent(
+        storedZip = "90210",
+        zipIntState = 90210,
+        invalidZipProvided = false,
+        currentSortOption = SortOption.NONE,
+        selectedSpecies = Species.CATS,
+        isLoadingOn = false,
+        favoritePetIds = emptySet(),
+        itemsRetrieved = null,
+        animalsWithOrgs = emptyList(),
+        onProcessZipInput = {},
+        onCheckValidZip = { true },
+        onSearchPetData = {},
+        onClearSearchData = {},
+        onClearZip = {},
+        onToggleFavorite = {},
+        onUpdateSortOption = {},
+        onUpdateSelectedSpecies = {},
+        newResultsEvent = MutableSharedFlow(),
+        favoriteEvent = MutableSharedFlow()
+    )
 }
