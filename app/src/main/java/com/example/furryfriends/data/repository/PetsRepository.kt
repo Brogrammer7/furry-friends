@@ -1,19 +1,15 @@
 package com.example.furryfriends.data.repository
 
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import com.example.furryfriends.data.local.PreferencesKeys.FAVORITE_IDS_KEY
-import com.example.furryfriends.data.local.PreferencesKeys.FAVORITE_PETS_DATA_KEY
-import com.example.furryfriends.data.local.PreferencesKeys.LAST_SEARCH_RESULTS_KEY
-import com.example.furryfriends.data.local.dataStore
+import com.example.furryfriends.data.local.dao.CachedSearchDao
+import com.example.furryfriends.data.local.dao.FavoritePetDao
+import com.example.furryfriends.data.local.entity.CachedSearchEntity
+import com.example.furryfriends.data.local.entity.FavoritePetEntity
 import com.example.furryfriends.model.IncludedItem
 import com.example.furryfriends.model.ResourceItem
 import com.example.furryfriends.model.SearchResponse
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -28,89 +24,69 @@ data class FavoritePet(
 )
 
 @Singleton
-class PetsRepository @Inject constructor(@ApplicationContext context: Context) {
-    private val dataStore: DataStore<Preferences> = context.applicationContext.dataStore
+class PetsRepository @Inject constructor(
+    private val favoritePetDao: FavoritePetDao,
+    private val cachedSearchDao: CachedSearchDao
+) {
     private val json = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
     }
 
-    val lastSearchResults: Flow<SearchResponse?> = dataStore.data.map { prefs ->
-        prefs[LAST_SEARCH_RESULTS_KEY]?.let { jsonString ->
-            try {
-                json.decodeFromString<SearchResponse>(jsonString)
-            } catch (e: Exception) {
-                null
+    val lastSearchResults: Flow<SearchResponse?> = cachedSearchDao.getLastSearch()
+        .map { entity ->
+            entity?.json?.let { jsonString ->
+                try {
+                    json.decodeFromString<SearchResponse>(jsonString)
+                } catch (e: Exception) {
+                    null
+                }
             }
-        }
-    }
+        }.distinctUntilChanged()
 
-    val favoriteIds: Flow<Set<String>> = dataStore.data.map { prefs ->
-        prefs[FAVORITE_IDS_KEY] ?: emptySet()
-    }
+    val favoriteIds: Flow<Set<String>> = favoritePetDao.getAllFavoriteIds()
+        .map { it.toSet() }
+        .distinctUntilChanged()
 
-    val favoritePets: Flow<List<FavoritePet>> = dataStore.data.map { prefs ->
-        prefs[FAVORITE_PETS_DATA_KEY]?.let { jsonString ->
-            try {
-                json.decodeFromString<List<FavoritePet>>(jsonString)
-            } catch (e: Exception) {
-                emptyList()
+    val favoritePets: Flow<List<FavoritePet>> = favoritePetDao.getAllFavorites()
+        .map { entities ->
+            entities.mapNotNull { entity ->
+                try {
+                    json.decodeFromString<FavoritePet>(entity.petJson)
+                } catch (e: Exception) {
+                    null
+                }
             }
-        } ?: emptyList()
-    }
+        }.distinctUntilChanged()
 
     suspend fun saveSearchResults(response: SearchResponse) {
         withContext(Dispatchers.IO) {
             val jsonString = json.encodeToString(response)
-            dataStore.edit { prefs ->
-                prefs[LAST_SEARCH_RESULTS_KEY] = jsonString
-            }
+            cachedSearchDao.insertLastSearch(CachedSearchEntity(json = jsonString))
         }
     }
 
     suspend fun clearSearchResults() {
         withContext(Dispatchers.IO) {
-            dataStore.edit { prefs ->
-                prefs.remove(LAST_SEARCH_RESULTS_KEY)
-            }
+            cachedSearchDao.clear()
         }
     }
 
     suspend fun clearAllFavorites() {
         withContext(Dispatchers.IO) {
-            dataStore.edit { prefs ->
-                prefs.remove(FAVORITE_IDS_KEY)
-                prefs.remove(FAVORITE_PETS_DATA_KEY)
-            }
+            favoritePetDao.deleteAll()
         }
     }
 
     suspend fun toggleFavorite(animal: ResourceItem, org: IncludedItem?) {
         withContext(Dispatchers.IO) {
-            dataStore.edit { prefs ->
-                val currentIds = prefs[FAVORITE_IDS_KEY] ?: emptySet()
-                val petId = animal.id
-                
-                val favoritePetsJson = prefs[FAVORITE_PETS_DATA_KEY]
-                val favoritePetsList: MutableList<FavoritePet> = if (favoritePetsJson != null) {
-                    try {
-                        json.decodeFromString<List<FavoritePet>>(favoritePetsJson).toMutableList()
-                    } catch (e: Exception) {
-                        mutableListOf()
-                    }
-                } else {
-                    mutableListOf()
-                }
-
-                if (currentIds.contains(petId)) {
-                    prefs[FAVORITE_IDS_KEY] = currentIds - petId
-                    favoritePetsList.removeAll { it.animal.id == petId }
-                } else {
-                    prefs[FAVORITE_IDS_KEY] = currentIds + petId
-                    favoritePetsList.add(FavoritePet(animal, org))
-                }
-                
-                prefs[FAVORITE_PETS_DATA_KEY] = json.encodeToString(favoritePetsList.toList())
+            val petId = animal.id
+            if (favoritePetDao.isFavorite(petId)) {
+                favoritePetDao.deleteFavorite(petId)
+            } else {
+                val petData = FavoritePet(animal, org)
+                val jsonString = json.encodeToString(petData)
+                favoritePetDao.insertFavorite(FavoritePetEntity(petId, jsonString))
             }
         }
     }

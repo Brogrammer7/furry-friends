@@ -23,4 +23,7 @@ interface FavoritePetDao {
 
     @Query("SELECT id FROM favorite_pets")
     fun getAllFavoriteIds(): Flow<List<String>>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM favorite_pets WHERE id = :petId)")
+    suspend fun isFavorite(petId: String): Boolean
 }
