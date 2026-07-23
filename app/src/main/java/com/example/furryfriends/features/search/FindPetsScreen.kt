@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.furryfriends.R
@@ -22,10 +23,21 @@ import com.example.furryfriends.ui.components.FurryFriendsAppBar
 @Composable
 fun FindPetsScreen(
     viewModel: FindPetsViewModel = viewModel(),
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.petsUiState.collectAsState()
+    FindPetsContent(
+        modifier = modifier,
+        onFindPetsClick = { viewModel.getPetData() },
+        onResetResultsClick = { viewModel.clearPetData() }
+    )
+}
 
+@Composable
+fun FindPetsContent(
+    modifier: Modifier = Modifier,
+    onFindPetsClick: () -> Unit,
+    onResetResultsClick: () -> Unit
+) {
     Column(modifier = modifier
         .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -35,7 +47,7 @@ fun FindPetsScreen(
 
         Row {
             Button(
-                onClick = { viewModel.getPetData() },
+                onClick = onFindPetsClick,
                 modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)
             ) {
                 Text(
@@ -43,7 +55,7 @@ fun FindPetsScreen(
                 )
             }
             Button(
-                onClick = { viewModel.clearPetData() },
+                onClick = onResetResultsClick,
                 modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)
             ) {
                 Text(
@@ -53,8 +65,14 @@ fun FindPetsScreen(
         }
 
         HorizontalDivider()
-
-        
     }
+}
 
+@Preview(showBackground = true)
+@Composable
+fun FindPetsScreenPreview() {
+    FindPetsContent(
+        onFindPetsClick = {},
+        onResetResultsClick = {}
+    )
 }

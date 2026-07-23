@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 enum class ThemeOption {
@@ -27,6 +28,19 @@ fun ThemeScreen(
 ) {
     val darkThemeOverride by viewModel.darkThemeOverride.collectAsState()
 
+    ThemeContent(
+        modifier = modifier,
+        darkThemeOverride = darkThemeOverride,
+        onThemeOptionSelected = { viewModel.setDarkThemeOverride(it) }
+    )
+}
+
+@Composable
+fun ThemeContent(
+    modifier: Modifier = Modifier,
+    darkThemeOverride: Boolean?,
+    onThemeOptionSelected: (Boolean?) -> Unit
+) {
     // Determine current theme selection based on darkThemeOverride state
     val currentTheme = when (darkThemeOverride) {
         true -> ThemeOption.DARK
@@ -48,7 +62,7 @@ fun ThemeScreen(
                 label = "System",
                 isSelected = currentTheme == ThemeOption.SYSTEM,
                 onClick = {
-                    viewModel.setDarkThemeOverride(null)  // ✓ Pass null for system
+                    onThemeOptionSelected(null)  // ✓ Pass null for system
                 }
             )
 
@@ -57,7 +71,7 @@ fun ThemeScreen(
                 label = "Light",
                 isSelected = currentTheme == ThemeOption.LIGHT,
                 onClick = {
-                    viewModel.setDarkThemeOverride(false)
+                    onThemeOptionSelected(false)
                 }
             )
 
@@ -66,11 +80,20 @@ fun ThemeScreen(
                 label = "Dark",
                 isSelected = currentTheme == ThemeOption.DARK,
                 onClick = {
-                    viewModel.setDarkThemeOverride(true)
+                    onThemeOptionSelected(true)
                 }
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ThemeScreenPreview() {
+    ThemeContent(
+        darkThemeOverride = null,
+        onThemeOptionSelected = {}
+    )
 }
 
 @Composable

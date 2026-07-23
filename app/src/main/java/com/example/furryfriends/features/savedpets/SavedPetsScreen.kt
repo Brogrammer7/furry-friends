@@ -21,13 +21,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.furryfriends.R
+import com.example.furryfriends.model.PetDisplayItem
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PetSearchList
 import com.example.furryfriends.features.search.SearchPetsViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.emptyFlow
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
@@ -39,12 +43,32 @@ fun SavedPetsScreen(
     val favoriteAnimals by viewModel.favoriteAnimalsWithOrgs.collectAsState()
     val favoritePetIds by viewModel.favoritePetIds.collectAsState()
 
+    SavedPetsContent(
+        modifier = modifier,
+        favoriteAnimals = favoriteAnimals,
+        favoritePetIds = favoritePetIds,
+        onFavoriteClick = { viewModel.toggleFavorite(it) },
+        onClearAllFavorites = { viewModel.clearAllFavorites() },
+        favoriteEvent = viewModel.favoriteEvent
+    )
+}
+
+@OptIn(FlowPreview::class)
+@Composable
+fun SavedPetsContent(
+    modifier: Modifier = Modifier,
+    favoriteAnimals: List<PetDisplayItem>,
+    favoritePetIds: Set<String>,
+    onFavoriteClick: (String) -> Unit,
+    onClearAllFavorites: () -> Unit,
+    favoriteEvent: Flow<SearchPetsViewModel.FavoriteEvent>
+) {
     val context = LocalContext.current
     val petRemovedMessage = stringResource(R.string.pet_removed)
     var showClearConfirmation by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.favoriteEvent
+        favoriteEvent
             .debounce(400.milliseconds)
             .collect { event ->
                 if (!event.isFavorite) {
@@ -61,7 +85,7 @@ fun SavedPetsScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.clearAllFavorites()
+                        onClearAllFavorites()
                         showClearConfirmation = false
                     }
                 ) {
@@ -107,10 +131,22 @@ fun SavedPetsScreen(
                 modifier = Modifier.weight(1f),
                 animalsWithOrgs = favoriteAnimals,
                 favoritePetIds = favoritePetIds,
-                onFavoriteClick = { viewModel.toggleFavorite(it) },
+                onFavoriteClick = onFavoriteClick,
                 onClearAllClick = { showClearConfirmation = true },
                 petCountText = countText
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SavedPetsScreenPreview() {
+    SavedPetsContent(
+        favoriteAnimals = emptyList(),
+        favoritePetIds = emptySet(),
+        onFavoriteClick = {},
+        onClearAllFavorites = {},
+        favoriteEvent = emptyFlow()
+    )
 }

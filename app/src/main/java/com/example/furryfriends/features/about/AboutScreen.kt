@@ -38,12 +38,24 @@ fun AboutScreen(
     modifier: Modifier = Modifier,
     viewModel: AboutViewModel = hiltViewModel()
 ) {
-    val vesterPhotos = viewModel.vestPhotosList
+    AboutContent(
+        modifier = modifier,
+        vesterPhotos = viewModel.vestPhotosList,
+        player = viewModel.exoPlayer
+    )
+}
 
+@Composable
+fun AboutContent(
+    modifier: Modifier = Modifier,
+    vesterPhotos: List<Int>,
+    player: Player? = null
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),        horizontalAlignment = Alignment.CenterHorizontally
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CustomText(
             text = "Chris is an avid mobile app developer who loves Android and helping pets find forever homes.",
@@ -65,15 +77,15 @@ fun AboutScreen(
                 maxLines = 2
             )
 
-            CustomVideoPlayer(
-                player = viewModel.exoPlayer,
-                modifier = Modifier.fillMaxWidth()
-            )
+            player?.let {
+                CustomVideoPlayer(
+                    player = it,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             CopyrightText()
-
         }
-
     }
 }
 
@@ -105,8 +117,14 @@ fun CustomVideoPlayer(player: Player, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun AboutScreenPreview() {
-    AboutScreen()
+    AboutContent(
+        vesterPhotos = listOf(
+            R.drawable.vest1,
+            R.drawable.vest2,
+            R.drawable.vest3
+        )
+    )
 }
