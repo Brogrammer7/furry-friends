@@ -6,11 +6,16 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.util.Log
+import android.os.Looper
+import android.os.Handler
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.furryfriends.data.repository.SettingsRepository
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -225,7 +230,7 @@ class SettingsViewModel @Inject constructor(
         timeoutMs: Long = 8_000
     ): Location? = withContext(Dispatchers.Main) {
         suspendCancellableCoroutine { cont ->
-            val locationRequest = com.google.android.gms.location.LocationRequest.Builder(
+            val locationRequest = LocationRequest.Builder(
                 Priority.PRIORITY_BALANCED_POWER_ACCURACY,
                 0
             )
@@ -233,8 +238,8 @@ class SettingsViewModel @Inject constructor(
                 .setMaxUpdateDelayMillis(0)
                 .build()
 
-            val callback = object : com.google.android.gms.location.LocationCallback() {
-                override fun onLocationResult(result: com.google.android.gms.location.LocationResult) {
+            val callback = object : LocationCallback() {
+                override fun onLocationResult(result: LocationResult) {
                     val loc = result.lastLocation
                     if (loc != null && cont.isActive) {
                         cont.resumeWith(Result.success(loc))
@@ -244,11 +249,11 @@ class SettingsViewModel @Inject constructor(
             }
 
             try {
-                fused.requestLocationUpdates(locationRequest, callback, android.os.Looper.getMainLooper())
+                fused.requestLocationUpdates(locationRequest, callback, Looper.getMainLooper())
                     .addOnFailureListener { e -> Log.w(TAG, "requestLocationUpdates failure", e) }
 
                 // Timeout: remove updates after timeoutMs and resume null if still waiting
-                val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                val handler = Handler(Looper.getMainLooper())
                 val timeoutRunnable = Runnable {
                     if (cont.isActive) {
                         cont.resumeWith(Result.success(null))

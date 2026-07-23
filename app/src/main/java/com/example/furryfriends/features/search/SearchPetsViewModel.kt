@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 data class SearchUiState(
@@ -207,7 +208,7 @@ class SearchPetsViewModel @Inject constructor(
                     val finalError = try {
                         val errorBody = response.errorBody()?.string()
                         if (errorBody != null) {
-                            kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+                            Json { ignoreUnknownKeys = true }
                                 .decodeFromString<SearchResponse>(errorBody)
                                 .errors
                                 ?.firstOrNull()
