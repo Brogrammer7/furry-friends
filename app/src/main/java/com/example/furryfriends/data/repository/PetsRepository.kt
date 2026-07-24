@@ -23,6 +23,11 @@ data class FavoritePet(
     val org: IncludedItem?
 )
 
+data class CachedSearch(
+    val response: SearchResponse,
+    val species: String
+)
+
 @Singleton
 class PetsRepository @Inject constructor(
     private val favoritePetDao: FavoritePetDao,
@@ -33,14 +38,19 @@ class PetsRepository @Inject constructor(
         coerceInputValues = true
     }
 
-    val lastSearchResults: Flow<SearchResponse?> = cachedSearchDao.getLastSearch()
+    val lastSearchWithSpecies: Flow<CachedSearch?> = cachedSearchDao.getLastSearch()
         .map { entity ->
-            entity?.json?.let { jsonString ->
+            val response = entity?.json?.let { jsonString ->
                 try {
                     json.decodeFromString<SearchResponse>(jsonString)
                 } catch (e: Exception) {
                     null
                 }
+            }
+            if (response != null && entity.species != null) {
+                CachedSearch(response, entity.species)
+            } else {
+                null
             }
         }.distinctUntilChanged()
 
@@ -59,10 +69,10 @@ class PetsRepository @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    suspend fun saveSearchResults(response: SearchResponse) {
+    suspend fun saveSearchResults(response: SearchResponse, species: String) {
         withContext(Dispatchers.IO) {
             val jsonString = json.encodeToString(response)
-            cachedSearchDao.insertLastSearch(CachedSearchEntity(json = jsonString))
+            cachedSearchDao.insertLastSearch(CachedSearchEntity(json = jsonString, species = species))
         }
     }
 

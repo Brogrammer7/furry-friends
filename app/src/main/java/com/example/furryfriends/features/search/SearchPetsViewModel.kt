@@ -79,8 +79,9 @@ class SearchPetsViewModel @Inject constructor(
     private val _favoritePetIds = MutableStateFlow<Set<String>>(emptySet())
     val favoritePetIds: StateFlow<Set<String>> = _favoritePetIds.asStateFlow()
 
-    private val _newResultsEvent = MutableSharedFlow<SearchResponse>(replay = 0)
-    val newResultsEvent: SharedFlow<SearchResponse> = _newResultsEvent.asSharedFlow()
+    data class SearchResultsEvent(val response: SearchResponse, val speciesType: String)
+    private val _newResultsEvent = MutableSharedFlow<SearchResultsEvent>(replay = 0)
+    val newResultsEvent: SharedFlow<SearchResultsEvent> = _newResultsEvent.asSharedFlow()
 
     data class FavoriteEvent(val petName: String, val isFavorite: Boolean)
     private val _favoriteEvent = MutableSharedFlow<FavoriteEvent>(replay = 0)
@@ -104,9 +105,13 @@ class SearchPetsViewModel @Inject constructor(
                 }
             }
             launch {
-                repository.lastSearchResults.collectLatest { results ->
-                    if (results != null && _searchUiState.value.items == null) {
-                        _searchUiState.update { it.copy(items = results) }
+                repository.lastSearchWithSpecies.collectLatest { cached ->
+                    if (cached != null && _searchUiState.value.items == null) {
+                        _searchUiState.update { it.copy(items = cached.response) }
+                        val matchingSpecies = Species.entries.find { it.type == cached.species }
+                        if (matchingSpecies != null) {
+                            _selectedSpecies.value = matchingSpecies
+                        }
                     }
                 }
             }
@@ -201,8 +206,8 @@ class SearchPetsViewModel @Inject constructor(
                         )
                     }
                     if (body != null) {
-                        repository.saveSearchResults(body)
-                        _newResultsEvent.emit(body)
+                        repository.saveSearchResults(body, petType)
+                        _newResultsEvent.emit(SearchResultsEvent(body, petType))
                     }
                 } else {
                     val finalError = try {
@@ -294,7 +299,10 @@ class SearchPetsViewModel @Inject constructor(
     }
 
     fun updateSelectedSpecies(species: Species) {
-        _selectedSpecies.value = species
+        if (_selectedSpecies.value != species) {
+            _selectedSpecies.value = species
+            clearSearchData()
+        }
     }
 
     fun setSearchRange(): Int {

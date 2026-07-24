@@ -148,7 +148,7 @@ fun SearchPetsContent(
     onToggleFavorite: (String) -> Unit,
     onUpdateSortOption: (SortOption) -> Unit,
     onUpdateSelectedSpecies: (Species) -> Unit,
-    newResultsEvent: SharedFlow<SearchResponse>,
+    newResultsEvent: SharedFlow<SearchPetsViewModel.SearchResultsEvent>,
     favoriteEvent: SharedFlow<SearchPetsViewModel.FavoriteEvent>
 ) {
     val context = LocalContext.current
@@ -171,9 +171,9 @@ fun SearchPetsContent(
         focusManager.clearFocus()
     }
 
-    fun performSearch() {
+    fun performSearch(species: Species? = null) {
         onClearSearchData()
-        onSearchPetData(selectedSpecies.type)
+        onSearchPetData(species?.type ?: selectedSpecies.type)
         hideKeyboard()
     }
 
@@ -290,9 +290,9 @@ fun SearchPetsContent(
                 scope = scope,
                 selectedSpecies = selectedSpecies,
                 onUpdateSelectedSpecies = onUpdateSelectedSpecies,
-                onSpeciesSelected = {
+                onSpeciesSelected = { newSpecies ->
                     if (onCheckValidZip(zipIntState)) {
-                        performSearch()
+                        performSearch(newSpecies)
                     }
                 }
             )
@@ -307,11 +307,13 @@ fun SearchPetsContent(
             )
 
         LaunchedEffect(Unit) {
-            newResultsEvent.collect { response ->
+            newResultsEvent.collect { event ->
+                val response = event.response
+                val speciesType = event.speciesType
                 response.meta.countReturned.let { count ->
-                    val petCount = if (count >= 2) "$count ${selectedSpecies.type} found"
-                    else if (count == 1) "$count ${selectedSpecies.type.replace("s", "")} found"
-                    else "No ${selectedSpecies.type} available. Please try a different ZIP Code."
+                    val petCount = if (count >= 2) "$count $speciesType found"
+                    else if (count == 1) "$count ${speciesType.replace("s", "")} found"
+                    else "No $speciesType available. Please try a different ZIP Code."
 
                     Toast.makeText(context, petCount, Toast.LENGTH_LONG).show()
                 }
@@ -455,7 +457,7 @@ fun PetSelectionModal(
     selectedSpecies: Species,
     onUpdateSelectedSpecies: (Species) -> Unit,
     speciesList: List<Species> = Species.entries.toList(),
-    onSpeciesSelected: () -> Unit = {}
+    onSpeciesSelected: (Species) -> Unit = {}
 ) {
     var expandedDropdown by remember { mutableStateOf(false) }
 
@@ -530,7 +532,7 @@ fun PetSelectionModal(
                                 scope.launch {
                                     sheetState.hide()
                                     showBottomSheet.value = false
-                                    onSpeciesSelected()
+                                    onSpeciesSelected(species)
                                 }
                             }
                         )
@@ -562,7 +564,7 @@ fun SearchPetsScreenPreview() {
         onToggleFavorite = {},
         onUpdateSortOption = {},
         onUpdateSelectedSpecies = {},
-        newResultsEvent = MutableSharedFlow(),
+        newResultsEvent = MutableSharedFlow<SearchPetsViewModel.SearchResultsEvent>(),
         favoriteEvent = MutableSharedFlow()
     )
 }
