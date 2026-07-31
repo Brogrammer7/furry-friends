@@ -58,7 +58,7 @@ fun AboutContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CustomText(
-            text = "Chris is an avid mobile app developer who loves Android and helping pets find forever homes.",
+            text = stringResource(R.string.developer_description),
             lineHeight = 16.sp,
             modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
         )

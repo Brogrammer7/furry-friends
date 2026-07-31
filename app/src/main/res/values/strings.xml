@@ -55,4 +55,26 @@
     <string name="location">Location</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="scroll_down">Scroll down</string>
+    <string name="back">Back</string>
+    <string name="share_via">Share via</string>
+    <string name="give_this_pet_a_home">Give this pet a home:</string>
+    <string name="finding_next_pet_with_saved_zip">Using your saved ZIP Code to find your next pet! \uD83D\uDC31\uD83D\uDC36</string>
+    <string name="finding_next_pet_no_zip">Finding your next pet! \uD83D\uDC31\uD83D\uDC36</string>
+    <string name="dropdown_arrow">Dropdown arrow</string>
+    <string name="dashboard_header">Dashboard</string>
+    <string name="saved_pets_star">Saved Pets Star</string>
+    <string name="developer_description">Chris is an avid mobile app developer who loves Android and helping pets find forever homes.</string>
+    <string name="one_saved_pet">1 saved pet</string>
+    <string name="system_theme">System Theme</string>
+    <string name="dark">Dark</string>
+    <string name="light">Light</string>
+    <string name="system">System</string>
+    <string name="system_default">System Default</string>
+    <string name="permission_granted_detecting">Permission granted — detecting ZIP...</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="location_needed">Location is needed for this feature.</string>
+    <string name="pet_image">pet image</string>
+    <string name="pet_image_large">pet image large</string>
 </resources>

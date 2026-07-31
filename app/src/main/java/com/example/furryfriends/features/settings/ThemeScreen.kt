@@ -12,8 +12,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.furryfriends.R
 
 enum class ThemeOption {
     SYSTEM,
@@ -59,16 +61,16 @@ fun ThemeContent(
         ) {
             // System theme option
             ThemeRadioOption(
-                label = "System",
+                label = stringResource(R.string.system),
                 isSelected = currentTheme == ThemeOption.SYSTEM,
                 onClick = {
-                    onThemeOptionSelected(null)  // ✓ Pass null for system
+                    onThemeOptionSelected(null)  // ✓ Handle null for system
                 }
             )
 
             // Light theme option
             ThemeRadioOption(
-                label = "Light",
+                label = stringResource(R.string.light),
                 isSelected = currentTheme == ThemeOption.LIGHT,
                 onClick = {
                     onThemeOptionSelected(false)
@@ -77,7 +79,7 @@ fun ThemeContent(
 
             // Dark theme option
             ThemeRadioOption(
-                label = "Dark",
+                label = stringResource(R.string.dark),
                 isSelected = currentTheme == ThemeOption.DARK,
                 onClick = {
                     onThemeOptionSelected(true)

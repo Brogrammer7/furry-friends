@@ -342,7 +342,7 @@ fun SearchPetsContent(
             SpinningLoader(modifier = Modifier.padding(top = 16.dp))
             Text(
                 modifier = Modifier.padding(16.dp),
-                text = if (storedZip == zipText) "Using your saved ZIP Code to find your next pet! \uD83D\uDC31\uD83D\uDC36" else "Finding your next pet! \uD83D\uDC31\uD83D\uDC36",
+                text = if (storedZip == zipText) stringResource(R.string.finding_next_pet_with_saved_zip) else stringResource(R.string.finding_next_pet_no_zip),
                 textAlign = TextAlign.Center
             )
         }
@@ -513,7 +513,7 @@ fun PetSelectionModal(
                             Icons.Default.KeyboardArrowUp
                         else
                             Icons.Default.KeyboardArrowDown,
-                        contentDescription = "Dropdown arrow"
+                        contentDescription = stringResource(R.string.dropdown_arrow)
                     )
                 }
 

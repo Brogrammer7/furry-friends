@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -97,7 +98,7 @@ fun PetCard(
                             .diskCachePolicy(CachePolicy.ENABLED)
                             .memoryCachePolicy(CachePolicy.ENABLED)
                             .build(),
-                        contentDescription = "pet image",
+                        contentDescription = stringResource(R.string.pet_image),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
                         onState = { state ->

@@ -99,7 +99,7 @@ fun PetModal(
 
                         Spacer(Modifier.height(8.dp))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                            TextButton(onClick = { showModal.value = false; onDismiss() }) { Text("Close") }
+                            TextButton(onClick = { showModal.value = false; onDismiss() }) { Text(stringResource(R.string.close)) }
                         }
                     }
 
@@ -120,7 +120,7 @@ fun PetModal(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ArrowDownward,
-                                contentDescription = "Scroll down",
+                                contentDescription = stringResource(R.string.scroll_down),
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -149,12 +149,12 @@ fun PetModalButton(
 fun ShareButton(
     modifier: Modifier = Modifier,
     pictureUrl: String?,
-    subject: String? = "Give this pet a home:", // optional email subject
+    subject: String? = stringResource(R.string.give_this_pet_a_home), // optional email subject
     petName: String?,
     petBreed: String?,
     linkUrl: String?,
     phoneNumber: String?,
-    chooserTitle: String = "Share via",
+    chooserTitle: String = stringResource(R.string.share_via),
 ) {
     val context = LocalContext.current
 

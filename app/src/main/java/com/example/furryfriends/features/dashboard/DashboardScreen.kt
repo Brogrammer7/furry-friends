@@ -50,7 +50,7 @@ fun DashboardScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Dashboard",
+            text = stringResource(R.string.dashboard_header),
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 16.dp),
@@ -98,7 +98,7 @@ fun DashboardScreen(
                             // Gradient layer for color depth
                             Icon(
                                 imageVector = Icons.Filled.Star,
-                                contentDescription = "Saved Pets Star",
+                                contentDescription = stringResource(R.string.saved_pets_star),
                                 tint = Color.White,
                                 modifier = Modifier
                                     .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)

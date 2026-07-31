@@ -68,7 +68,7 @@ fun PetModalContent(
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .build(),
-                contentDescription = "pet image large",
+                contentDescription = stringResource(R.string.pet_image_large),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
                 onState = { state ->

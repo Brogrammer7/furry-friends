@@ -119,12 +119,12 @@ fun SettingsContent(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text(text = "System Theme", style = MaterialTheme.typography.bodyLarge)
+                Text(text = stringResource(R.string.system_theme), style = MaterialTheme.typography.bodyLarge)
 
                 val themeName = when(darkThemeOverride) {
-                    true -> "Dark"
-                    false -> "Light"
-                    null -> "System Default"
+                    true -> stringResource(R.string.dark)
+                    false -> stringResource(R.string.light)
+                    null -> stringResource(R.string.system_default)
                 }
 
                 Text(
@@ -191,7 +191,7 @@ fun SettingsContent(
                     }
                 }
                 TextButton(onClick = onFetchZip) {
-                    Text("Re-detect")
+                    Text(stringResource(R.string.re_detect))
                 }
             }
         }
@@ -244,10 +244,10 @@ fun LocationPermissionSetting(
     ) { isGranted ->
         onGrantedChange(isGranted)  // Update the hoisted state
         if (isGranted) {
-            Toast.makeText(context, "Permission granted — detecting ZIP...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.permission_granted_detecting), Toast.LENGTH_SHORT).show()
             onFetchZip()
         } else {
-            Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.permission_denied), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -273,7 +273,7 @@ fun LocationPermissionSetting(
                     settingsLauncher.launch(intent)
                 }
                 shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION) -> {
-                    Toast.makeText(context, "Location is needed for this feature.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.location_needed), Toast.LENGTH_SHORT).show()
                     requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
                 else -> {

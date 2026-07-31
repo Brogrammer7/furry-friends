@@ -141,7 +141,7 @@ fun PetSearchList(
         ) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Scroll down",
+                contentDescription = stringResource(R.string.scroll_down),
                 modifier = Modifier
                     .size(48.dp)
                     .offset(y = offsetY.dp),

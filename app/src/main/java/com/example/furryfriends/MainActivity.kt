@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
                                         IconButton(onClick = { navController.navigateUp() }) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = "Back"
+                                                contentDescription = stringResource(R.string.back)
                                             )
                                         }
                                     }

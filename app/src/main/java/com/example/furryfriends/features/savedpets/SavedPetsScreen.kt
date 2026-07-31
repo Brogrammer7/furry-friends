@@ -106,7 +106,7 @@ fun SavedPetsContent(
     ) {
         val count = favoriteAnimals.size
         val countText = when (count) {
-            1 -> "1 saved pet"
+            1 -> stringResource(R.string.one_saved_pet)
             else -> "$count saved pets"
         }
 
