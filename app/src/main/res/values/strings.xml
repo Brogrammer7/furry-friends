@@ -77,4 +77,5 @@
     <string name="location_needed">Location is needed for this feature.</string>
     <string name="pet_image">pet image</string>
     <string name="pet_image_large">pet image large</string>
+    <string name="analyze_pet">Analyze Pet</string>
 </resources>

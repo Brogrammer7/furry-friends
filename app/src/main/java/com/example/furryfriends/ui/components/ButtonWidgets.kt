@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.PhoneInTalk
+import androidx.compose.material.icons.outlined.Psychology
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -183,6 +184,20 @@ fun ShareButton(
         Icon(
             imageVector = Icons.Outlined.Share,
             contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
+fun AnalyzePetButton(
+    modifier: Modifier = Modifier,
+    onAnalyzeClick: () -> Unit
+) {
+    IconButton(onClick = onAnalyzeClick, modifier = modifier) {
+        Icon(
+            imageVector = Icons.Outlined.Psychology,
+            contentDescription = stringResource(R.string.analyze_pet),
             tint = MaterialTheme.colorScheme.primary
         )
     }

@@ -23,6 +23,8 @@ kotlinxSerializationJson = "1.8.0"
 retrofitVersion = "3.0.0"
 runtimeLivedata = "1.10.0"
 playServicesLocation = "21.3.0"
+mlkitImageLabeling = "17.0.9"
+mlkitObjectDetection = "17.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -61,6 +63,8 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.2.0" }
+mlkit-image-labeling = { group = "com.google.mlkit", name = "image-labeling", version.ref = "mlkitImageLabeling" }
+mlkit-obj-detection = { group = "com.google.mlkit", name = "object-detection", version.ref = "mlkitObjectDetection" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
