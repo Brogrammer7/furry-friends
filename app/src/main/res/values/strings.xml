@@ -3,7 +3,6 @@
     <string name="dashboard_screen_title">Furry Friends Adoption Service</string>
     <string name="dashboard_mission_statement">Furry Friends is a not-for-profit mobile app designed to help you find your next pet</string>
     <string name="search_pets_screen_title">Search for your next pet here</string>
-    <string name="find_pets_screen_title">Check out these fur babies:</string>
     <string name="settings_screen_title">Settings</string>
     <string name="about_screen_title">About the developer</string>
     <string name="saved_pets_screen_title">Saved Pets</string>
