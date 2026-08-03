@@ -1,4 +1,5 @@
 *.iml
+*.tflite
 .gradle
 /local.properties
 /.idea/caches
@@ -25,7 +26,4 @@ secrets.properties
 .idea/misc.xml
 app/src/main/java/com/example/furryfriends/network
 app/src/main/res/drawable/vest_b.jpg
-
-# TensorFlow Lite models
-*.tflite
 
