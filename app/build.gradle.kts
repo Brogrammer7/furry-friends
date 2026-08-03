@@ -30,6 +30,9 @@ android {
 
         val apiKey = secrets.getProperty("PETS_API_KEY") ?: ""
         buildConfigField("String", "PETS_API_KEY", "\"$apiKey\"")
+
+        val modelFile = secrets.getProperty("PET_BREED_MODEL_FILE") ?: "pet_breed_model.tflite"
+        buildConfigField("String", "PET_BREED_MODEL_FILE", "\"$modelFile\"")
     }
 
     buildTypes {
@@ -100,5 +103,6 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.mlkit.image.labeling)
+    implementation(libs.mlkit.image.labeling.custom)
     implementation(libs.mlkit.obj.detection)
 }

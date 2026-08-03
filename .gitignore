@@ -26,3 +26,6 @@ secrets.properties
 app/src/main/java/com/example/furryfriends/network
 app/src/main/res/drawable/vest_b.jpg
 
+# TensorFlow Lite models
+*.tflite
+
