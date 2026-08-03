@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import com.example.furryfriends.R
 import com.example.furryfriends.features.about.AboutScreen
 import com.example.furryfriends.features.dashboard.DashboardScreen
+import com.example.furryfriends.features.dashboard.DashboardViewModel
 import com.example.furryfriends.features.savedpets.SavedPetsScreen
 import com.example.furryfriends.features.search.SearchPetsScreen
 import com.example.furryfriends.features.search.SearchPetsViewModel
@@ -20,15 +21,21 @@ import com.example.furryfriends.features.settings.SettingsScreen
 import com.example.furryfriends.features.settings.SettingsViewModel
 import com.example.furryfriends.features.settings.ThemeScreen
 import com.example.furryfriends.MainActivityViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 
 @Composable
 fun MainNavHost(
     navController: NavHostController,
-    mainViewModel: MainActivityViewModel,
-    settingsViewModel: SettingsViewModel,
-    searchPetsViewModel: SearchPetsViewModel,
     innerPadding: PaddingValues
 ) {
+    // Activity-scoped ViewModels to share state with MainActivity's Scaffold/Theme
+    val activity = LocalActivity.current as ComponentActivity
+    val mainViewModel: MainActivityViewModel = hiltViewModel(activity)
+    val settingsViewModel: SettingsViewModel = hiltViewModel(activity)
+    val searchPetsViewModel: SearchPetsViewModel = hiltViewModel(activity)
+
     val favoritePetIds by searchPetsViewModel.favoritePetIds.collectAsState()
 
     NavHost(

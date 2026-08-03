@@ -119,9 +119,6 @@ class MainActivity : ComponentActivity() {
                     ) { innerPadding ->
                         MainNavHost(
                             navController = navController,
-                            mainViewModel = mainViewModel,
-                            settingsViewModel = settingsViewModel,
-                            searchPetsViewModel = searchPetsViewModel,
                             innerPadding = innerPadding
                         )
                     }
