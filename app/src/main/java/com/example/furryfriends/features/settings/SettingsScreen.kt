@@ -2,7 +2,6 @@ package com.example.furryfriends.features.settings
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -50,11 +49,61 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     onNavigateToTheme: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val activity = context as? Activity
     val zip by viewModel.zip.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val message by viewModel.message.collectAsState()
     val granted by viewModel.granted.collectAsState()
     val darkThemeOverride by viewModel.darkThemeOverride.collectAsState()
+
+    val permissionGrantedMsg = stringResource(R.string.permission_granted_detecting)
+    val permissionDeniedMsg = stringResource(R.string.permission_denied)
+    val locationNeededMsg = stringResource(R.string.location_needed)
+
+    // Launcher to request permission
+    val requestLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        viewModel.grantPermission(isGranted)
+        if (isGranted) {
+            Toast.makeText(context, permissionGrantedMsg, Toast.LENGTH_SHORT).show()
+            viewModel.fetchZipFromLastLocation()
+        } else {
+            Toast.makeText(context, permissionDeniedMsg, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Launcher to open app settings
+    val settingsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        // Refresh state when returning from settings
+        viewModel.checkLocationPermission(context)
+        if (granted) {
+            viewModel.fetchZipFromLastLocation()
+        }
+    }
+
+    val onLocationAction = {
+        if (activity != null) {
+            when {
+                granted -> {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    settingsLauncher.launch(intent)
+                }
+                ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                    Toast.makeText(context, locationNeededMsg, Toast.LENGTH_SHORT).show()
+                    requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }
+                else -> {
+                    requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }
+            }
+        }
+    }
 
     SettingsContent(
         modifier = modifier,
@@ -64,12 +113,14 @@ fun SettingsScreen(
         granted = granted,
         darkThemeOverride = darkThemeOverride,
         onNavigateToTheme = onNavigateToTheme,
-        onFetchZip = { viewModel.fetchZipFromLastLocation() },
-        onGrantPermission = { viewModel.grantPermission(it) },
-        onCheckPermission = { viewModel.checkLocationPermission(it) },
-        shouldShowRequestPermissionRationale = { activity, permission ->
-            ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
-        }
+        onFetchZip = {
+            if (granted) {
+                viewModel.fetchZipFromLastLocation()
+            } else {
+                onLocationAction()
+            }
+        },
+        onLocationAction = onLocationAction
     )
 }
 
@@ -83,9 +134,7 @@ fun SettingsContent(
     darkThemeOverride: Boolean?,
     onNavigateToTheme: () -> Unit,
     onFetchZip: () -> Unit,
-    onGrantPermission: (Boolean) -> Unit,
-    onCheckPermission: (Context) -> Unit,
-    shouldShowRequestPermissionRationale: (Activity, String) -> Boolean
+    onLocationAction: () -> Unit
 ) {
     val context = LocalContext.current
     val detectedZipAnnotatedString = buildAnnotatedString {
@@ -149,10 +198,8 @@ fun SettingsContent(
 
         LocationPermissionSetting(
             granted = granted,
-            onGrantedChange = onGrantPermission,
-            onFetchZip = onFetchZip,
-            onCheckPermission = onCheckPermission,
-            shouldShowRequestPermissionRationale = shouldShowRequestPermissionRationale
+            onLocationAction = onLocationAction,
+            onFetchZip = onFetchZip
         )
 
         @Composable
@@ -229,60 +276,10 @@ fun SettingsContent(
 @Composable
 fun LocationPermissionSetting(
     granted: Boolean,
-    onGrantedChange: (Boolean) -> Unit,
+    onLocationAction: () -> Unit,
     onFetchZip: () -> Unit,
-    onCheckPermission: (Context) -> Unit,
-    shouldShowRequestPermissionRationale: (Activity, String) -> Boolean,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val activity = context as? Activity
-
-    // Launcher to request permission
-    val requestLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        onGrantedChange(isGranted)  // Update the hoisted state
-        if (isGranted) {
-            Toast.makeText(context, context.getString(R.string.permission_granted_detecting), Toast.LENGTH_SHORT).show()
-            onFetchZip()
-        } else {
-            Toast.makeText(context, context.getString(R.string.permission_denied), Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Launcher to open app settings
-    val settingsLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) {
-        // Refresh state when returning from settings
-        onCheckPermission(context)
-        if (granted) {
-            onFetchZip()
-        }
-    }
-
-    val onClick = {
-        if (activity != null) {
-            when {
-                granted -> {
-                    // Open app settings so user can revoke or re-check location
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
-                    settingsLauncher.launch(intent)
-                }
-                shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION) -> {
-                    Toast.makeText(context, context.getString(R.string.location_needed), Toast.LENGTH_SHORT).show()
-                    requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                }
-                else -> {
-                    requestLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                }
-            }
-        }
-    }
-
     Row(
         modifier = modifier
             .fillMaxWidth(),
@@ -300,7 +297,7 @@ fun LocationPermissionSetting(
             )
         }
 
-        Button(onClick = onClick) {
+        Button(onClick = onLocationAction) {
             Text(
                 text = if (granted) stringResource(R.string.open_settings) else stringResource(R.string.enable),
                 textAlign = TextAlign.Center
@@ -327,8 +324,6 @@ fun SettingsScreenPreview() {
         darkThemeOverride = false,
         onNavigateToTheme = {},
         onFetchZip = {},
-        onGrantPermission = {},
-        onCheckPermission = {},
-        shouldShowRequestPermissionRationale = { _, _ -> false }
+        onLocationAction = {}
     )
 }
