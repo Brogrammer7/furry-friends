@@ -36,10 +36,12 @@ fun MainNavHost(
         startDestination = RouteMain.Dashboard.route
     ) {
         composable(RouteMain.Dashboard.route) {
+            val dashboardViewModel: DashboardViewModel = hiltViewModel()
             mainViewModel.setTitle(stringResource(R.string.dashboard_screen_title))
             DashboardScreen(
                 modifier = Modifier.padding(innerPadding),
                 savedPetsCount = favoritePetIds.size,
+                viewModel = dashboardViewModel,
                 onViewSavedPetsClick = { navController.navigate(RouteMain.SavedPets.route) }
             )
         }

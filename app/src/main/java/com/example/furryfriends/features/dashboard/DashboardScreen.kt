@@ -1,11 +1,15 @@
 package com.example.furryfriends.features.dashboard
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +31,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.CustomText
 
@@ -40,8 +47,31 @@ import com.example.furryfriends.ui.components.CustomText
 fun DashboardScreen(
     modifier: Modifier = Modifier,
     savedPetsCount: Int = 0,
+    viewModel: DashboardViewModel? = null,
     onViewSavedPetsClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val dashboardImageUriState = viewModel?.dashboardImage?.collectAsState()
+    val dashboardImageUri = dashboardImageUriState?.value
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                // To persist access to this URI across reboots, we take persistable permission
+                try {
+                    context.contentResolver.takePersistableUriPermission(
+                        uri,
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (e: Exception) {
+                    // This might fail if the URI is not persistable, but we'll try anyway
+                }
+                viewModel?.setDashboardImage(uri.toString())
+            }
+        }
+    )
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -61,6 +91,7 @@ fun DashboardScreen(
             painter = painterResource(R.drawable.dashboard_screen_background),
             contentDescription = null,
             modifier = Modifier
+                .fillMaxWidth(0.5f)
                 .padding(top = 16.dp, bottom = 16.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .border(
@@ -81,10 +112,34 @@ fun DashboardScreen(
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
+            if (dashboardImageUri != null) {
+                AsyncImage(
+                    model = dashboardImageUri,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth(0.6f)
+                        .padding(vertical = 8.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                )
+            }
+
+            Button(
+                onClick = {
+                    launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                },
+            ) {
+                Text(text = stringResource(R.string.add_photo_you_and_pet))
+            }
+
             BadgedBox(
-                modifier = Modifier.padding(top = 24.dp, bottom = 16.dp),
+                modifier = Modifier.padding(bottom = 16.dp),
                 badge = {
                     if (savedPetsCount > 0) {
                         Box {
