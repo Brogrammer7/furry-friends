@@ -36,9 +36,10 @@ class PetAnalyzer @Inject constructor(@ApplicationContext context: Context) {
 
     // Noise labels to filter out from the base model
     private val genericLabels = setOf(
-        "Mammal", "Vertebrate", "Carnivore", "Pet", "Animal", 
-        "Skin", "Nose", "Eye", "Ear", "Fur", "Hair", "Whiskers", "Snout",
-        "Selfie", "Smile", "Photography", "Photo", "Portrait", "Neck"
+        "mammal", "vertebrate", "carnivore", "pet", "animal", 
+        "skin", "nose", "eye", "ear", "fur", "hair", "whiskers", "snout",
+        "selfie", "smile", "photography", "photo", "portrait", "neck",
+        "eyelash", "muscle", "mouth", "poster", "room", "mousetrap", "plastic bag", "shield"
     )
 
     fun analyzeImage(bitmap: Bitmap, onSuccess: (List<String>) -> Unit, onFailure: (Exception) -> Unit) {
@@ -49,45 +50,47 @@ class PetAnalyzer @Inject constructor(@ApplicationContext context: Context) {
             .addOnSuccessListener { baseLabels ->
                 val sortedBase = baseLabels
                     .sortedByDescending { it.confidence }
-                    .filter { !genericLabels.contains(it.text) }
+                    .filter { !genericLabels.contains(it.text.lowercase()) }
                 
                 val topSpecies = sortedBase.firstOrNull()?.text ?: ""
                 
-                // Step 2: If it's a Dog or Cat, try to get the specific Breed
+                // Step 2: If it's a Dog, Cat, or Rabbit, try to get the specific Breed
                 val isDog = topSpecies.contains("Dog", ignoreCase = true) || 
                             topSpecies.contains("Puppy", ignoreCase = true) ||
                             topSpecies.contains("Canidae", ignoreCase = true)
                 val isCat = topSpecies.contains("Cat", ignoreCase = true) || 
                             topSpecies.contains("Kitten", ignoreCase = true) ||
                             topSpecies.contains("Felidae", ignoreCase = true)
+                val isRabbit = topSpecies.contains("Rabbit", ignoreCase = true) || 
+                               topSpecies.contains("Hare", ignoreCase = true) ||
+                               topSpecies.contains("Leporidae", ignoreCase = true)
 
-                if (isDog || isCat) {
-                    val species = if (isDog) "Dog" else "Cat"
+                if (isDog || isCat || isRabbit) {
+                    val species = when {
+                        isDog -> "Dog"
+                        isCat -> "Cat"
+                        else -> "Rabbit"
+                    }
                     breedLabeler.process(image)
                         .addOnSuccessListener { breedLabels ->
                             val breed = breedLabels.firstOrNull()?.text
-                            if (breed != null) {
-                                // Combine breed with species (e.g., "Golden Retriever dog")
-                                // unless the breed name already includes the species.
-                                val result = if (breed.contains(species, ignoreCase = true)) {
-                                    breed
-                                } else {
-                                    "$breed ${species.lowercase()}"
-                                }
-                                onSuccess(listOf(result))
+                            // Apply noise filter to the breed result as well
+                            if (breed != null && !genericLabels.contains(breed.lowercase())) {
+                                // Breed found: show ONLY the breed name as requested
+                                onSuccess(listOf(breed))
                             } else {
-                                // If custom breed model fails to find a specific breed, return the failure message
-                                onSuccess(listOf("Machine Learning detects a ${species.lowercase()} here, but couldn't discern its breed"))
+                                // No breed found or filtered: show the species name
+                                onSuccess(listOf(species))
                             }
                         }
                         .addOnFailureListener {
-                            // If TFLite model is missing or fails, return the failure message
-                            onSuccess(listOf("Machine Learning detects a ${species.lowercase()} here, but couldn't discern its breed"))
+                            // On failure: fallback to species name
+                            onSuccess(listOf(species))
                         }
                 } else {
-                    // For horses, birds, rabbits, etc., return a message that we couldn't detect the specific breed
+                    // For horses, birds, etc., just return the base species name
                     if (topSpecies.isNotEmpty()) {
-                        onSuccess(listOf("Machine Learning detects a ${topSpecies.lowercase()} here, but couldn't discern its breed"))
+                        onSuccess(listOf(topSpecies))
                     } else {
                         onSuccess(emptyList())
                     }
