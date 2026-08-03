@@ -20,7 +20,7 @@ import com.example.furryfriends.features.search.SearchPetsViewModel
 import com.example.furryfriends.features.settings.SettingsScreen
 import com.example.furryfriends.features.settings.SettingsViewModel
 import com.example.furryfriends.features.settings.ThemeScreen
-import com.example.furryfriends.MainActivityViewModel
+import com.example.furryfriends.viewmodel.MainActivityViewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity

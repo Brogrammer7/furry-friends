@@ -36,6 +36,7 @@ import com.example.furryfriends.ui.components.FurryFriendsAppBar
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
 import com.example.furryfriends.features.search.SearchPetsViewModel
 import com.example.furryfriends.features.settings.SettingsViewModel
+import com.example.furryfriends.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
