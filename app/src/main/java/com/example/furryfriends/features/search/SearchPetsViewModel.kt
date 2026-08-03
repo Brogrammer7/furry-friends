@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.furryfriends.data.repository.PetsRepository
+import com.example.furryfriends.data.repository.SettingsRepository
 import com.example.furryfriends.model.DataNode
 import com.example.furryfriends.model.FilterRadius
 import com.example.furryfriends.model.IncludedItem
@@ -46,7 +47,8 @@ enum class SortOption {
 
 @HiltViewModel
 class SearchPetsViewModel @Inject constructor(
-    private val repository: PetsRepository
+    private val repository: PetsRepository,
+    private val settingsRepository: SettingsRepository
 ): ViewModel() {
 
     private val _searchUiState = MutableStateFlow(SearchUiState())
@@ -169,6 +171,11 @@ class SearchPetsViewModel @Inject constructor(
 
     fun searchPetData(petType: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            val currentZip = zipState.value
+            if (checkValidZip(currentZip)) {
+                settingsRepository.setZip(currentZip.toString())
+            }
+
             _searchUiState.update {
                 it.copy(
                     isLoading = true,
