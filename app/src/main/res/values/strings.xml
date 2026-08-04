@@ -25,11 +25,11 @@
     <string name="change_theme">Change Theme</string>
     <string name="open_settings">Open Settings</string>
     <string name="enable">Enable</string>
-    <string name="re_detect">Re-detect</string>
+    <string name="re_detect">Auto-detect</string>
     <string name="retry">Retry</string>
     <string name="detecting_zip">Detecting ZIP…</string>
-    <string name="not_set">Not set</string>
-    <string name="your_detected_zip">"Your detected ZIP"</string>
+    <string name="not_set">Error - not saved</string>
+    <string name="your_detected_zip">"Your saved ZIP"</string>
     <string name="granted">Granted</string>
     <string name="disabled">Disabled</string>
     <string name="location_access">Location access</string>
@@ -78,4 +78,14 @@
     <string name="pet_image">pet image</string>
     <string name="pet_image_large">pet image large</string>
     <string name="analyze_pet">Analyze Pet</string>
+    <string name="manual_entry">Manual entry</string>
+    <string name="enter_zip">Enter ZIP</string>
+    <string name="invalid_zip_retry">Invalid input. Please try a different ZIP code.</string>
+    <string name="location_permission_not_granted">Location permission not granted.</string>
+    <string name="no_location_available">Please ensure device location is enabled and press auto-detect again or tap manual entry if still unable to detect.</string>
+    <string name="could_not_resolve_zip">Could not resolve postal code from location.</string>
+    <string name="error_retrieving_location">Error retrieving location.</string>
+    <string name="unknown_api_error">Unknown API error</string>
+    <string name="unknown_io_error">Unknown IO error</string>
+    <string name="unknown_error">Unknown error</string>
 </resources>

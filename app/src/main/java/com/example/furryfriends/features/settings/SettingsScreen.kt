@@ -11,14 +11,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,6 +58,9 @@ fun SettingsScreen(
     val message by viewModel.message.collectAsState()
     val granted by viewModel.granted.collectAsState()
     val darkThemeOverride by viewModel.darkThemeOverride.collectAsState()
+    val manualZipInput by viewModel.manualZipInput.collectAsState()
+    val showManualInput by viewModel.showManualInput.collectAsState()
+    val inputError by viewModel.inputError.collectAsState()
 
     val permissionGrantedMsg = stringResource(R.string.permission_granted_detecting)
     val permissionDeniedMsg = stringResource(R.string.permission_denied)
@@ -112,6 +117,9 @@ fun SettingsScreen(
         message = message,
         granted = granted,
         darkThemeOverride = darkThemeOverride,
+        manualZipInput = manualZipInput,
+        showManualInput = showManualInput,
+        inputError = inputError,
         onNavigateToTheme = onNavigateToTheme,
         onFetchZip = {
             if (granted) {
@@ -120,7 +128,9 @@ fun SettingsScreen(
                 onLocationAction()
             }
         },
-        onLocationAction = onLocationAction
+        onLocationAction = onLocationAction,
+        onManualZipChange = { viewModel.onManualZipChange(it) },
+        onSetShowManualInput = { viewModel.setShowManualInput(it) }
     )
 }
 
@@ -132,12 +142,18 @@ fun SettingsContent(
     message: String?,
     granted: Boolean,
     darkThemeOverride: Boolean?,
+    manualZipInput: String,
+    showManualInput: Boolean,
+    inputError: Boolean,
     onNavigateToTheme: () -> Unit,
     onFetchZip: () -> Unit,
-    onLocationAction: () -> Unit
+    onLocationAction: () -> Unit,
+    onManualZipChange: (String) -> Unit,
+    onSetShowManualInput: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
-    val detectedZipAnnotatedString = buildAnnotatedString {
+
+    val savedZipAnnotatedString = buildAnnotatedString {
         append(stringResource(R.string.your_detected_zip))
         append("\n")
         withStyle(
@@ -202,19 +218,13 @@ fun SettingsContent(
             onFetchZip = onFetchZip
         )
 
-        @Composable
-        fun ZipDetectionRow(content: @Composable RowScope.() -> Unit) {
+        if (loading && zip == null) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                content = content
-            )
-        }
-
-        if (loading && zip == null) {
-            ZipDetectionRow {
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = stringResource(R.string.detecting_zip),
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
@@ -223,22 +233,79 @@ fun SettingsContent(
                 SpinningLoader()
             }
         } else {
-            ZipDetectionRow {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = detectedZipAnnotatedString,
+                        text = savedZipAnnotatedString,
                         softWrap = true
                     )
                     message?.let {
                         Text(
                             text = it,
                             softWrap = true,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
                 }
-                TextButton(onClick = onFetchZip) {
-                    Text(stringResource(R.string.re_detect))
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    TextButton(onClick = {
+                        onFetchZip()
+                        onSetShowManualInput(false)
+                    }) {
+                        Text(stringResource(R.string.re_detect))
+                    }
+                    if (!showManualInput) {
+                        TextButton(onClick = {
+                            onSetShowManualInput(true)
+                        }) {
+                            Text(stringResource(R.string.manual_entry))
+                        }
+                    }
+                }
+            }
+        }
+
+        if (showManualInput) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                OutlinedTextField(
+                    value = manualZipInput,
+                    onValueChange = onManualZipChange,
+                    label = { Text(stringResource(R.string.enter_zip)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    isError = inputError
+                )
+                TextButton(
+                    onClick = {
+                        onSetShowManualInput(false)
+                    },
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+                if (inputError) {
+                    Text(
+                        text = stringResource(R.string.invalid_zip_retry),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
                 }
             }
         }
@@ -269,7 +336,6 @@ fun SettingsContent(
                 style = TextStyle(fontSize = 12.sp),
             )
         }
-
     }
 }
 
@@ -322,8 +388,13 @@ fun SettingsScreenPreview() {
         message = null,
         granted = true,
         darkThemeOverride = false,
+        manualZipInput = "",
+        showManualInput = true,
+        inputError = false,
         onNavigateToTheme = {},
         onFetchZip = {},
-        onLocationAction = {}
+        onLocationAction = {},
+        onManualZipChange = {},
+        onSetShowManualInput = {}
     )
 }

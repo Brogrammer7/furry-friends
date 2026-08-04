@@ -5,12 +5,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
-import android.util.Log
-import android.os.Looper
 import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.furryfriends.R
 import com.example.furryfriends.data.repository.SettingsRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -54,6 +55,16 @@ class SettingsViewModel @Inject constructor(
 
     private val _darkThemeOverride = MutableStateFlow<Boolean?>(null)
     val darkThemeOverride: StateFlow<Boolean?> = _darkThemeOverride.asStateFlow()
+
+    // Manual Entry States
+    private val _manualZipInput = MutableStateFlow("")
+    val manualZipInput: StateFlow<String> = _manualZipInput.asStateFlow()
+
+    private val _showManualInput = MutableStateFlow(false)
+    val showManualInput: StateFlow<Boolean> = _showManualInput.asStateFlow()
+
+    private val _inputError = MutableStateFlow(false)
+    val inputError: StateFlow<Boolean> = _inputError.asStateFlow()
 
     init {
         // Check initial permission state
@@ -109,7 +120,7 @@ class SettingsViewModel @Inject constructor(
     @SuppressLint("MissingPermission")
     fun fetchZipFromLastLocation() {
         if (!granted.value) {
-            _message.value = "Location permission not granted."
+            _message.value = applicationContext.getString(R.string.location_permission_not_granted)
             _zip.value = null
             return
         }
@@ -141,7 +152,7 @@ class SettingsViewModel @Inject constructor(
 
                 if (loc == null) {
                     Log.w(TAG, "No recent location available")
-                    _message.value = "No recent location available. Please enable device Location or try again."
+                    _message.value = applicationContext.getString(R.string.no_location_available)
                     _zip.value = null
                 } else {
                     Log.d(TAG, "Got location: lat=${loc.latitude}, lon=${loc.longitude}")
@@ -158,13 +169,13 @@ class SettingsViewModel @Inject constructor(
                         }
                     } else {
                         Log.w(TAG, "Could not resolve postal code from location")
-                        _message.value = "Could not resolve postal code from location."
+                        _message.value = applicationContext.getString(R.string.could_not_resolve_zip)
                         _zip.value = null
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error retrieving location", e)
-                _message.value = "Error retrieving location."
+                _message.value = applicationContext.getString(R.string.error_retrieving_location)
                 _zip.value = null
             } finally {
                 _loading.value = false
@@ -304,7 +315,7 @@ class SettingsViewModel @Inject constructor(
 
     fun reDetectZip() {
         if (!granted.value) {
-            _message.value = "Location permission not granted."
+            _message.value = applicationContext.getString(R.string.location_permission_not_granted)
             _zip.value = null
             return
         }
@@ -324,10 +335,10 @@ class SettingsViewModel @Inject constructor(
                 }
 
                 if (loc == null) {
-                    _message.value = "No recent location available. Please enable device Location or try again."
+                    _message.value = applicationContext.getString(R.string.no_location_available)
                     _zip.value = null
                 } else {
-                    val postal = reverseGeocodeToZip(loc.latitude, loc.longitude, applicationContext)
+                    val postal = reverseGeocodeToZip(loc.latitude, lon = loc.longitude, context = applicationContext)
                     if (!postal.isNullOrEmpty()) {
                         try {
                             repository.setZip(postal)
@@ -338,12 +349,12 @@ class SettingsViewModel @Inject constructor(
                             _zip.value = null
                         }
                     } else {
-                        _message.value = "Could not resolve postal code from location."
+                        _message.value = applicationContext.getString(R.string.could_not_resolve_zip)
                         _zip.value = null
                     }
                 }
             } catch (e: Exception) {
-                _message.value = "Error retrieving location."
+                _message.value = applicationContext.getString(R.string.error_retrieving_location)
                 _zip.value = null
             } finally {
                 _loading.value = false
@@ -351,15 +362,45 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun saveManualZip(manual: String) {
-        val trimmed = manual.trim().takeIf { it.isNotEmpty() }
-        _zip.value = trimmed
+    fun onManualZipChange(input: String) {
+        val filtered = input.filter { it.isDigit() }.take(5)
+        _manualZipInput.value = filtered
+        _inputError.value = false
+        
+        if (filtered.length == 5) {
+            if (isValidZip(filtered)) {
+                saveManualZip(filtered)
+                _showManualInput.value = false
+                _manualZipInput.value = ""
+                _inputError.value = false
+                _message.value = null
+            } else {
+                _inputError.value = true
+            }
+        }
+    }
+
+    fun setShowManualInput(show: Boolean) {
+        _showManualInput.value = show
+        if (!show) {
+            _manualZipInput.value = ""
+            _inputError.value = false
+        }
+    }
+
+    private fun saveManualZip(manual: String) {
+        _zip.value = manual
         viewModelScope.launch {
             try {
-                repository.setZip(trimmed)
+                repository.setZip(manual)
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to persist zip code", e)
             }
         }
+    }
+
+    private fun isValidZip(zip: String): Boolean {
+        val asInt = zip.toIntOrNull() ?: return false
+        return asInt in 10000..99999
     }
 }

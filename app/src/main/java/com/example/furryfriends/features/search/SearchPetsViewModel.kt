@@ -1,5 +1,6 @@
 package com.example.furryfriends.features.search
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +16,9 @@ import com.example.furryfriends.model.SearchResponse
 import com.example.furryfriends.network.PetsApi
 import com.example.furryfriends.network.Species
 import com.example.furryfriends.util.formatPetName
+import com.example.furryfriends.R
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,9 +50,12 @@ enum class SortOption {
 
 @HiltViewModel
 class SearchPetsViewModel @Inject constructor(
+    @ApplicationContext private val applicationContext: Context,
     private val repository: PetsRepository,
     private val settingsRepository: SettingsRepository
 ): ViewModel() {
+
+    private val json = Json { ignoreUnknownKeys = true }
 
     private val _searchUiState = MutableStateFlow(SearchUiState())
     val searchUiState: StateFlow<SearchUiState> = _searchUiState.asStateFlow()
@@ -161,7 +167,7 @@ class SearchPetsViewModel @Inject constructor(
     }
 
     fun checkValidZip(zip: Int): Boolean {
-        if (zip in 10000..99999) return true else return false
+        return zip in 10000..99999
     }
 
     fun clearZip() {
@@ -220,15 +226,14 @@ class SearchPetsViewModel @Inject constructor(
                     val finalError = try {
                         val errorBody = response.errorBody()?.string()
                         if (errorBody != null) {
-                            Json { ignoreUnknownKeys = true }
-                                .decodeFromString<SearchResponse>(errorBody)
+                            json.decodeFromString<SearchResponse>(errorBody)
                                 .errors
                                 ?.firstOrNull()
                                 ?.detail
                         } else null
-                    } catch (ex: Exception) {
+                    } catch (_: Exception) {
                         null
-                    } ?: response.message() ?: "Unknown API error"
+                    } ?: response.message() ?: applicationContext.getString(R.string.unknown_api_error)
 
                     _searchUiState.update {
                         it.copy(
@@ -244,12 +249,12 @@ class SearchPetsViewModel @Inject constructor(
 
             } catch (e: IOException) {
                 _searchUiState.update {
-                    it.copy(isLoading = false, error = e.message ?: "Unknown IO error")
+                    it.copy(isLoading = false, error = e.message ?: applicationContext.getString(R.string.unknown_io_error))
                 }
                 Log.e("check2", "IOException", e)
             } catch (e: Exception) {
                 _searchUiState.update {
-                    it.copy(isLoading = false, error = e.message ?: "Unknown error")
+                    it.copy(isLoading = false, error = e.message ?: applicationContext.getString(R.string.unknown_error))
                 }
                 Log.e("check2", "Exception", e)
             }
