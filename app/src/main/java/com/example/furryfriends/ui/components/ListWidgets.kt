@@ -50,7 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.example.furryfriends.R
-import com.example.furryfriends.model.PetDisplayItem
+import com.example.furryfriends.domain.model.PetDisplayItem
 
 @Composable
 fun PetSearchList(

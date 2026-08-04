@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.furryfriends.R
-import com.example.furryfriends.model.PetDisplayItem
+import com.example.furryfriends.domain.model.PetDisplayItem
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PetSearchList
 import com.example.furryfriends.features.search.SearchPetsViewModel

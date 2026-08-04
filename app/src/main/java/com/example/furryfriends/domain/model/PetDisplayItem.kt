@@ -1,4 +1,4 @@
-package com.example.furryfriends.model
+package com.example.furryfriends.domain.model
 
 import androidx.compose.runtime.Immutable
 

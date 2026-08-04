@@ -38,7 +38,7 @@ import coil3.request.ImageRequest
 import coil3.request.CachePolicy
 import coil3.request.crossfade
 import com.example.furryfriends.R
-import com.example.furryfriends.model.PetDisplayItem
+import com.example.furryfriends.domain.model.PetDisplayItem
 import com.example.furryfriends.util.formatPetName
 import java.util.Locale
 
