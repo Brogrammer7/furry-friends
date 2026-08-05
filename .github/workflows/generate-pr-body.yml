@@ -1,0 +1,58 @@
+name: Generate PR body
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  generate-body:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate PR description and update PR
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // Only fill when body is empty — change this if you want to always overwrite.
+            if (pr.body && pr.body.trim().length > 0) {
+              console.log('PR body already present — leaving unchanged.');
+              return;
+            }
+
+            try {
+              // Fetch commits for the PR
+              const commitsResp = await github.rest.pulls.listCommits({
+                owner, repo, pull_number: pr.number, per_page: 250
+              });
+              const commits = commitsResp.data || [];
+              const commitLines = commits.map(c => `- ${c.commit.message.split('\n')[0]} (${c.sha.slice(0,7)})`).join('\n') || '- (no commits)';
+
+              // Fetch changed files for the PR
+              const filesResp = await github.rest.pulls.listFiles({
+                owner, repo, pull_number: pr.number, per_page: 250
+              });
+              const files = filesResp.data || [];
+              const fileLines = files.map(f => `- ${f.filename}`).join('\n') || '- (no files)';
+
+              // Get PR stats
+              const prFull = await github.rest.pulls.get({ owner, repo, pull_number: pr.number });
+              const additions = prFull.data.additions ?? 0;
+              const deletions = prFull.data.deletions ?? 0;
+              const changedFilesCount = files.length;
+
+              const newBody = `<!-- AUTO-GENERATED: do not edit -->\n## Summary\n${pr.title}\n\n## Commits (${commits.length})\n${commitLines}\n\n## Changed files (${changedFilesCount}, +${additions}/-${deletions})\n${fileLines}\n\n## How to test\n- Describe the testing steps here.\n\n---\n*This PR body was generated automatically.*`;
+
+              await github.rest.pulls.update({ owner, repo, pull_number: pr.number, body: newBody });
+              console.log('PR body updated.');
+            } catch (error) {
+              console.error('Failed to generate PR body:', error);
+              throw error;
+            }
