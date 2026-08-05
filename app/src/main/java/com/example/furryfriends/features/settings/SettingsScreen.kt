@@ -23,7 +23,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
-import com.example.furryfriends.LoginActivity
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.SignOutButton
 import com.example.furryfriends.ui.components.SpinningLoader
@@ -130,7 +128,8 @@ fun SettingsScreen(
         },
         onLocationAction = onLocationAction,
         onManualZipChange = { viewModel.onManualZipChange(it) },
-        onSetShowManualInput = { viewModel.setShowManualInput(it) }
+        onSetShowManualInput = { viewModel.setShowManualInput(it) },
+        onLogout = { viewModel.logout() }
     )
 }
 
@@ -149,10 +148,9 @@ fun SettingsContent(
     onFetchZip: () -> Unit,
     onLocationAction: () -> Unit,
     onManualZipChange: (String) -> Unit,
-    onSetShowManualInput: (Boolean) -> Unit
+    onSetShowManualInput: (Boolean) -> Unit,
+    onLogout: () -> Unit
 ) {
-    val context = LocalContext.current
-
     val savedZipAnnotatedString = buildAnnotatedString {
         append(stringResource(R.string.your_detected_zip))
         append("\n")
@@ -314,13 +312,7 @@ fun SettingsContent(
                     .padding(bottom = 16.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
-                fun signOutAction() {
-                    val intent = Intent(context, LoginActivity::class.java)
-                    context.startActivity(intent)
-                    (context as? Activity)?.finish()
-                }
-
-                SignOutButton(onSignOut = { signOutAction() })
+                SignOutButton(onSignOut = { onLogout() })
             }
 
             Text(
@@ -379,6 +371,7 @@ fun SettingsScreenPreview() {
         onFetchZip = {},
         onLocationAction = {},
         onManualZipChange = {},
-        onSetShowManualInput = {}
+        onSetShowManualInput = {},
+        onLogout = {}
     )
 }

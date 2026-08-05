@@ -66,6 +66,10 @@ class SettingsViewModel @Inject constructor(
     private val _inputError = MutableStateFlow(false)
     val inputError: StateFlow<Boolean> = _inputError.asStateFlow()
 
+    // Login state initialized to null to prevent accidental redirects while loading from DataStore
+    private val _isLoggedIn = MutableStateFlow<Boolean?>(null)
+    val isLoggedIn: StateFlow<Boolean?> = _isLoggedIn.asStateFlow()
+
     init {
         // Check initial permission state
         checkLocationPermission(applicationContext)
@@ -87,6 +91,14 @@ class SettingsViewModel @Inject constructor(
             // Sync ongoing updates from repository
             launch {
                 repository.zip.collectLatest { _zip.value = it }
+            }
+        }
+
+        // Initialize login state
+        viewModelScope.launch {
+            _isLoggedIn.value = repository.getIsLoggedIn()
+            launch {
+                repository.isLoggedIn.collectLatest { _isLoggedIn.value = it }
             }
         }
     }
@@ -385,6 +397,18 @@ class SettingsViewModel @Inject constructor(
         if (!show) {
             _manualZipInput.value = ""
             _inputError.value = false
+        }
+    }
+
+    fun login() {
+        viewModelScope.launch {
+            repository.setIsLoggedIn(true)
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            repository.setIsLoggedIn(false)
         }
     }
 

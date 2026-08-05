@@ -1,7 +1,5 @@
 package com.example.furryfriends.features.auth
 
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -13,29 +11,40 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.furryfriends.MainActivity
 import com.example.furryfriends.R
+import com.example.furryfriends.features.settings.SettingsViewModel
 import com.example.furryfriends.ui.components.CopyrightText
 import com.example.furryfriends.ui.components.CustomText
+import com.example.furryfriends.ui.theme.FurryFriendsTheme
 
 @Composable
 fun LoginScreen(
+    viewModel: SettingsViewModel,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    LoginContent(
+        modifier = modifier,
+        onLoginClick = { viewModel.login() }
+    )
+}
 
+@Composable
+fun LoginContent(
+    modifier: Modifier = Modifier,
+    onLoginClick: () -> Unit = {}
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -80,11 +89,7 @@ fun LoginScreen(
             )
 
             Button(
-                onClick = {
-                    val intent = Intent(context, MainActivity::class.java)
-                    context.startActivity(intent)
-                    (context as? Activity)?.finish()
-                },
+                onClick = onLoginClick,
                 modifier = Modifier
                     .padding(vertical = 16.dp)
                     .fillMaxWidth()
@@ -100,5 +105,9 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+    FurryFriendsTheme {
+        Surface {
+            LoginContent()
+        }
+    }
 }
