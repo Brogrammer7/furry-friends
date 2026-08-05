@@ -1,7 +1,10 @@
 package com.example.furryfriends.ui.components
 
 import android.graphics.Bitmap
+import android.speech.tts.TextToSpeech
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -20,10 +23,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,9 +54,11 @@ import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.toBitmap
 import com.example.furryfriends.R
-import com.example.furryfriends.model.PetDisplayItem
+import com.example.furryfriends.domain.model.PetDisplayItem
+import com.example.furryfriends.domain.model.Species
 import com.example.furryfriends.viewmodel.PetMlViewModel
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 @Composable
 fun PetModalContent(
@@ -60,17 +67,39 @@ fun PetModalContent(
     val animal = petDisplayItem.animal
     val org = petDisplayItem.organization
     val mlViewModel: PetMlViewModel = hiltViewModel()
-    
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val flashAlpha = remember { Animatable(0f) }
+
+    val expectedSpecies = remember(animal.type) { Species.fromType(animal.type) }
+
+    var ttsInitialized by remember { mutableStateOf(false) }
+    val tts = remember {
+        TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                ttsInitialized = true
+            }
+        }
+    }
+
     // Clear labels when the modal content is disposed (modal closed)
     DisposableEffect(Unit) {
         onDispose {
             mlViewModel.clearLabels()
+            tts.stop()
+            tts.shutdown()
         }
     }
 
-    val labels by mlViewModel.labels.collectAsState()
+    val displayText by mlViewModel.displayText.collectAsState()
     val isAnalyzing by mlViewModel.isAnalyzing.collectAsState()
-    
+
+    LaunchedEffect(displayText, ttsInitialized) {
+        if (displayText.isNotEmpty() && ttsInitialized) {
+            tts.speak(displayText, TextToSpeech.QUEUE_FLUSH, null, null)
+        }
+    }
+
     var petBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     Column(
@@ -81,6 +110,7 @@ fun PetModalContent(
                 indication = null
             ) {
                 mlViewModel.clearLabels()
+                tts.stop()
             }
     ) {
         if (animal.attributes.pictureThumbnailUrl != null) {
@@ -97,7 +127,13 @@ fun PetModalContent(
                         shape = RoundedCornerShape(8.dp)
                     )
                     .clickable {
-                        petBitmap?.let { mlViewModel.analyzePetImage(it) }
+                        scope.launch {
+                            repeat(2) {
+                                flashAlpha.animateTo(0.2f, animationSpec = tween(300))
+                                flashAlpha.animateTo(0f, animationSpec = tween(300))
+                            }
+                            petBitmap?.let { mlViewModel.analyzePetImage(it, expectedSpecies) }
+                        }
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -120,12 +156,19 @@ fun PetModalContent(
                     }
                 )
 
+                // Flash overlay
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Yellow.copy(alpha = flashAlpha.value))
+                )
+
                 if (isModalLoading || isAnalyzing) {
                     SpinningLoader(size = 48.dp)
                 }
 
                 this@Column.AnimatedVisibility(
-                    visible = labels.isNotEmpty(),
+                    visible = displayText.isNotEmpty(),
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
@@ -136,9 +179,9 @@ fun PetModalContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = labels.joinToString(", "),
+                            text = displayText,
                             color = Color.White,
-                            fontSize = 16.sp,
+                            fontSize = 14.sp,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(16.dp)
                         )

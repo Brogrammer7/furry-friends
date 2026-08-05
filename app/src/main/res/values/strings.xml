@@ -78,6 +78,7 @@
     <string name="pet_image">pet image</string>
     <string name="pet_image_large">pet image large</string>
     <string name="analyze_pet">Analyze Pet</string>
+    <string name="ml_no_breed_found">Machine Learning could not detect a specific breed, but believes this is a %s</string>
     <string name="manual_entry">Manual entry</string>
     <string name="enter_zip">Enter ZIP</string>
     <string name="invalid_zip_retry">Invalid input. Please try a different ZIP code.</string>
