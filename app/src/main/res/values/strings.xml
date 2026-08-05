@@ -28,7 +28,7 @@
     <string name="re_detect">Auto-detect</string>
     <string name="retry">Retry</string>
     <string name="detecting_zip">Detecting ZIP…</string>
-    <string name="not_set">Error - not saved</string>
+    <string name="not_saved">Not saved</string>
     <string name="your_detected_zip">"Your saved ZIP"</string>
     <string name="granted">Granted</string>
     <string name="disabled">Disabled</string>

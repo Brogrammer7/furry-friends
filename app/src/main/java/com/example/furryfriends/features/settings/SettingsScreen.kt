@@ -157,19 +157,12 @@ fun SettingsContent(
         append(stringResource(R.string.your_detected_zip))
         append("\n")
         withStyle(
-            style = if (zip != null) {
-                SpanStyle(
-                    color = MaterialTheme.colorScheme.primary,
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
-                )
-            } else {
-                SpanStyle(
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
-                )
-            }
+            SpanStyle(
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = MaterialTheme.typography.bodyMedium.fontSize
+            )
         ) {
-            append(zip ?: stringResource(R.string.not_set))
+            append(zip ?: stringResource(R.string.not_saved))
         }
     }
 
@@ -214,8 +207,7 @@ fun SettingsContent(
 
         LocationPermissionSetting(
             granted = granted,
-            onLocationAction = onLocationAction,
-            onFetchZip = onFetchZip
+            onLocationAction = onLocationAction
         )
 
         if (loading && zip == null) {
@@ -343,7 +335,6 @@ fun SettingsContent(
 fun LocationPermissionSetting(
     granted: Boolean,
     onLocationAction: () -> Unit,
-    onFetchZip: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -368,13 +359,6 @@ fun LocationPermissionSetting(
                 text = if (granted) stringResource(R.string.open_settings) else stringResource(R.string.enable),
                 textAlign = TextAlign.Center
             )
-        }
-    }
-
-    // If permission already granted when composable enters composition, trigger fetch once.
-    LaunchedEffect(granted) {
-        if (granted) {
-            onFetchZip()
         }
     }
 }
