@@ -1,5 +1,6 @@
 package com.example.furryfriends
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -29,6 +31,16 @@ class LoginActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            val isLoggedIn by settingsViewModel.isLoggedIn.collectAsState()
+            
+            LaunchedEffect(isLoggedIn) {
+                if (isLoggedIn == true) {
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+            }
+
             val darkThemeOverride by settingsViewModel.darkThemeOverride.collectAsState()
             val darkThemeLogic = darkThemeOverride ?: isSystemInDarkTheme()
 
@@ -44,12 +56,11 @@ class LoginActivity : ComponentActivity() {
                         startDestination = "login"
                     ) {
                         composable("login") {
-                            LoginScreen()
+                            LoginScreen(viewModel = settingsViewModel)
                         }
                     }
                 }
             }
-
 
         }
     }

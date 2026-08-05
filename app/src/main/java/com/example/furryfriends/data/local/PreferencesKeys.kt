@@ -7,4 +7,5 @@ object PreferencesKeys {
     val DARK_THEME_KEY = booleanPreferencesKey("dark_theme")
     val ZIP_KEY = stringPreferencesKey("zip")
     val DASHBOARD_IMAGE_KEY = stringPreferencesKey("dashboard_image")
+    val IS_LOGGED_IN_KEY = booleanPreferencesKey("is_logged_in")
 }

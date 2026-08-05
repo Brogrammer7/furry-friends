@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.example.furryfriends.data.local.dataStore
 import com.example.furryfriends.data.local.PreferencesKeys.DARK_THEME_KEY
+import com.example.furryfriends.data.local.PreferencesKeys.IS_LOGGED_IN_KEY
 import com.example.furryfriends.data.local.PreferencesKeys.ZIP_KEY
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,8 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
     val darkThemeOverride: Flow<Boolean?> = dataStore.data.map { prefs -> prefs[DARK_THEME_KEY] }
 
     val zip: Flow<String?> = dataStore.data.map { prefs -> prefs[ZIP_KEY] }
+
+    val isLoggedIn: Flow<Boolean> = dataStore.data.map { prefs -> prefs[IS_LOGGED_IN_KEY] ?: false }
 
     // Suspend function to save dark theme (accepts nullable Boolean)
     suspend fun setDarkThemeOverride(enabled: Boolean?) {
@@ -58,6 +61,16 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
     }
 
     suspend fun getZip(): String? = dataStore.data.map { prefs -> prefs[ZIP_KEY] }.first()
+
+    suspend fun setIsLoggedIn(loggedIn: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { prefs ->
+                prefs[IS_LOGGED_IN_KEY] = loggedIn
+            }
+        }
+    }
+
+    suspend fun getIsLoggedIn(): Boolean = dataStore.data.map { prefs -> prefs[IS_LOGGED_IN_KEY] ?: false }.first()
 
     init {
         //Verify no duplicates of repo made:

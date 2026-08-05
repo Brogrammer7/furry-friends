@@ -1,5 +1,6 @@
 package com.example.furryfriends
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -50,6 +52,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            val isLoggedIn by settingsViewModel.isLoggedIn.collectAsState()
+
+            LaunchedEffect(isLoggedIn) {
+                if (isLoggedIn == false) {
+                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+            }
+
             val screenTitle by mainViewModel.screenTitleState.collectAsState()
             val darkThemeOverride by settingsViewModel.darkThemeOverride.collectAsState()
             val darkThemeLogic = darkThemeOverride ?: isSystemInDarkTheme()
