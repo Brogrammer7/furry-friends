@@ -13,7 +13,7 @@
     <string name="search_pets_tab_title">Search</string>
     <string name="settings_tab_title">Settings</string>
     <string name="about_tab_title">About</string>
-    <string name="settings_disclosure">Location is an optional permission which allows us to help you find pets in your area without having to manually enter your ZIP code. Your information is only used to help find your next furry loved one and never shared or sold.</string>
+    <string name="settings_disclosure">Location is an optional permission that helps find pets in your area without having to manually enter your ZIP code. Your saved location is not transmitted outside of your phone.</string>
     <string name="dedicated_to_vestie">Dedicated to Vestie, the best rescue kitty ever ❤</string>
     <string name="search">Search</string>
     <string name="enter_zip_code_to_find">"Enter ZIP Code to find "</string>
