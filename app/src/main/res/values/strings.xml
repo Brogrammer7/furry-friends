@@ -40,7 +40,7 @@
     <string name="view_your_saved_pets">View your saved pets</string>
     <string name="login">Login</string>
     <string name="here_to_help">We\'re here to help you find your next furry bundle of joy!</string>
-    <string name="add_photo_you_and_pet">Add a photo of you and your pet</string>
+    <string name="add_photo_you_and_pet">Add photo of you &amp; your pet \uD83D\uDC31 \uD83D\uDC36</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="are_you_sure_you_want_to_exit">Are you sure you want to exit?</string>
@@ -60,8 +60,8 @@
     <string name="back">Back</string>
     <string name="share_via">Share via</string>
     <string name="give_this_pet_a_home">Give this pet a home:</string>
-    <string name="finding_next_pet_with_saved_zip">Using your saved ZIP Code to find your next pet! \uD83D\uDC31\uD83D\uDC36</string>
-    <string name="finding_next_pet_no_zip">Finding your next pet! \uD83D\uDC31\uD83D\uDC36</string>
+    <string name="finding_next_pet_with_saved_zip">Using your saved ZIP Code to find your next pet! \uD83D\uDC31 \uD83D\uDC36</string>
+    <string name="finding_next_pet_no_zip">Finding your next pet! \uD83D\uDC31 \uD83D\uDC36</string>
     <string name="dropdown_arrow">Dropdown arrow</string>
     <string name="dashboard_header">Dashboard</string>
     <string name="saved_pets_star">Saved Pets Star</string>
@@ -78,6 +78,9 @@
     <string name="pet_image">pet image</string>
     <string name="pet_image_large">pet image large</string>
     <string name="analyze_pet">Analyze Pet</string>
+    <string name="replace_photo">Replace photo</string>
+    <string name="delete_photo">Delete photo</string>
+    <string name="photo_options">Photo options</string>
     <string name="ml_no_breed_found">Machine Learning could not detect a specific breed, but believes this is a %s</string>
     <string name="manual_entry">Manual entry</string>
     <string name="enter_zip">Enter ZIP</string>
@@ -89,4 +92,5 @@
     <string name="unknown_api_error">Unknown API error</string>
     <string name="unknown_io_error">Unknown IO error</string>
     <string name="unknown_error">Unknown error</string>
+    <string name="find_new_pets_prompt">Click the search button below to find some new pets!</string>
 </resources>

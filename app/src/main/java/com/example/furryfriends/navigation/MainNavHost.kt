@@ -36,8 +36,6 @@ fun MainNavHost(
     val settingsViewModel: SettingsViewModel = hiltViewModel(activity)
     val searchPetsViewModel: SearchPetsViewModel = hiltViewModel(activity)
 
-    val favoritePetIds by searchPetsViewModel.favoritePetIds.collectAsState()
-
     NavHost(
         navController = navController,
         startDestination = RouteMain.Dashboard.route
@@ -47,7 +45,6 @@ fun MainNavHost(
             mainViewModel.setTitle(stringResource(R.string.dashboard_screen_title))
             DashboardScreen(
                 modifier = Modifier.padding(innerPadding),
-                savedPetsCount = favoritePetIds.size,
                 viewModel = dashboardViewModel,
                 onViewSavedPetsClick = { navController.navigate(RouteMain.SavedPets.route) }
             )
