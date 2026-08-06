@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
@@ -51,7 +52,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -460,6 +463,8 @@ fun PetSelectionModal(
     onSpeciesSelected: (Species) -> Unit = {}
 ) {
     var expandedDropdown by remember { mutableStateOf(false) }
+    var anchorWidth by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
 
     ModalBottomSheet(
         modifier = Modifier
@@ -496,8 +501,11 @@ fun PetSelectionModal(
             // Dropdown selector
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        anchorWidth = with(density) { coordinates.size.width.toDp() }
+                    }
             ) {
                 OutlinedButton(
                     onClick = { expandedDropdown = !expandedDropdown },
@@ -520,7 +528,7 @@ fun PetSelectionModal(
                 DropdownMenu(
                     expanded = expandedDropdown,
                     onDismissRequest = { expandedDropdown = false },
-                    modifier = Modifier.fillMaxWidth(0.9f)
+                    modifier = Modifier.width(anchorWidth)
                 ) {
                     speciesList.forEach { species ->
                         DropdownMenuItem(
