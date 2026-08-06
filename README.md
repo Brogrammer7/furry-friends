@@ -1,6 +1,15 @@
-## <b>This is a pet adoption app I've written entirely in Jetpack Compose using the most modern Android libraries, including: Retrofit, Coroutines, Flows, DataStore, Dagger-Hilt Dependency Injection, Material Theme & MVVM architecture.</b> 
+## This is a real working pet adoption app I've written entirely in Jetpack Compose using the most modern Android libraries, including:
 
-The app accesses a non-profit Rescue Group's API with a private key and receives real data of adoptable pets in your local area
+* MVVM & Clean Architecture
+* Coroutines
+* Flows
+* Dagger-Hilt Dependency Injection
+* DataStore
+* Room Database
+* Material Theme UI Design
+* ML Kit machine learning + TensorFlow Lite image recognition
+
+### The app accesses a non-profit Rescue Group's API with a private key and receives real data of adoptable pets in your local area
 
 <img width="15%" height="15%" alt="app_launcher_icon" src="https://github.com/user-attachments/assets/0a8b06b6-ceb6-451d-86b7-9cf6b4126c87" />
 
@@ -10,11 +19,11 @@ App Launcher Icon
 
 Login Screen
 
-<img width="25%" height="25%" alt="dashboard_screen" src="https://github.com/user-attachments/assets/448cdf11-a83e-4169-b88c-1f6452679eb6" />
+<img width="25%" height="25%" alt="dashboard_screen" src="https://github.com/user-attachments/assets/58b1d6b9-9ac4-485b-8a03-4c6cce98cb3a" />
 
-Intro with navigation tabs
+Intro screen with save pet photo feature 
 
-<img width="25%" height="25%" alt="settings_location_detected" src="https://github.com/user-attachments/assets/43a4d2f9-62ff-4a75-a278-cc1e792bbd4b" />
+<img width="25%" height="25%" alt="settings_location_detected" src="https://github.com/user-attachments/assets/2d430b55-42ec-47ef-920f-e4e812c0c1db" />
 
 Location detected and stored if user grants permission 
 
@@ -46,9 +55,9 @@ Tapping the phone number initiates the phone dialer
 
 Clicking the interactive link opens the shelter's webpage on your default browser
 
-<img width="25%" height="25%" alt="search_selection_slider" src="https://github.com/user-attachments/assets/aaa16107-4e12-4481-8d27-7bc32a2fda33" />
+<img width="25%" height="25%" alt="search_selection_slider" src="https://github.com/user-attachments/assets/b8c9bac9-4a11-4307-9b09-b2ed418c6374" />
 
-Change Animal button switches pet type and automatically runs a new query after
+Change Animal button switches pet type and automatically runs a new query on selection
 
 <img width="25%" height="25%" alt="search_result_rabbits" src="https://github.com/user-attachments/assets/53107c9e-3d1c-47e9-9c37-b40e238f4b9e" />
 
@@ -57,6 +66,10 @@ New query returns available rabbits
 <img width="25%" height="25%" alt="saved_pets_screen" src="https://github.com/user-attachments/assets/c8240642-5806-4027-bc5e-5abe1864d17d" />
 
 Saved Pets Screen displaying favorited pets that persist in app cache
+
+<img width="25%" height="25%" alt="ml_pet_detection" src="https://github.com/user-attachments/assets/c02b447e-e2f9-4afc-9eb5-b8d26921a40b" />
+
+Machine Learning detects pet breeds in images and displays them
 
 <img width="25%" height="25%" alt="saved_pets_clear" src="https://github.com/user-attachments/assets/2b8012ec-cccb-4910-963e-8a762e32fe86" />
 
