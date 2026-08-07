@@ -11,6 +11,8 @@
 
 ### The app accesses a non-profit Rescue Group's API with a private key and receives real data of adoptable pets in your local area
 
+https://github.com/user-attachments/assets/390fcc5d-3aa4-41c5-9044-8bf317c6c6fe
+
 <img width="15%" height="15%" alt="app_launcher_icon" src="https://github.com/user-attachments/assets/0a8b06b6-ceb6-451d-86b7-9cf6b4126c87" />
 
 App Launcher Icon
@@ -19,9 +21,9 @@ App Launcher Icon
 
 Login Screen
 
-<img width="25%" height="25%" alt="dashboard_screen" src="https://github.com/user-attachments/assets/58b1d6b9-9ac4-485b-8a03-4c6cce98cb3a" />
+<img width="25%" height="25%" alt="dashboard_screen" src="https://github.com/user-attachments/assets/75699abc-7360-4eab-80cc-2b5dfcae9364" />
 
-Intro screen with save pet photo feature 
+Intro screen with add pet photo feature 
 
 <img width="25%" height="25%" alt="settings_location_detected" src="https://github.com/user-attachments/assets/2d430b55-42ec-47ef-920f-e4e812c0c1db" />
 
