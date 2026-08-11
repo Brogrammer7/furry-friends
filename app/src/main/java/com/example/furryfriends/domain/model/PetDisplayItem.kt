@@ -1,6 +1,8 @@
 package com.example.furryfriends.domain.model
 
 import androidx.compose.runtime.Immutable
+import com.example.furryfriends.data.remote.dto.IncludedItem
+import com.example.furryfriends.data.remote.dto.ResourceItem
 
 /**
  * A stable data class used for displaying pet information in the UI.

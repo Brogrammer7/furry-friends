@@ -1,4 +1,4 @@
-package com.example.furryfriends.domain.model
+package com.example.furryfriends.data.remote.dto
 
 import kotlinx.serialization.Serializable
 

@@ -4,9 +4,9 @@ import com.example.furryfriends.data.local.dao.CachedSearchDao
 import com.example.furryfriends.data.local.dao.FavoritePetDao
 import com.example.furryfriends.data.local.entity.CachedSearchEntity
 import com.example.furryfriends.data.local.entity.FavoritePetEntity
-import com.example.furryfriends.domain.model.IncludedItem
-import com.example.furryfriends.domain.model.ResourceItem
-import com.example.furryfriends.domain.model.SearchResponse
+import com.example.furryfriends.data.remote.dto.IncludedItem
+import com.example.furryfriends.data.remote.dto.ResourceItem
+import com.example.furryfriends.data.remote.dto.SearchResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged

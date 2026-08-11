@@ -71,7 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.furryfriends.R
 import com.example.furryfriends.domain.model.PetDisplayItem
-import com.example.furryfriends.domain.model.SearchResponse
+import com.example.furryfriends.data.remote.dto.SearchResponse
 import com.example.furryfriends.domain.model.Species
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PetSearchList
