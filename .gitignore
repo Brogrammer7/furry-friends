@@ -24,6 +24,10 @@ secrets.properties
 .idea/markdown.xml
 .idea/deviceManager.xml
 .idea/misc.xml
-app/src/main/java/com/example/furryfriends/network
 app/src/main/res/drawable/vest_b.jpg
 
+# AI Skills
+.skills/
+
+# Network Services
+**/remote/FurryFriendsApiService.kt
