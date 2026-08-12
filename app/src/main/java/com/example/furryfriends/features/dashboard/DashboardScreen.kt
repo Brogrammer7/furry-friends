@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,10 +13,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -109,7 +111,6 @@ fun DashboardContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillParentMaxHeight()
                     .padding(horizontal = 24.dp, vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -121,19 +122,56 @@ fun DashboardContent(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Image(
-                    painter = painterResource(R.drawable.dashboard_screen_background),
-                    contentDescription = null,
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .padding(top = 16.dp, bottom = 16.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .border(
-                            width = 5.dp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            shape = RoundedCornerShape(16.dp)
+                        .fillMaxWidth(0.9f)
+                        .padding(top = 16.dp, bottom = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (dashboardImageUri != null) {
+                        AsyncImage(
+                            model = dashboardImageUri,
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 400.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
                         )
-                )
+                        IconButton(
+                            onClick = { onShowPhotoOptionsChange(true) },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(top = 4.dp, end = 4.dp)
+                                .size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.MoreVert,
+                                contentDescription = stringResource(R.string.photo_options),
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                                        shape = CircleShape
+                                    )
+                                    .padding(4.dp)
+                            )
+                        }
+                    } else {
+                        Image(
+                            painter = painterResource(R.drawable.dashboard_screen_background),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            alignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
+                        )
+                    }
+                }
 
                 CustomText(
                     text = stringResource(R.string.here_to_help),
@@ -143,37 +181,14 @@ fun DashboardContent(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (dashboardImageUri != null) {
-                    Box(modifier = Modifier.fillMaxWidth(0.9f), contentAlignment = Alignment.Center) {
-                        AsyncImage(
-                            model = dashboardImageUri,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier
-                                .fillMaxWidth(0.85f)
-                                .clip(RoundedCornerShape(12.dp))
-                                .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
-                        )
-                        IconButton(
-                            onClick = { onShowPhotoOptionsChange(true) },
-                            modifier = Modifier.align(Alignment.TopEnd).offset(x = 4.dp, y = (-4).dp).size(32.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.MoreVert,
-                                contentDescription = stringResource(R.string.photo_options),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                } else {
+                if (dashboardImageUri == null) {
+                    Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = onAddPhotoClick,
                         modifier = Modifier.fillMaxWidth(0.9f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(text = stringResource(R.string.add_photo_you_and_pet), maxLines = 1)
+                        Text(text = stringResource(R.string.add_a_photo_of_your_pet), maxLines = 1)
                     }
                 }
 
