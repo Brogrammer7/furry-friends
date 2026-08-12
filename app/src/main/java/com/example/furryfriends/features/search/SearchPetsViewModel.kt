@@ -14,7 +14,7 @@ import com.example.furryfriends.data.remote.dto.ResourceItem
 import com.example.furryfriends.data.remote.dto.SearchRequest
 import com.example.furryfriends.data.remote.dto.SearchResponse
 import com.example.furryfriends.domain.model.Species
-import com.example.furryfriends.network.PetsApi
+import com.example.furryfriends.data.remote.PetsApi
 import com.example.furryfriends.util.formatPetName
 import com.example.furryfriends.R
 import dagger.hilt.android.lifecycle.HiltViewModel
