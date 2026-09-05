@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,7 +49,6 @@ import coil3.compose.AsyncImage
 import com.example.furryfriends.R
 import com.example.furryfriends.ui.components.CustomText
 import com.example.furryfriends.ui.components.PhotoOptionsDialog
-import com.example.furryfriends.ui.components.StarBadge
 import com.example.furryfriends.ui.theme.FurryFriendsTheme
 
 @Composable
@@ -198,17 +196,12 @@ fun DashboardContent(
                 val buttonShape = RoundedCornerShape(12.dp)
 
                 if (savedPetsCount > 0) {
-                    BadgedBox(
+                    Button(
+                        onClick = onViewSavedPetsClick,
                         modifier = buttonModifier,
-                        badge = { StarBadge() }
+                        shape = buttonShape
                     ) {
-                        Button(
-                            onClick = onViewSavedPetsClick,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = buttonShape
-                        ) {
-                            Text(text = stringResource(R.string.view_your_saved_pets) + " ($savedPetsCount)", maxLines = 1)
-                        }
+                        Text(text = stringResource(R.string.view_your_saved_pets) + " ($savedPetsCount)", maxLines = 1)
                     }
                 } else {
                     Button(
